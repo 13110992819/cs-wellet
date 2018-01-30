@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdkj.coin.wallet.dao.IEthTransactionDAO">
+	<resultMap id="ethTransaction_DB_Result" type="ethTransaction">
+		<result column="hash" property="hash" />
+		<result column="nonce" property="nonce" />
+		<result column="blockHash" property="blockHash" />
+		<result column="blockNumber" property="blockNumber" />
+		<result column="transactionIndex" property="transactionIndex" />
+		<result column="fromAddress" property="from" />
+		<result column="toAddress" property="to" />
+		<result column="value" property="value" />
+		<result column="gasPrice" property="gasPrice" />
+		<result column="gas" property="gas" />
+		<result column="gasUsed" property="gasUsed" />
+		<result column="input" property="input" />
+		<result column="creates" property="creates" />
+		<result column="publicKey" property="publicKey" />
+		<result column="raw" property="raw" />
+		<result column="r" property="r" />
+		<result column="s" property="s" />
+		<result column="ref_no" property="refNo" />
+	</resultMap>
+	<sql id="where_condition">
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="hash != null and hash != '' ">
+				AND t.hash = #{hash}
+			</if>
+			<if test="blockHash != null and blockHash != '' ">
+				AND t.blockHash = #{blockHash}
+			</if>
+			<if test="blockNumber != null and blockNumber != '' ">
+				AND t.blockNumber = #{blockNumber}
+			</if>
+			<if test="from != null and from != '' ">
+				AND t.fromAddress = #{from}
+			</if>
+			<if test="to != null and to != '' ">
+				AND t.toAddress = #{to}
+			</if>
+			<if test="createsStart != null and createsStart != '' ">
+				<![CDATA[AND t.creates >= #{createsStart}]]>
+			</if>
+			<if test="createsEnd != null and createsEnd != '' ">
+				<![CDATA[AND t.creates <= #{createsEnd}]]>
+			</if>
+			<if test="refNo != null and refNo != '' ">
+				AND t.ref_no = #{refNo}
+			</if>
+			<if test="address != null and address != '' ">
+				AND t.fromAddress = #{address} or t.toAddress = #{address}
+			</if>
+		</trim>
+	</sql>
+	<select id="select_ethTransaction" parameterType="ethTransaction" resultMap="ethTransaction_DB_Result">
+		SELECT
+		t.hash
+		,t.nonce
+		,t.blockHash
+		,t.blockNumber
+		,t.transactionIndex
+		,t.fromAddress
+		,t.toAddress
+		,t.value
+		,t.gasPrice
+		,t.gas
+		,t.gasUsed
+		,t.input
+		,t.creates
+		,t.publicKey
+		,t.raw
+		,t.r
+		,t.s
+		,t.ref_no
+		FROM
+		tcoin_eth_transaction t
+		<include refid="where_condition" />
+		<trim prefix="ORDER BY ">
+			<if test="order != null and order != '' ">
+				t.${order}
+			</if>
+		</trim>
+	</select>
+
+	<select id="select_ethTransaction_count" parameterType="ethTransaction"
+		resultType="java.lang.Long">
+		SELECT count(1) FROM tcoin_eth_transaction t
+		<include refid="where_condition" />
+	</select>
+
+	<insert id="insert_ethTransaction" parameterType="ethTransaction">
+		INSERT INTO
+		tcoin_eth_transaction(
+		hash
+		,nonce
+		,blockHash
+		,blockNumber
+		,transactionIndex
+		,fromAddress
+		,toAddress
+		,value
+		,gasPrice
+		,gas
+		,gasUsed
+		,input
+		,creates
+		,publicKey
+		,raw
+		,r
+		,s
+		,ref_no
+		)
+		VALUES(
+		#{hash}
+		,#{nonce}
+		,#{blockHash}
+		,#{blockNumber}
+		,#{transactionIndex}
+		,#{from}
+		,#{to}
+		,#{value}
+		,#{gasPrice}
+		,#{gas}
+		,#{gasUsed}
+		,#{input}
+		,#{creates}
+		,#{publicKey}
+		,#{raw}
+		,#{r}
+		,#{s}
+		,#{refNo}
+		)
+	</insert>
+
+
+
+</mapper>

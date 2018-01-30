@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdkj.coin.wallet.dao.IEthCollectionDAO">
+	<resultMap id="ethCollection_DB_Result" type="ethCollection">
+		<result column="code" property="code" />
+		<result column="from_address" property="fromAddress" />
+		<result column="to_address" property="toAddress" />
+		<result column="amount" property="amount" />
+		<result column="tx_hash" property="txHash" />
+		<result column="tx_fee" property="txFee" />
+		<result column="status" property="status" />
+		<result column="create_datetime" property="createDatetime" />
+		<result column="eth_datetime" property="ethDatetime" />
+		<result column="update_datetime" property="updateDatetime" />
+		<result column="ref_no" property="refNo" />
+	</resultMap>
+	
+	<resultMap id="addressUseInfo_DB_Result" type="ethAddress">
+		<result column="use_count" property="useCount" />
+		<result column="use_amount" property="useAmount" />
+	</resultMap>
+	
+	<sql id="where_condition">
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="code != null and code != '' ">
+				AND t.code = #{code}
+			</if>
+			<if test="codeForQuery != null and codeForQuery != '' ">
+				AND t.code like "%"#{codeForQuery}"%"
+			</if>
+			<if test="txHash != null and txHash != '' ">
+				AND t.tx_hash = #{txHash}
+			</if>
+			<if test="fromAddress != null and fromAddress != '' ">
+				AND t.from_address = #{fromAddress}
+			</if>
+			<if test="toAddress != null and toAddress != '' ">
+				AND t.to_address = #{toAddress}
+			</if>
+			<if test="status != null and status != '' ">
+				AND t.status = #{status}
+			</if>
+			<if test="refNo != null and refNo != '' ">
+				AND t.ref_no = #{refNo}
+			</if>
+		</trim>
+	</sql>
+	<select id="select_ethCollection" parameterType="ethCollection" resultMap="ethCollection_DB_Result">
+		SELECT
+		t.code
+		,t.from_address
+		,t.to_address
+		,t.amount
+		,t.tx_hash
+		,t.tx_fee
+		,t.status
+		,t.create_datetime
+		,t.eth_datetime
+		,t.update_datetime
+		,t.ref_no
+		FROM
+		tcoin_eth_collection t
+		<include refid="where_condition" />
+		<trim prefix="ORDER BY ">
+			<if test="order != null and order != '' ">
+				t.${order}
+			</if>
+		</trim>
+	</select>
+
+	<select id="select_ethCollection_count" parameterType="ethCollection"
+		resultType="java.lang.Long">
+		SELECT count(1) FROM tcoin_eth_collection t
+		<include refid="where_condition" />
+	</select>
+
+	<insert id="insert_ethCollection" parameterType="ethCollection">
+		INSERT INTO
+		tcoin_eth_collection(
+		code
+		,from_address
+		,to_address
+		,amount
+		,tx_hash
+		,tx_fee
+		,status
+		,create_datetime
+		,eth_datetime
+		,update_datetime
+		,ref_no
+		)
+		VALUES(
+		#{code}
+		,#{fromAddress}
+		,#{toAddress}
+		,#{amount}
+		,#{txHash}
+		,#{txFee}
+		,#{status}
+		,#{createDatetime}
+		,#{ethDatetime}
+		,#{updateDatetime}
+		,#{refNo}
+		)
+	</insert>
+
+	<update id="update_notice" parameterType="ethCollection">
+		UPDATE
+		tcoin_eth_collection
+		SET
+		tx_fee = #{txFee}
+		,status = #{status}
+		,eth_datetime = #{ethDatetime}
+		,update_datetime = #{updateDatetime}
+		WHERE code = #{code}
+	</update>
+
+	<select id="select_addressUseInfo" parameterType="ethCollection"
+		resultMap="addressUseInfo_DB_Result">
+		SELECT 
+		COUNT(*) as use_count, 
+		COALESCE(SUM(amount),0) as use_amount
+		FROM tcoin_eth_collection t
+		<include refid="where_condition" />
+	</select>
+	
+	<select id="select_totalCollect" parameterType="ethCollection"
+		resultType="java.math.BigDecimal">
+		SELECT COALESCE(SUM(amount),0) FROM tcoin_eth_collection t where status = '1'
+	</select>
+
+</mapper>

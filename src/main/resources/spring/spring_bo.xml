@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	
+	<!-- 分页BO层注入paginableDao -->
+	<bean id="userBO" class="com.cdkj.coin.wallet.bo.impl.UserBOImpl">
+		<property name="paginableDAO" ref="userDAOImpl" />
+	</bean>
+	
+	<bean id="accountBO" class="com.cdkj.coin.wallet.bo.impl.AccountBOImpl">
+		<property name="paginableDAO" ref="accountDAOImpl" />
+	</bean>
+	<bean id="jourBO" class="com.cdkj.coin.wallet.bo.impl.JourBOImpl">
+		<property name="paginableDAO" ref="jourDAOImpl" />
+	</bean>
+	<bean id="jourHistoryBO" class="com.cdkj.coin.wallet.bo.impl.JourHistoryBOImpl">
+		<property name="paginableDAO" ref="jourHistoryDAOImpl" />
+	</bean> 
+	
+	<bean id="exchangeCurrencyBO" class="com.cdkj.coin.wallet.bo.impl.ExchangeCurrencyBOImpl">
+		<property name="paginableDAO" ref="exchangeCurrencyDAOImpl"/>
+	</bean>
+
+	<bean id="chargeBO" class="com.cdkj.coin.wallet.bo.impl.ChargeBOImpl">
+		<property name="paginableDAO" ref="chargeDAOImpl"/>
+	</bean>	
+	
+	<bean id="withdrawBO" class="com.cdkj.coin.wallet.bo.impl.WithdrawBOImpl">
+		<property name="paginableDAO" ref="withdrawDAOImpl"/>
+	</bean>	
+	
+	<bean id="hlOrderBO" class="com.cdkj.coin.wallet.bo.impl.HLOrderBOImpl">
+		<property name="paginableDAO" ref="hlOrderDAOImpl" />
+	</bean>
+	
+	<bean id="ethAddressBO" class="com.cdkj.coin.wallet.bo.impl.EthAddressBOImpl">
+		<property name="paginableDAO" ref="ethAddressDAOImpl" />
+	</bean>
+	
+	<bean id="ethTransactionBO" class="com.cdkj.coin.wallet.bo.impl.EthTransactionBOImpl">
+		<property name="paginableDAO" ref="ethTransactionDAOImpl" />
+	</bean>
+	
+	<bean id="ethCollectionBO" class="com.cdkj.coin.wallet.bo.impl.EthCollectionBOImpl">
+		<property name="paginableDAO" ref="ethCollectionDAOImpl" />
+	</bean>
+	
+	<bean id="sysDictBO" class="com.cdkj.coin.wallet.bo.impl.SYSDictBOImpl">
+		<property name="paginableDAO" ref="sysDictDAOImpl"/>
+	</bean>	
+	
+	<bean id="sysConfigBO" class="com.cdkj.coin.wallet.bo.impl.SYSConfigBOImpl">
+		<property name="paginableDAO" ref="sysConfigDAOImpl"/>
+	</bean>	
+	
+</beans>
