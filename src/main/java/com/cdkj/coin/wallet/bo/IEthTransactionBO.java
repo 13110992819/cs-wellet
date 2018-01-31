@@ -6,7 +6,7 @@ import java.util.List;
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
 import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.EthTransaction;
-import com.cdkj.coin.wallet.eth.CtqEthTransaction;
+import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
 
 public interface IEthTransactionBO extends IPaginableBO<EthTransaction> {
 

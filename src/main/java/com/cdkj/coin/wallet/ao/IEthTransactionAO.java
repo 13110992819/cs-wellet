@@ -10,7 +10,7 @@ package com.cdkj.coin.wallet.ao;
 
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.EthTransaction;
-import com.cdkj.coin.wallet.eth.CtqEthTransaction;
+import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
 
 /** 
  * @author: haiqingzheng 

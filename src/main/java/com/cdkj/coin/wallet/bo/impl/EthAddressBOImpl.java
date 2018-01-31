@@ -29,7 +29,7 @@ import com.cdkj.coin.wallet.enums.EEthAddressType;
 import com.cdkj.coin.wallet.enums.EEthMAddressStatus;
 import com.cdkj.coin.wallet.enums.EEthXAddressStatus;
 import com.cdkj.coin.wallet.enums.EEthYAddressStatus;
-import com.cdkj.coin.wallet.eth.AdminClient;
+import com.cdkj.coin.wallet.ethereum.AdminClient;
 import com.cdkj.coin.wallet.exception.BizException;
 
 @Component

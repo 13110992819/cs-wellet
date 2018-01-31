@@ -7,7 +7,7 @@ package com.cdkj.coin.wallet.exception;
  */
 public enum EBizErrorCode {
 
-    DEFAULT("xn625000", "业务异常");
+    DEFAULT("xn805000", "业务异常");
     // PUSH_STATUS_UPDATE_FAILURE("eth000001","地址状态更新失败");
 
     private String code;

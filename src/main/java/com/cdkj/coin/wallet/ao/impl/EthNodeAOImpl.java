@@ -17,7 +17,7 @@ import org.web3j.protocol.admin.Admin;
 import com.cdkj.coin.wallet.ao.IEthNodeAO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.dto.res.XN625800Res;
-import com.cdkj.coin.wallet.eth.AdminClient;
+import com.cdkj.coin.wallet.ethereum.AdminClient;
 import com.cdkj.coin.wallet.exception.BizException;
 
 /** 

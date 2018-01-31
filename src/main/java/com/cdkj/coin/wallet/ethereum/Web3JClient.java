@@ -6,7 +6,7 @@
  * @date 2017年10月18日 下午7:37:41 
  * @version V1.0   
  */
-package com.cdkj.coin.wallet.eth;
+package com.cdkj.coin.wallet.ethereum;
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;

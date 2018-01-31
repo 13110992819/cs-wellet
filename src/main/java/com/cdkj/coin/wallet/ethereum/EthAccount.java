@@ -6,7 +6,7 @@
  * @date 2017年10月18日 下午7:47:45 
  * @version V1.0   
  */
-package com.cdkj.coin.wallet.eth;
+package com.cdkj.coin.wallet.ethereum;
 
 import java.math.BigDecimal;
 import java.util.List;

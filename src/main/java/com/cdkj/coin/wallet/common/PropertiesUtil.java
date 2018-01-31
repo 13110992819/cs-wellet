@@ -46,5 +46,7 @@ public class PropertiesUtil {
         public static String ETH_NODE_BCOIN = props
             .getProperty("ETH_NODE_BCOIN");
 
+        public static String SC_NODE = props.getProperty("SC_NODE");
+
     }
 }

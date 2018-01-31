@@ -1,4 +1,4 @@
-package com.cdkj.coin.wallet.eth;
+package com.cdkj.coin.wallet.ethereum;
 
 import java.math.BigInteger;
 import java.util.Date;

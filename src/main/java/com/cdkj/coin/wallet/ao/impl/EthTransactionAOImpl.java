@@ -46,7 +46,7 @@ import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
-import com.cdkj.coin.wallet.eth.CtqEthTransaction;
+import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 
 /** 

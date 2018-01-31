@@ -17,7 +17,7 @@ import com.cdkj.coin.wallet.ao.IEthAddressAO;
 import com.cdkj.coin.wallet.ao.IEthTransactionAO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.enums.EEthAddressType;
-import com.cdkj.coin.wallet.eth.CtqEthTransaction;
+import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
