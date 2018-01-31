@@ -5,15 +5,13 @@ import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.dto.res.XN802503Res;
 
 public interface IAccountAO {
     String DEFAULT_ORDER_COLUMN = "account_number";
 
     // 个人创建多账户
     public void distributeAccount(String userId, String realName,
-            String accountType, List<String> currencyList, String systemCode,
-            String companyCode);
+            List<String> currencyList, String systemCode, String companyCode);
 
     // 更新户名
     public void editAccountName(String userId, String realName);
@@ -32,7 +30,7 @@ public interface IAccountAO {
     public Account getAccount(String accountNumber);
 
     // 根据用户编号,币种获取账户列表
-    public XN802503Res getAccountByUserId(String userId, String currency);
+    public List<Account> getAccountByUserId(String userId, String currency);
 
     // 列表查询账户
     public List<Account> queryAccountList(Account condition);

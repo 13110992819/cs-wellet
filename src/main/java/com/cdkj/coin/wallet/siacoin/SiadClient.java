@@ -83,7 +83,7 @@ public class SiadClient {
             }
         } catch (Exception e) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(),
-                "获取SC地址发送异常，原因：" + e.getMessage());
+                "获取SC地址异常，原因：" + e.getMessage());
         }
         return address;
     }

@@ -38,9 +38,9 @@ import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
+import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EEthCollectionStatus;
-import com.cdkj.coin.wallet.enums.EEthMAddressStatus;
+import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
 import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
@@ -84,7 +84,7 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
     @Override
     @Transactional
     public String chargeNotice(CtqEthTransaction ctqEthTransaction) {
-        EthAddress ethAddress = ethAddressBO.getEthAddress(EEthAddressType.X,
+        EthAddress ethAddress = ethAddressBO.getEthAddress(EAddressType.X,
             ctqEthTransaction.getTo());
         if (ethAddress == null) {
             throw new BizException("xn6250000", "充值地址不存在");
@@ -184,22 +184,22 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
             withdraw.getCode());
 
         // 更新地址余额
-        EthAddress from = ethAddressBO.getEthAddress(EEthAddressType.M,
+        EthAddress from = ethAddressBO.getEthAddress(EAddressType.M,
             ctqEthTransaction.getFrom());
-        EthAddress to = ethAddressBO.getEthAddress(EEthAddressType.W,
+        EthAddress to = ethAddressBO.getEthAddress(EAddressType.W,
             ctqEthTransaction.getTo());
         ethAddressBO.refreshBalance(from);
         ethAddressBO.refreshBalance(to);
 
         // 修改散取地址状态为可使用
-        ethAddressBO.refreshStatus(from, EEthMAddressStatus.NORMAL.getCode());
+        ethAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
     }
 
     @Override
     @Transactional
     public void collection(String address, String chargeCode) {
         // 获取地址信息
-        EthAddress xEthAddress = ethAddressBO.getEthAddress(EEthAddressType.X,
+        EthAddress xEthAddress = ethAddressBO.getEthAddress(EAddressType.X,
             address);
         if (xEthAddress == null) {
             throw new BizException("xn625000", "该地址不能归集");
@@ -274,9 +274,9 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
         ethTransactionBO.saveEthTransaction(ctqEthTransaction,
             collection.getCode());
         // 更新地址余额
-        EthAddress from = ethAddressBO.getEthAddress(EEthAddressType.X,
+        EthAddress from = ethAddressBO.getEthAddress(EAddressType.X,
             collection.getFromAddress());
-        EthAddress to = ethAddressBO.getEthAddress(EEthAddressType.W,
+        EthAddress to = ethAddressBO.getEthAddress(EAddressType.W,
             collection.getToAddress());
         ethAddressBO.refreshBalance(from);
         ethAddressBO.refreshBalance(to);
@@ -299,7 +299,7 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
             ctqEthTransaction.getHash(), EJourBizTypeCold.AJ_PAY.getCode(),
             "ETH定存至取现地址(M):" + ctqEthTransaction.getTo());
         // 更新散取地址余额
-        EthAddress to = ethAddressBO.getEthAddress(EEthAddressType.M,
+        EthAddress to = ethAddressBO.getEthAddress(EAddressType.M,
             ctqEthTransaction.getTo());
         ethAddressBO.refreshBalance(to);
 

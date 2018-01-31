@@ -25,10 +25,10 @@ import com.cdkj.coin.wallet.common.RandomUtil;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IEthAddressDAO;
 import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
-import com.cdkj.coin.wallet.enums.EEthMAddressStatus;
-import com.cdkj.coin.wallet.enums.EEthXAddressStatus;
-import com.cdkj.coin.wallet.enums.EEthYAddressStatus;
+import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.EMAddressStatus;
+import com.cdkj.coin.wallet.enums.EXAddressStatus;
+import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.ethereum.AdminClient;
 import com.cdkj.coin.wallet.exception.BizException;
 
@@ -82,7 +82,8 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     // }
 
     @Override
-    public String generateAddress(EEthAddressType type, String userId) {
+    public String generateAddress(EAddressType type, String userId,
+            String accountNumber) {
         String address = null;
         String password = RandomUtil.generate8();
         try {
@@ -133,16 +134,16 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
             fis.close();
             // 落地地址信息
             String status = null;
-            if (EEthAddressType.X.getCode().equals(type.getCode())) {
-                status = EEthXAddressStatus.NORMAL.getCode();
-            } else if (EEthAddressType.M.getCode().equals(type.getCode())) {
-                status = EEthMAddressStatus.NORMAL.getCode();
+            if (EAddressType.X.getCode().equals(type.getCode())) {
+                status = EXAddressStatus.NORMAL.getCode();
+            } else if (EAddressType.M.getCode().equals(type.getCode())) {
+                status = EMAddressStatus.NORMAL.getCode();
             } else {
                 throw new BizException("不支持生成该类型的ETH地址");
             }
-            this.saveEthAddress(type, userId, address, type.getValue(),
-                password, BigDecimal.ZERO, null, null, status,
-                keystoreFile.getName(), keystoreContent);
+            this.saveEthAddress(type, userId, accountNumber, address, password,
+                BigDecimal.ZERO, null, null, status, keystoreFile.getName(),
+                keystoreContent);
         } catch (Exception e) {
             throw new BizException("xn6250000", "获取keystore文件异常，原因："
                     + e.getMessage());
@@ -152,19 +153,20 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     }
 
     @Override
-    public String saveEthAddress(EEthAddressType type, String userId,
-            String address, String label, String password, BigDecimal balance,
-            Date availableDatetimeStart, Date availableDatetimeEnd,
-            String status, String keystoreName, String keystoreContent) {
+    public String saveEthAddress(EAddressType type, String userId,
+            String accountNumber, String address, String password,
+            BigDecimal balance, Date availableDatetimeStart,
+            Date availableDatetimeEnd, String status, String keystoreName,
+            String keystoreContent) {
         String code = OrderNoGenerater.generate("ETH");
         Date now = new Date();
         EthAddress data = new EthAddress();
         data.setCode(code);
         data.setType(type.getCode());
         data.setAddress(address);
-        data.setLabel(label);
         data.setPassword(password);
         data.setUserId(userId);
+        data.setAccountNumber(accountNumber);
         data.setInitialBalance(getEthBalance(address));
         data.setBalance(balance);
         data.setAvailableDatetimeStart(availableDatetimeStart);
@@ -186,8 +188,8 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     @Override
     public EthAddress getWEthAddressToday() {
         EthAddress condition = new EthAddress();
-        condition.setType(EEthAddressType.W.getCode());
-        condition.setStatus(EEthYAddressStatus.NORMAL.getCode());
+        condition.setType(EAddressType.W.getCode());
+        condition.setStatus(EYAddressStatus.NORMAL.getCode());
         condition.setToday(new Date());
         List<EthAddress> wList = ethAddressDAO.selectList(condition);
         if (CollectionUtils.isEmpty(wList)) {
@@ -225,7 +227,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     }
 
     @Override
-    public EthAddress getEthAddress(EEthAddressType type, String address) {
+    public EthAddress getEthAddress(EAddressType type, String address) {
         EthAddress data = null;
         EthAddress condition = new EthAddress();
         condition.setType(type.getCode());
@@ -242,6 +244,18 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
         EthAddress data = null;
         EthAddress condition = new EthAddress();
         condition.setUserId(userId);
+        List<EthAddress> results = ethAddressDAO.selectList(condition);
+        if (CollectionUtils.isNotEmpty(results)) {
+            data = results.get(0);
+        }
+        return data;
+    }
+
+    @Override
+    public EthAddress getEthAddressByAccountNumber(String accountNumber) {
+        EthAddress data = null;
+        EthAddress condition = new EthAddress();
+        condition.setAccountNumber(accountNumber);
         List<EthAddress> results = ethAddressDAO.selectList(condition);
         if (CollectionUtils.isNotEmpty(results)) {
             data = results.get(0);
@@ -270,7 +284,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
         int count = 0;
         if (ethAddress != null) {
             Date now = new Date();
-            ethAddress.setStatus(EEthYAddressStatus.INVALID.getCode());
+            ethAddress.setStatus(EYAddressStatus.INVALID.getCode());
             ethAddress.setAbandonDatetime(now);
             ethAddress.setUpdateDatetime(now);
             ethAddressDAO.updateAbandon(ethAddress);
@@ -314,7 +328,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     }
 
     @Override
-    public BigDecimal getTotalBalance(EEthAddressType type) {
+    public BigDecimal getTotalBalance(EAddressType type) {
         EthAddress condition = new EthAddress();
         condition.setType(type.getCode());
         return ethAddressDAO.selectTotalBalance(condition);
@@ -324,7 +338,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     public List<EthAddress> queryManualCollectionAddressPage(
             BigDecimal balanceStart, int start, int limit) {
         EthAddress condition = new EthAddress();
-        condition.setType(EEthAddressType.X.getCode());
+        condition.setType(EAddressType.X.getCode());
         condition.setBalanceStart(balanceStart);
         return ethAddressDAO.selectList(condition, start, limit);
     }

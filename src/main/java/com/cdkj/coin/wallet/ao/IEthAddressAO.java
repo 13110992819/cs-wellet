@@ -13,7 +13,7 @@ import java.util.Date;
 
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
+import com.cdkj.coin.wallet.enums.EAddressType;
 
 /** 
  * @author: haiqingzheng 
@@ -31,7 +31,7 @@ public interface IEthAddressAO {
     public void abandonAddress(String code);
 
     // 根据地址获取地址类型
-    public EEthAddressType getType(String address);
+    public EAddressType getType(String address);
 
     // 生成散取️地址（有私钥）
     public String generateMAddress();
@@ -45,5 +45,5 @@ public interface IEthAddressAO {
 
     public EthAddress getEthAddress(String code);
 
-    public BigDecimal getTotalBalance(EEthAddressType type);
+    public BigDecimal getTotalBalance(EAddressType type);
 }

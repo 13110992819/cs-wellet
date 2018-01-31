@@ -24,9 +24,6 @@ public class ScAddress extends ABaseDO {
     // SC地址
     private String address;
 
-    // 标签
-    private String label;
-
     // 用户编号
     private String userId;
 
@@ -81,14 +78,6 @@ public class ScAddress extends ABaseDO {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     public String getUserId() {

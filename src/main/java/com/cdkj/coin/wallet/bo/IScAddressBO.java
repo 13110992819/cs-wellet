@@ -1,40 +1,37 @@
 package com.cdkj.coin.wallet.bo;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
+import com.cdkj.coin.wallet.domain.ScAddress;
+import com.cdkj.coin.wallet.enums.EAddressType;
 
-public interface IScAddressBO extends IPaginableBO<EthAddress> {
+public interface IScAddressBO extends IPaginableBO<ScAddress> {
 
     // 生成地址（有私钥）
-    public String generateAddress(EEthAddressType type, String accountId);
+    public String generateAddress(EAddressType type, String userId,
+            String accountNumber, String updater, String remark);
 
     // 导入（保存）地址
-    public String saveEthAddress(EEthAddressType type, String userId,
-            String address, String label, String password, BigDecimal balance,
-            Date availableDatetimeStart, Date availableDatetimeEnd,
-            String status, String keystoreName, String keystoreContent);
-
-    // 获取今日归集地址
-    public EthAddress getWEthAddressToday();
+    public String saveScAddress(EAddressType type, String address,
+            String userId, String accountNumber, String status, String updater,
+            String remark);
 
     // 更新状态
-    public int refreshStatus(EthAddress address, String status);
+    public int refreshStatus(ScAddress address, String status);
 
-    public EthAddress getEthAddress(EEthAddressType type, String address);
+    public ScAddress getScAddress(EAddressType type, String address);
 
-    public EthAddress getEthAddressByUserId(String userId);
+    public ScAddress getScAddressByUserId(String userId);
 
-    public boolean isEthAddressExist(String address);
+    public ScAddress getScAddressByAccountNumber(String accountNumber);
 
-    public List<EthAddress> queryEthAddressList(EthAddress condition);
+    public boolean isScAddressExist(String address);
 
-    public EthAddress getEthAddress(String code);
+    public List<ScAddress> queryScAddressList(ScAddress condition);
 
-    public int abandonAddress(EthAddress ethAddress);
+    public ScAddress getScAddress(String code);
+
+    public int abandonAddress(ScAddress scAddress);
 
 }

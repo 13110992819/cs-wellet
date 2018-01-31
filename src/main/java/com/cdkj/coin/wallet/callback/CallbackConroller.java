@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.cdkj.coin.wallet.ao.IEthAddressAO;
 import com.cdkj.coin.wallet.ao.IEthTransactionAO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
+import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -57,13 +57,13 @@ public class CallbackConroller {
             for (CtqEthTransaction ctqEthTransaction : list) {
                 String fromAddress = ctqEthTransaction.getFrom();
                 String toAddress = ctqEthTransaction.getTo();
-                EEthAddressType fromType = ethAddressAO.getType(fromAddress);
-                EEthAddressType toType = ethAddressAO.getType(toAddress);
+                EAddressType fromType = ethAddressAO.getType(fromAddress);
+                EAddressType toType = ethAddressAO.getType(toAddress);
 
-                if (EEthAddressType.M == fromType) { // fromAddress=M 提现
+                if (EAddressType.M == fromType) { // fromAddress=M 提现
                     ethTransactionAO.withdrawNotice(ctqEthTransaction);
                     hashList.add(ctqEthTransaction.getHash());
-                    if (EEthAddressType.X == toType) { // toAddress=X 充值
+                    if (EAddressType.X == toType) { // toAddress=X 充值
                         String code = ethTransactionAO
                             .chargeNotice(ctqEthTransaction);
                         if (StringUtils.isNotBlank(code)) {
@@ -72,7 +72,7 @@ public class CallbackConroller {
                         }
                     }
                     // hashList.add(ctqEthTransaction.getHash());
-                } else if (EEthAddressType.X == toType) { // toAddress=X 充值
+                } else if (EAddressType.X == toType) { // toAddress=X 充值
                     String code = ethTransactionAO
                         .chargeNotice(ctqEthTransaction);
                     if (StringUtils.isNotBlank(code)) {
@@ -80,16 +80,16 @@ public class CallbackConroller {
                             code);
                     }
                     hashList.add(ctqEthTransaction.getHash());
-                } else if (EEthAddressType.X == fromType
-                        && EEthAddressType.W == toType) {
+                } else if (EAddressType.X == fromType
+                        && EAddressType.W == toType) {
                     // fromAddress=X toAddress=W 归集
                     ethTransactionAO.collectionNotice(ctqEthTransaction);
                     hashList.add(ctqEthTransaction.getHash());
-                } else if (EEthAddressType.M == toType) {
+                } else if (EAddressType.M == toType) {
                     // toAddress=M 每日定存
                     ethTransactionAO.depositNotice(ctqEthTransaction);
                     hashList.add(ctqEthTransaction.getHash());
-                } else if (EEthAddressType.W == fromType) {
+                } else if (EAddressType.W == fromType) {
                     // fromAddress=W 每日转移
                     hashList.add(ctqEthTransaction.getHash());
                 }
@@ -102,7 +102,7 @@ public class CallbackConroller {
         } finally {
             logger.info("*****橙提取交易确认,交易个数为" + hashList.size() + "*****");
             if (CollectionUtils.isNotEmpty(hashList)) {
-                ctqBO.confirm(hashList);
+                ctqBO.confirmEth(hashList);
             }
             logger.info("*****complete*****");
         }

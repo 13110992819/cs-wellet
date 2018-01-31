@@ -1,9 +1,9 @@
 package com.cdkj.coin.wallet.enums;
 
-public enum EEthXAddressStatus {
-    NORMAL("0", "正常"), CERTI("1", "已认证"), INVALID("2", "已弃用");
+public enum EMAddressStatus {
+    NORMAL("0", "可使用"), IN_USE("1", "广播使用中"), INVALID("2", "已弃用");
 
-    EEthXAddressStatus(String code, String value) {
+    EMAddressStatus(String code, String value) {
         this.code = code;
         this.value = value;
     }

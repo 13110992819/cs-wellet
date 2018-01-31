@@ -36,13 +36,14 @@ import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.User;
+import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBoolean;
 import com.cdkj.coin.wallet.enums.ECaptchaType;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
-import com.cdkj.coin.wallet.enums.EEthWAddressStatus;
-import com.cdkj.coin.wallet.enums.EEthYAddressStatus;
 import com.cdkj.coin.wallet.enums.ESysUser;
+import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.ESystemCode;
+import com.cdkj.coin.wallet.enums.EWAddressStatus;
+import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 
@@ -105,9 +106,9 @@ public class EthAddressAOImpl implements IEthAddressAO {
         }
 
         List<String> typeList = new ArrayList<String>();
-        typeList.add(EEthAddressType.X.getCode());
-        typeList.add(EEthAddressType.M.getCode());
-        typeList.add(EEthAddressType.W.getCode());
+        typeList.add(EAddressType.X.getCode());
+        typeList.add(EAddressType.M.getCode());
+        typeList.add(EAddressType.W.getCode());
 
         EthAddress condition = new EthAddress();
         condition.setAddress(address);
@@ -118,7 +119,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
                 "提现地址已经在本平台被使用，请仔细核对！");
         }
 
-        String status = EEthYAddressStatus.NORMAL.getCode();
+        String status = EYAddressStatus.NORMAL.getCode();
 
         // 是否设置为认证账户
         if (EBoolean.YES.getCode().equals(isCerti)) {
@@ -137,7 +138,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
                         googleCaptcha, System.currentTimeMillis());
                 }
             }
-            status = EEthYAddressStatus.CERTI.getCode();
+            status = EYAddressStatus.CERTI.getCode();
         }
 
         // 验证码校验
@@ -145,7 +146,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
             ECaptchaType.ADDRESS_ADD.getCode(), ESystemCode.COIN.getCode(),
             ESystemCode.COIN.getCode());
 
-        ethAddressBO.saveEthAddress(EEthAddressType.Y, userId, address, label,
+        ethAddressBO.saveEthAddress(EAddressType.Y, userId, address, label,
             null, BigDecimal.ZERO, null, null, status, null, null);
 
     }
@@ -153,7 +154,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
     @Override
     public void abandonAddress(String code) {
         EthAddress ethAddress = ethAddressBO.getEthAddress(code);
-        if (EEthYAddressStatus.INVALID.getCode().equals(ethAddress.getStatus())) {
+        if (EYAddressStatus.INVALID.getCode().equals(ethAddress.getStatus())) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(),
                 "地址已失效，无需重复弃用");
         }
@@ -161,24 +162,25 @@ public class EthAddressAOImpl implements IEthAddressAO {
     }
 
     @Override
-    public EEthAddressType getType(String address) {
-        EEthAddressType type = EEthAddressType.Y;
+    public EAddressType getType(String address) {
+        EAddressType type = EAddressType.Y;
         EthAddress condition = new EthAddress();
         condition.setAddress(address);
         List<EthAddress> results = ethAddressBO.queryEthAddressList(condition);
         if (CollectionUtils.isNotEmpty(results)) {
             EthAddress ethAddress = results.get(0);
-            type = EEthAddressType.getEthAddressType(ethAddress.getType());
+            type = EAddressType.getEthAddressType(ethAddress.getType());
         }
         return type;
     }
 
     @Override
     public String generateMAddress() {
-        String address = ethAddressBO.generateAddress(EEthAddressType.M,
-            ESysUser.SYS_USER_ETH.getCode());
+        String address = ethAddressBO.generateAddress(EAddressType.M,
+            ESysUser.SYS_USER_ETH.getCode(),
+            ESystemAccount.SYS_ACOUNT_ETH.getCode());
         // 通知橙提取
-        ctqBO.uploadAddress(address, EEthAddressType.M.getCode());
+        ctqBO.uploadEthAddress(address, EAddressType.M.getCode());
         return address;
     }
 
@@ -194,11 +196,11 @@ public class EthAddressAOImpl implements IEthAddressAO {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
                     + address + "不符合以太坊规则，请仔细核对");
         }
-        return ethAddressBO.saveEthAddress(EEthAddressType.W,
+        return ethAddressBO.saveEthAddress(EAddressType.W,
             ESysUser.SYS_USER_ETH.getCode(), address,
-            EEthAddressType.W.getValue(), null, BigDecimal.ZERO,
+            EAddressType.W.getValue(), null, BigDecimal.ZERO,
             availableDatetimeStart, availableDatetimeEnd,
-            EEthWAddressStatus.NORMAL.getCode(), null, null);
+            EWAddressStatus.NORMAL.getCode(), null, null);
     }
 
     @Override
@@ -211,14 +213,14 @@ public class EthAddressAOImpl implements IEthAddressAO {
             // 地址拥有者信息
             ethAddress.setUser(userBO.getUser(ethAddress.getUserId()));
             // 归集地址统计
-            if (EEthAddressType.W.getCode().equals(ethAddress.getType())) {
+            if (EAddressType.W.getCode().equals(ethAddress.getType())) {
                 EthAddress xAddress = ethCollectionBO
                     .getAddressUseInfo(ethAddress.getAddress());
                 ethAddress.setUseCount(xAddress.getUseCount());
                 ethAddress.setUseAmount(xAddress.getUseAmount());
             }
             // 散取地址统计
-            if (EEthAddressType.M.getCode().equals(ethAddress.getType())) {
+            if (EAddressType.M.getCode().equals(ethAddress.getType())) {
                 EthAddress xAddress = withdrawBO.getAddressUseInfo(ethAddress
                     .getAddress());
                 ethAddress.setUseCount(xAddress.getUseCount());
@@ -234,7 +236,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
     }
 
     @Override
-    public BigDecimal getTotalBalance(EEthAddressType type) {
+    public BigDecimal getTotalBalance(EAddressType type) {
         return ethAddressBO.getTotalBalance(type);
     }
 

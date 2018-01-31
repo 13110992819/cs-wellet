@@ -25,14 +25,14 @@ public class EthAddress extends ABaseDO {
     // 以太坊地址
     private String address;
 
-    // 标签
-    private String label;
-
     // 密码
     private String password;
 
     // 用户编号
     private String userId;
+
+    // 账户编号
+    private String accountNumber;
 
     // 初始金额
     private transient BigDecimal initialBalance;
@@ -118,14 +118,6 @@ public class EthAddress extends ABaseDO {
         this.address = address;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -140,6 +132,14 @@ public class EthAddress extends ABaseDO {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public BigDecimal getInitialBalance() {

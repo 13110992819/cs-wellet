@@ -6,9 +6,9 @@
 		<result column="code" property="code" />
 		<result column="type" property="type" />
 		<result column="address" property="address" />
-		<result column="label" property="label" />
 		<result column="password" property="password" />
 		<result column="user_id" property="userId" />
+		<result column="account_number" property="accountNumber" />
 		<result column="initial_balance" property="initialBalance" />
 		<result column="balance" property="balance" />
 		<result column="available_datetime_start" property="availableDatetimeStart" />
@@ -48,6 +48,9 @@
 			<if test="userId != null and userId != '' ">
 				AND t.user_id = #{userId}
 			</if>
+			<if test="accountNumber != null and accountNumber != '' ">
+				AND t.account_number = #{accountNumber}
+			</if>
 			<if test="status != null and status != '' ">
 				AND t.status = #{status}
 			</if>
@@ -79,8 +82,8 @@
 		t.code
 		,t.type
 		,t.address
-		,t.label
 		,t.user_id
+		,t.account_number
 		,t.initial_balance
 		,t.balance
 		,t.available_datetime_start
@@ -129,9 +132,9 @@
 		code
 		,type
 		,address
-		,label
 		,password
 		,user_id
+		,account_number
 		,initial_balance
 		,balance
 		,available_datetime_start
@@ -147,9 +150,9 @@
 		#{code}
 		,#{type}
 		,#{address}
-		,#{label}
 		,#{password}
 		,#{userId}
+		,#{accountNumber}
 		,#{initialBalance}
 		,#{balance}
 		,#{availableDatetimeStart}

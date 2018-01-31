@@ -39,9 +39,9 @@ import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.dto.res.XN802758Res;
 import com.cdkj.coin.wallet.enums.EAccountType;
 import com.cdkj.coin.wallet.enums.EBoolean;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
-import com.cdkj.coin.wallet.enums.EEthMAddressStatus;
-import com.cdkj.coin.wallet.enums.EEthYAddressStatus;
+import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.EMAddressStatus;
+import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.enums.ESystemCode;
@@ -113,9 +113,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
         withdrawBO.doCheckTimes(dbAccount);
 
         List<String> typeList = new ArrayList<String>();
-        typeList.add(EEthAddressType.X.getCode());
-        typeList.add(EEthAddressType.M.getCode());
-        typeList.add(EEthAddressType.W.getCode());
+        typeList.add(EAddressType.X.getCode());
+        typeList.add(EAddressType.M.getCode());
+        typeList.add(EAddressType.W.getCode());
 
         EthAddress condition1 = new EthAddress();
         condition1.setAddress(payCardNo);
@@ -128,9 +128,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
         // 检查是否是已认证的地址
         EthAddress condition = new EthAddress();
-        condition.setType(EEthAddressType.Y.getCode());
+        condition.setType(EAddressType.Y.getCode());
         condition.setUserId(dbAccount.getUserId());
-        condition.setStatus(EEthYAddressStatus.CERTI.getCode());
+        condition.setStatus(EYAddressStatus.CERTI.getCode());
         condition.setAddress(payCardNo);
         if (ethAddressBO.getTotalCount(condition) > 0) {
             // 符合条件无需验证交易密码
@@ -195,9 +195,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
         withdrawBO.doCheckTimes(dbAccount);
 
         List<String> typeList = new ArrayList<String>();
-        typeList.add(EEthAddressType.X.getCode());
-        typeList.add(EEthAddressType.M.getCode());
-        typeList.add(EEthAddressType.W.getCode());
+        typeList.add(EAddressType.X.getCode());
+        typeList.add(EAddressType.M.getCode());
+        typeList.add(EAddressType.W.getCode());
 
         EthAddress condition1 = new EthAddress();
         condition1.setAddress(payCardNo);
@@ -240,13 +240,13 @@ public class WithdrawAOImpl implements IWithdrawAO {
     public void broadcast(String code, String mAddressCode, String approveUser) {
         // 获取今日散取地址
         EthAddress mEthAddress = ethAddressBO.getEthAddress(mAddressCode);
-        if (!EEthAddressType.M.getCode().endsWith(mEthAddress.getType())) {
+        if (!EAddressType.M.getCode().endsWith(mEthAddress.getType())) {
             throw new BizException("无效的ETH地址，只有散取地址才能进行取现广播！");
         }
-        if (EEthMAddressStatus.IN_USE.getCode().equals(mEthAddress.getStatus())) {
+        if (EMAddressStatus.IN_USE.getCode().equals(mEthAddress.getStatus())) {
             throw new BizException("该散取地址正在广播使用，请稍后再试！");
         }
-        if (EEthMAddressStatus.INVALID.getCode()
+        if (EMAddressStatus.INVALID.getCode()
             .equals(mEthAddress.getStatus())) {
             throw new BizException("该散取地址已被弃用！");
         }
@@ -289,7 +289,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
         // 修改取现地址状态为广播中
         ethAddressBO.refreshStatus(mEthAddress,
-            EEthMAddressStatus.IN_USE.getCode());
+            EMAddressStatus.IN_USE.getCode());
     }
 
     @Override

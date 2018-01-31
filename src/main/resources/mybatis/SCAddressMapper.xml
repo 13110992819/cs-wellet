@@ -6,15 +6,13 @@
 		<result column="code" property="code" />
 		<result column="type" property="type" />
 		<result column="address" property="address" />
-		<result column="label" property="label" />
 		<result column="user_id" property="userId" />
-		
 		<result column="account_number" property="accountNumber" />
+		
 		<result column="status" property="status" />
 		<result column="create_datetime" property="createDatetime" />
 		<result column="updater" property="updater" />
 		<result column="update_datetime" property="updateDatetime" />
-		
 		<result column="remark" property="remark" />
 	</resultMap>
 	<sql id="where_condition">
@@ -59,15 +57,13 @@
 		t.code
 		,t.type
 		,t.address
-		,t.label
 		,t.user_id
-		
 		,t.account_number
+		
 		,t.status
 		,t.create_datetime
 		,t.updater
 		,t.update_datetime
-		
 		,t.remark
 		FROM
 		tcoin_sc_address t
@@ -91,30 +87,26 @@
 		code
 		,type
 		,address
-		,label
 		,user_id
-		
 		,account_number
+		
 		,status
 		,create_datetime
 		,updater
 		,update_datetime
-		
 		,remark
 		)
 		VALUES(
 		#{code}
 		,#{type}
 		,#{address}
-		,#{label}
 		,#{userId}
-		
 		,#{accountNumber}
+		
 		,#{status}
 		,#{createDatetime}
 		,#{updater}
 		,#{updateDatetime}
-		
 		,#{remark}
 		)
 	</insert>

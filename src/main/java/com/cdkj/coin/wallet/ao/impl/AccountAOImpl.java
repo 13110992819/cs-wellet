@@ -2,7 +2,6 @@ package com.cdkj.coin.wallet.ao.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +13,15 @@ import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
+import com.cdkj.coin.wallet.bo.IScAddressBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.dto.res.XN802503Res;
+import com.cdkj.coin.wallet.domain.EthAddress;
+import com.cdkj.coin.wallet.domain.ScAddress;
 import com.cdkj.coin.wallet.enums.EAccountType;
+import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
-import com.cdkj.coin.wallet.enums.EEthAddressType;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 
@@ -37,23 +38,20 @@ public class AccountAOImpl implements IAccountAO {
     private IEthAddressBO ethAddressBO;
 
     @Autowired
+    private IScAddressBO scAddressBO;
+
+    @Autowired
     protected ICtqBO ctqBO;
 
     @Override
     @Transactional
     public void distributeAccount(String userId, String realName,
-            String accountType, List<String> currencyList, String systemCode,
-            String companyCode) {
+            List<String> currencyList, String systemCode, String companyCode) {
         if (CollectionUtils.isNotEmpty(currencyList)) {
-            Map<String, EAccountType> map = EAccountType
-                .getAccountTypeResultMap();
-            EAccountType eAccountType = map.get(accountType);
-            if (null == eAccountType) {
-                new BizException("XN0000", "账户类型不存在");
-            }
             for (String currency : currencyList) {
                 String accountId = accountBO.distributeAccount(userId,
-                    realName, eAccountType, currency, systemCode, companyCode);
+                    realName, EAccountType.Customer, currency, systemCode,
+                    companyCode);
                 generateAddress(userId, accountId, currency);
             }
         }
@@ -65,12 +63,17 @@ public class AccountAOImpl implements IAccountAO {
         String address = null;
 
         if (ECoin.ETH.getCode().equals(currency)) {
-            address = ethAddressBO.generateAddress(EEthAddressType.X, userId);
-            ctqBO.uploadAddress(address, EEthAddressType.X.getCode());
+            address = ethAddressBO.generateAddress(EAddressType.X, userId,
+                accountId);
+            ctqBO.uploadEthAddress(address, EAddressType.X.getCode());
         } else if (ECoin.BTC.getCode().equals(currency)) {
-
+            // todo
+            // 生成比特币地址
+            // 上传比特币地址至橙提取
         } else if (ECoin.SC.getCode().equals(currency)) {
-            // address = scAddressBO.generateAddress(EEthAddressType.X, userId);
+            address = scAddressBO.generateAddress(EAddressType.X, userId,
+                accountId, "system", "注册时自动分配");
+            ctqBO.uploadScAddress(address, EAddressType.X.getCode());
         } else {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(), "不支持的币种"
                     + currency);
@@ -114,20 +117,26 @@ public class AccountAOImpl implements IAccountAO {
     }
 
     @Override
-    public XN802503Res getAccountByUserId(String userId, String currency) {
-        XN802503Res res = new XN802503Res();
-
-        // 总资产
-        BigDecimal totalAmountCNY = BigDecimal.ZERO;
-        BigDecimal totalAmountUSD = BigDecimal.ZERO;
-        BigDecimal totalAmountHKD = BigDecimal.ZERO;
+    public List<Account> getAccountByUserId(String userId, String currency) {
 
         Account condition = new Account();
         condition.setUserId(userId);
         condition.setCurrency(currency);
         List<Account> accountList = accountBO.queryAccountList(condition);
+        for (Account account : accountList) {
+            if (ECoin.ETH.getCode().equals(account.getCurrency())) {
+                // X地址获取
+                EthAddress ethAddress = ethAddressBO
+                    .getEthAddressByAccountNumber(account.getAccountNumber());
+                account.setCoinAddress(ethAddress.getAddress());
+            } else if (ECoin.SC.getCode().equals(account.getCurrency())) {
+                ScAddress scAddress = scAddressBO
+                    .getScAddressByAccountNumber(account.getAccountNumber());
+                account.setCoinAddress(scAddress.getAddress());
+            }
+        }
 
-        return res;
+        return accountList;
     }
 
     @Override

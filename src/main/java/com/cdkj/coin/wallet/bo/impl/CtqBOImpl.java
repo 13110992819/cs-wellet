@@ -18,6 +18,8 @@ import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.domain.SYSConfig;
 import com.cdkj.coin.wallet.dto.req.XN616000Req;
 import com.cdkj.coin.wallet.dto.req.XN616020Req;
+import com.cdkj.coin.wallet.dto.req.XN616040Req;
+import com.cdkj.coin.wallet.dto.req.XN616060Req;
 import com.cdkj.coin.wallet.dto.req.XN625917Req;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.http.BizConnecter;
@@ -31,10 +33,10 @@ import com.cdkj.coin.wallet.http.BizConnecter;
 public class CtqBOImpl implements ICtqBO {
 
     /** 
-     * @see com.cdkj.coin.wallet.bo.ICtqBO#uploadAddress(java.lang.String, java.lang.String)
+     * @see com.cdkj.coin.wallet.bo.ICtqBO#uploadEthAddress(java.lang.String, java.lang.String)
      */
     @Override
-    public void uploadAddress(String address, String type) {
+    public void uploadEthAddress(String address, String type) {
         XN616000Req req = new XN616000Req();
         req.setAddress(address);
         req.setType(type);
@@ -42,7 +44,7 @@ public class CtqBOImpl implements ICtqBO {
     }
 
     @Override
-    public void confirm(List<String> hashList) {
+    public void confirmEth(List<String> hashList) {
         XN616020Req req = new XN616020Req();
         req.setHashList(hashList);
         BizConnecter.getBizData("626020", JsonUtil.Object2Json(req));
@@ -61,5 +63,20 @@ public class CtqBOImpl implements ICtqBO {
             number = new BigInteger(sysConfig.getCvalue());
         }
         return number;
+    }
+
+    @Override
+    public void uploadScAddress(String address, String type) {
+        XN616040Req req = new XN616040Req();
+        req.setAddress(address);
+        req.setType(type);
+        BizConnecter.getBizData("626040", JsonUtil.Object2Json(req));
+    }
+
+    @Override
+    public void confirmSc(List<String> hashList) {
+        XN616060Req req = new XN616060Req();
+        req.setHashList(hashList);
+        BizConnecter.getBizData("626060", JsonUtil.Object2Json(req));
     }
 }

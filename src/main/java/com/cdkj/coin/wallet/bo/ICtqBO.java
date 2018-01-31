@@ -17,12 +17,18 @@ import java.util.List;
  * @history:
  */
 public interface ICtqBO {
-    // 上传地址
-    public void uploadAddress(String address, String type);
+    // 上传ETH地址
+    public void uploadEthAddress(String address, String type);
 
-    // 交易确认
-    public void confirm(List<String> hashList);
+    // ETH交易确认
+    public void confirmEth(List<String> hashList);
 
-    // 获取节点扫描信息
+    // 获取ETH节点扫描信息
     public BigInteger getScanedBlockNumber();
+
+    // 上传SC地址
+    public void uploadScAddress(String address, String type);
+
+    // SC交易确认
+    public void confirmSc(List<String> hashList);
 }

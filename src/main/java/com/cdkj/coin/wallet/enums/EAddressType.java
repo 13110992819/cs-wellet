@@ -5,26 +5,26 @@ import java.util.Map;
 
 import com.cdkj.coin.wallet.exception.BizException;
 
-public enum EEthAddressType {
+public enum EAddressType {
     W("W", "归集地址"), M("M", "散取地址"), X("X", "分发地址"), Y("Y", "提现地址");
 
-    EEthAddressType(String code, String value) {
+    EAddressType(String code, String value) {
         this.code = code;
         this.value = value;
     }
 
-    public static EEthAddressType getEthAddressType(String code) {
-        Map<String, EEthAddressType> map = getEthAddressTypeMap();
-        EEthAddressType result = map.get(code);
+    public static EAddressType getEthAddressType(String code) {
+        Map<String, EAddressType> map = getEthAddressTypeMap();
+        EAddressType result = map.get(code);
         if (result == null) {
             throw new BizException("XN0000", code + "对应的bizType不存在");
         }
         return result;
     }
 
-    public static Map<String, EEthAddressType> getEthAddressTypeMap() {
-        Map<String, EEthAddressType> map = new HashMap<String, EEthAddressType>();
-        for (EEthAddressType ethAddressType : EEthAddressType.values()) {
+    public static Map<String, EAddressType> getEthAddressTypeMap() {
+        Map<String, EAddressType> map = new HashMap<String, EAddressType>();
+        for (EAddressType ethAddressType : EAddressType.values()) {
             map.put(ethAddressType.getCode(), ethAddressType);
         }
         return map;
