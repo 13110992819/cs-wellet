@@ -1,34 +1,33 @@
-package com.cdkj.coin.wallet.siacoin;
+package com.cdkj.coin.wallet.domain;
 
 import java.util.Date;
-import java.util.List;
 
 import com.cdkj.coin.wallet.dao.base.ABaseDO;
 
 /**
-* SC地址
+* 取现地址
 * @author: haiqingzheng
-* @since: 2017年10月23日 21:53:23
+* @since: 2018年02月01日 20:01:31
 * @history:
 */
-public class ScAddress extends ABaseDO {
+public class WithdrawAddress extends ABaseDO {
 
     private static final long serialVersionUID = 1L;
 
-    // ID主键
+    // 编号
     private String code;
 
-    // 地址类型
-    private String type;
+    // 币种
+    private String currency;
 
-    // SC地址
+    // 提现地址
     private String address;
+
+    // 标签
+    private String label;
 
     // 用户编号
     private String userId;
-
-    // 账户编号
-    private String accountNumber;
 
     // 状态
     private String status;
@@ -36,25 +35,14 @@ public class ScAddress extends ABaseDO {
     // 创建时间
     private Date createDatetime;
 
-    // 更新人
+    // 最后操作人
     private String updater;
 
-    // 更新时间
+    // 最后一次更新时间
     private Date updateDatetime;
 
     // 备注
     private String remark;
-
-    /* DB properties 结束 */
-
-    // 状态列表
-    private List<String> statusList;
-
-    // 类型列表
-    private List<String> typeList;
-
-    // 地址模糊查询
-    private String addressForQuery;
 
     public String getCode() {
         return code;
@@ -64,12 +52,12 @@ public class ScAddress extends ABaseDO {
         this.code = code;
     }
 
-    public String getType() {
-        return type;
+    public String getCurrency() {
+        return currency;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public String getAddress() {
@@ -80,20 +68,20 @@ public class ScAddress extends ABaseDO {
         this.address = address;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
     }
 
     public String getStatus() {
@@ -134,30 +122,6 @@ public class ScAddress extends ABaseDO {
 
     public void setRemark(String remark) {
         this.remark = remark;
-    }
-
-    public List<String> getStatusList() {
-        return statusList;
-    }
-
-    public void setStatusList(List<String> statusList) {
-        this.statusList = statusList;
-    }
-
-    public List<String> getTypeList() {
-        return typeList;
-    }
-
-    public void setTypeList(List<String> typeList) {
-        this.typeList = typeList;
-    }
-
-    public String getAddressForQuery() {
-        return addressForQuery;
-    }
-
-    public void setAddressForQuery(String addressForQuery) {
-        this.addressForQuery = addressForQuery;
     }
 
 }

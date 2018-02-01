@@ -19,7 +19,6 @@ import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IWithdrawDAO;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Withdraw;
-import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.EGeneratePrefix;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
@@ -51,7 +50,7 @@ public class WithdrawBOImpl extends PaginableBOImpl<Withdraw> implements
         data.setAmount(amount);
         data.setFee(fee);
 
-        data.setChannelType(EChannelType.ETH.getCode());
+        data.setChannelType(account.getCurrency());
         data.setPayCardInfo(payCardInfo);
         // 取现户名，应该和银行卡户名一致
         data.setAccountName(account.getRealName());

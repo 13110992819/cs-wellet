@@ -14,6 +14,7 @@ import com.cdkj.coin.wallet.bo.IScCollectionBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.exception.BizException;
+import com.cdkj.coin.wallet.exception.EBizErrorCode;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
 import com.cdkj.coin.wallet.siacoin.ScCollection;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
@@ -58,8 +59,7 @@ public class ScCollectionAOImpl implements IScCollectionAO {
 
         // 余额大于配置值时，进行归集
         if (balance.compareTo(SiadClient.toHasting(limit)) < 0) {
-            logger.info("余额太少，无需归集");
-            return;
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "余额太少，无需归集");
         }
         // 获取今日归集地址
         ScAddress wScAddress = scAddressBO.getWScAddressToday();
@@ -70,8 +70,8 @@ public class ScCollectionAOImpl implements IScCollectionAO {
         BigDecimal value = balance.subtract(txFee);
         logger.info("地址余额=" + balance + "，预计矿工费=" + txFee + "，预计到账金额=" + value);
         if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            logger.info("余额不足以支付矿工费，不能归集");
-            return;
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(),
+                "余额不足以支付矿工费，不能归集");
         }
         // 归集广播
         String txHash = SiadClient.sendSingleAddress(toAddress, value);

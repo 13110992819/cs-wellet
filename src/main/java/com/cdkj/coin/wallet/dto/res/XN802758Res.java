@@ -13,6 +13,7 @@ import java.util.List;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
+import com.cdkj.coin.wallet.siacoin.ScTransaction;
 
 /** 
  * @author: haiqingzheng 
@@ -27,8 +28,11 @@ public class XN802758Res {
     // 取现订单相关流水
     private List<Jour> jourList;
 
-    // 取现相关广播记录
-    private List<EthTransaction> transList;
+    // ETH相关广播记录
+    private List<EthTransaction> ethTransList;
+
+    // SC相关广播记录
+    private List<ScTransaction> scTransList;
 
     public Withdraw getWithdraw() {
         return withdraw;
@@ -46,11 +50,20 @@ public class XN802758Res {
         this.jourList = jourList;
     }
 
-    public List<EthTransaction> getTransList() {
-        return transList;
+    public List<EthTransaction> getEthTransList() {
+        return ethTransList;
     }
 
-    public void setTransList(List<EthTransaction> transList) {
-        this.transList = transList;
+    public void setEthTransList(List<EthTransaction> ethTransList) {
+        this.ethTransList = ethTransList;
     }
+
+    public List<ScTransaction> getScTransList() {
+        return scTransList;
+    }
+
+    public void setScTransList(List<ScTransaction> scTransList) {
+        this.scTransList = scTransList;
+    }
+
 }

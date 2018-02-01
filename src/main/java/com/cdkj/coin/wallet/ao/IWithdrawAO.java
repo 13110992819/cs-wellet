@@ -12,15 +12,10 @@ import com.cdkj.coin.wallet.spring.ServiceModule;
 public interface IWithdrawAO {
     String DEFAULT_ORDER_COLUMN = "code";
 
-    // 提现申请
-    public String applyOrderTradePwd(String accountNumber, BigDecimal amount,
-            String payCardInfo, String payCardNo, String applyUser,
-            String applyNote, String tradePwd, String googleCaptcha);
-
     // 待申请
     public String applyOrder(String accountNumber, BigDecimal amount,
-            String payCardInfo, String payCardNo, String applyUser,
-            String applyNote);
+            BigDecimal fee, String payCardInfo, String payCardNo,
+            String applyUser, String applyNote);
 
     // 取现审核
     public void approveOrder(String code, String approveUser,

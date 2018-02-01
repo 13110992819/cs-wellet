@@ -28,15 +28,16 @@ public class XN802750 extends AProcessor {
     @Override
     public synchronized Object doBusiness() throws BizException {
         BigDecimal amount = StringValidater.toBigDecimal(req.getAmount());
-        String code = withdrawAO.applyOrderTradePwd(req.getAccountNumber(),
-            amount, req.getPayCardInfo(), req.getPayCardNo(),
-            req.getApplyUser(), req.getApplyNote(), req.getTradePwd(),
-            req.getGoogleCaptcha());
+        BigDecimal fee = StringValidater.toBigDecimal(req.getFee());
+        String code = withdrawAO.applyOrder(req.getAccountNumber(), amount,
+            fee, req.getPayCardInfo(), req.getPayCardNo(), req.getApplyUser(),
+            req.getApplyNote());
         return new PKCodeRes(code);
     }
 
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
         req = JsonUtil.json2Bean(inputparams, XN802750Req.class);
         StringValidater.validateBlank(req.getAccountNumber(),
             req.getPayCardInfo(), req.getPayCardNo(), req.getApplyUser());

@@ -113,9 +113,14 @@ public class SiadClient {
     public static boolean verifyAddress(String address) {
         boolean result = false;
         if (StringUtils.isNotBlank(address)) {
-            String resStr = doAccessHTTPGetJson(SC_URL
-                    + "/wallet/verify/address/" + address);
-            result = JSONObject.parseObject(resStr).getBoolean("valid");
+            try {
+                String resStr = doAccessHTTPGetJson(SC_URL
+                        + "/wallet/verify/address/" + address);
+                result = JSONObject.parseObject(resStr).getBoolean("valid");
+            } catch (Exception e) {
+                throw new BizException(EBizErrorCode.DEFAULT.getCode(),
+                    "Siad访问异常，原因：" + e.getMessage());
+            }
         }
         return result;
     }

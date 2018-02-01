@@ -8,6 +8,7 @@
 		<typeAlias alias="exchangeCurrency" type="com.cdkj.coin.wallet.domain.ExchangeCurrency" />
 		<typeAlias alias="charge" type="com.cdkj.coin.wallet.domain.Charge" />
 		<typeAlias alias="withdraw" type="com.cdkj.coin.wallet.domain.Withdraw" />
+		<typeAlias alias="withdrawAddress" type="com.cdkj.coin.wallet.domain.WithdrawAddress" />
 		<typeAlias alias="hlOrder" type="com.cdkj.coin.wallet.domain.HLOrder" />
 
 		<typeAlias alias="ethAddress" type="com.cdkj.coin.wallet.ethereum.EthAddress" />
@@ -16,6 +17,7 @@
 		
 		<typeAlias alias="scAddress" type="com.cdkj.coin.wallet.siacoin.ScAddress" />
 		<typeAlias alias="scTransaction" type="com.cdkj.coin.wallet.siacoin.ScTransaction" />
+		<typeAlias alias="scCollection" type="com.cdkj.coin.wallet.siacoin.ScCollection" />
 		
 		<typeAlias alias="sysDict" type="com.cdkj.coin.wallet.domain.SYSDict" />
 		<typeAlias alias="sysConfig" type="com.cdkj.coin.wallet.domain.SYSConfig" />

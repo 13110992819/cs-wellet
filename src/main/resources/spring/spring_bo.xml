@@ -38,6 +38,10 @@
 		<property name="paginableDAO" ref="withdrawDAOImpl"/>
 	</bean>	
 	
+	<bean id="withdrawAddressBO" class="com.cdkj.coin.wallet.bo.impl.WithdrawAddressBOImpl">
+		<property name="paginableDAO" ref="withdrawAddressDAOImpl"/>
+	</bean>	
+	
 	<bean id="hlOrderBO" class="com.cdkj.coin.wallet.bo.impl.HLOrderBOImpl">
 		<property name="paginableDAO" ref="hlOrderDAOImpl" />
 	</bean>
@@ -52,6 +56,18 @@
 	
 	<bean id="ethCollectionBO" class="com.cdkj.coin.wallet.bo.impl.EthCollectionBOImpl">
 		<property name="paginableDAO" ref="ethCollectionDAOImpl" />
+	</bean>
+	
+	<bean id="scAddressBO" class="com.cdkj.coin.wallet.bo.impl.ScAddressBOImpl">
+		<property name="paginableDAO" ref="scAddressDAOImpl" />
+	</bean>
+	
+	<bean id="scTransactionBO" class="com.cdkj.coin.wallet.bo.impl.ScTransactionBOImpl">
+		<property name="paginableDAO" ref="scTransactionDAOImpl" />
+	</bean>
+	
+	<bean id="scCollectionBO" class="com.cdkj.coin.wallet.bo.impl.ScCollectionBOImpl">
+		<property name="paginableDAO" ref="scCollectionDAOImpl" />
 	</bean>
 	
 	<bean id="sysDictBO" class="com.cdkj.coin.wallet.bo.impl.SYSDictBOImpl">

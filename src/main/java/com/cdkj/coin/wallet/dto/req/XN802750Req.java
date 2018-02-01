@@ -14,6 +14,9 @@ public class XN802750Req {
     // 取现金额（必填）
     private String amount;
 
+    // 取现手续费（必填）
+    private String fee;
+
     // 支付渠道账号信息（如开户支行）（必填）
     private String payCardInfo;
 
@@ -25,28 +28,6 @@ public class XN802750Req {
 
     // 申请说明（选填）
     private String applyNote;
-
-    // 交易密码（必填）
-    private String tradePwd;
-
-    // 谷歌验证码（开启认证时必填）
-    private String googleCaptcha;
-
-    public String getGoogleCaptcha() {
-        return googleCaptcha;
-    }
-
-    public void setGoogleCaptcha(String googleCaptcha) {
-        this.googleCaptcha = googleCaptcha;
-    }
-
-    public String getTradePwd() {
-        return tradePwd;
-    }
-
-    public void setTradePwd(String tradePwd) {
-        this.tradePwd = tradePwd;
-    }
 
     public String getAccountNumber() {
         return accountNumber;
@@ -62,6 +43,14 @@ public class XN802750Req {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public String getFee() {
+        return fee;
+    }
+
+    public void setFee(String fee) {
+        this.fee = fee;
     }
 
     public String getPayCardInfo() {

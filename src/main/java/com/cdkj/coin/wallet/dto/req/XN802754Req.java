@@ -1,7 +1,6 @@
 package com.cdkj.coin.wallet.dto.req;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * 广播
@@ -15,8 +14,7 @@ public class XN802754Req {
     @NotBlank
     private String code;
 
-    // 散取地址编号(必填)
-    @NotBlank
+    // 散取地址编号(币种为以太坊时必填)
     private String mAddressCode;
 
     // 操作人(必填)

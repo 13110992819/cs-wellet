@@ -5,15 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.WalletUtils;
-import org.web3j.utils.Convert;
-import org.web3j.utils.Convert.Unit;
 
 import com.cdkj.coin.wallet.ao.IWithdrawAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
@@ -23,6 +20,8 @@ import com.cdkj.coin.wallet.bo.IGoogleAuthBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.ISYSDictBO;
+import com.cdkj.coin.wallet.bo.IScAddressBO;
+import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.ISmsOutBO;
 import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
@@ -31,22 +30,24 @@ import com.cdkj.coin.wallet.common.AmountUtil;
 import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Jour;
-import com.cdkj.coin.wallet.domain.User;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.dto.res.XN802758Res;
 import com.cdkj.coin.wallet.enums.EAccountType;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBoolean;
+import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
-import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
+import com.cdkj.coin.wallet.siacoin.ScAddress;
+import com.cdkj.coin.wallet.siacoin.ScTransaction;
+import com.cdkj.coin.wallet.siacoin.SiadClient;
 
 @Service
 public class WithdrawAOImpl implements IWithdrawAO {
@@ -69,7 +70,13 @@ public class WithdrawAOImpl implements IWithdrawAO {
     private IEthAddressBO ethAddressBO;
 
     @Autowired
+    private IScAddressBO scAddressBO;
+
+    @Autowired
     private IEthTransactionBO ethTransactionBO;
+
+    @Autowired
+    private IScTransactionBO scTransactionBO;
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
@@ -85,96 +92,49 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Override
     @Transactional
-    public String applyOrderTradePwd(String accountNumber, BigDecimal amount,
-            String payCardInfo, String payCardNo, String applyUser,
-            String applyNote, String tradePwd, String googleCaptcha) {
-        User user = userBO.getUser(applyUser);
-        if (StringUtils.isBlank(user.getRealName())) {
-            throw new BizException("xn000000", "请先进行实名认证");
-        }
-        // 取现手续费
-        BigDecimal fee = sysConfigBO
-            .getBigDecimalValue(SysConstants.WITHDRAW_FEE);
-        fee = Convert.toWei(fee, Unit.ETHER);
+    public String applyOrder(String accountNumber, BigDecimal amount,
+            BigDecimal fee, String payCardInfo, String payCardNo,
+            String applyUser, String applyNote) {
+        Account dbAccount = accountBO.getAccount(accountNumber);
         if (amount.compareTo(fee) == 0 || amount.compareTo(fee) == -1) {
             throw new BizException("xn000000", "提现金额需大于手续费");
         }
-        if (!WalletUtils.isValidAddress(payCardNo)) {
-            throw new BizException("xn000000", "提现地址不符合以太坊规则，请仔细核对");
-        }
-        Account dbAccount = accountBO.getAccount(accountNumber);
-        if (dbAccount.getAmount().subtract(dbAccount.getFrozenAmount())
-            .compareTo(amount) == -1) {
-            throw new BizException("xn000000", "可用余额不足");
-        }
+        if (ECoin.ETH.getCode().equals(dbAccount.getCurrency())) {
+            if (!WalletUtils.isValidAddress(payCardNo)) {
+                throw new BizException("xn000000", "提现地址不符合以太坊规则，请仔细核对");
+            }
+            List<String> typeList = new ArrayList<String>();
+            typeList.add(EAddressType.X.getCode());
+            typeList.add(EAddressType.M.getCode());
+            typeList.add(EAddressType.W.getCode());
 
-        // 判断本月是否次数已满，且现在只能有一笔取现未支付记录
-        withdrawBO.doCheckTimes(dbAccount);
+            EthAddress condition1 = new EthAddress();
+            condition1.setAddress(payCardNo);
+            condition1.setTypeList(typeList);
 
-        List<String> typeList = new ArrayList<String>();
-        typeList.add(EAddressType.X.getCode());
-        typeList.add(EAddressType.M.getCode());
-        typeList.add(EAddressType.W.getCode());
+            if (ethAddressBO.getTotalCount(condition1) > 0) {
+                throw new BizException(EBizErrorCode.DEFAULT.getCode(),
+                    "提现地址已经在本平台被使用，请仔细核对！");
+            }
+        } else if (ECoin.SC.getCode().equals(dbAccount.getCurrency())) {
+            if (!SiadClient.verifyAddress(payCardNo)) {
+                throw new BizException("xn000000", "提现地址不符合Sia规则，请仔细核对");
+            }
+            List<String> typeList = new ArrayList<String>();
+            typeList.add(EAddressType.X.getCode());
+            typeList.add(EAddressType.M.getCode());
+            typeList.add(EAddressType.W.getCode());
 
-        EthAddress condition1 = new EthAddress();
-        condition1.setAddress(payCardNo);
-        condition1.setTypeList(typeList);
+            ScAddress condition1 = new ScAddress();
+            condition1.setAddress(payCardNo);
+            condition1.setTypeList(typeList);
 
-        if (ethAddressBO.getTotalCount(condition1) > 0) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(),
-                "提现地址已经在本平台被使用，请仔细核对！");
-        }
-
-        // 检查是否是已认证的地址
-        EthAddress condition = new EthAddress();
-        condition.setType(EAddressType.Y.getCode());
-        condition.setUserId(dbAccount.getUserId());
-        condition.setStatus(EYAddressStatus.CERTI.getCode());
-        condition.setAddress(payCardNo);
-        if (ethAddressBO.getTotalCount(condition) > 0) {
-            // 符合条件无需验证交易密码
-        } else {
-            // 验证交易密码
-            userBO.checkTradePwd(dbAccount.getUserId(), tradePwd);
-            // 假如开启了谷歌认证，校验谷歌验证码
-            if (StringUtils.isNotBlank(user.getGoogleSecret())) {
-                if (StringUtils.isBlank(googleCaptcha)) {
-                    throw new BizException("xn000000", "您已开启谷歌认证，请输入谷歌验证码！");
-                } else {
-                    googleAuthBO.checkCode(user.getGoogleSecret(),
-                        googleCaptcha, System.currentTimeMillis());
-                }
+            if (scAddressBO.getTotalCount(condition1) > 0) {
+                throw new BizException(EBizErrorCode.DEFAULT.getCode(),
+                    "提现地址已经在本平台被使用，请仔细核对！");
             }
         }
 
-        // 生成取现订单
-        String withdrawCode = withdrawBO.applyOrder(dbAccount, amount, fee,
-            payCardInfo, payCardNo, applyUser, applyNote);
-        // 冻结取现金额
-        dbAccount = accountBO.frozenAmount(dbAccount, amount,
-            EJourBizTypeUser.AJ_WITHDRAW_FROZEN.getCode(),
-            EJourBizTypeUser.AJ_WITHDRAW_FROZEN.getValue(), withdrawCode);
-
-        return withdrawCode;
-    }
-
-    @Override
-    @Transactional
-    public String applyOrder(String accountNumber, BigDecimal amount,
-            String payCardInfo, String payCardNo, String applyUser,
-            String applyNote) {
-
-        // 取现手续费
-        BigDecimal fee = sysConfigBO
-            .getBigDecimalValue(SysConstants.WITHDRAW_FEE);
-        fee = Convert.toWei(fee, Unit.ETHER);
-        if (amount.compareTo(fee) == 0 || amount.compareTo(fee) == -1) {
-            throw new BizException("xn000000", "提现金额需大于手续费");
-        }
-        if (!WalletUtils.isValidAddress(payCardNo)) {
-            throw new BizException("xn000000", "提现地址不符合以太坊规则，请仔细核对");
-        }
-        Account dbAccount = accountBO.getAccount(accountNumber);
         if (dbAccount.getAmount().subtract(dbAccount.getFrozenAmount())
             .compareTo(amount) == -1) {
             throw new BizException("xn000000", "可用余额不足");
@@ -182,20 +142,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
         // 判断本月是否次数已满，且现在只能有一笔取现未支付记录
         withdrawBO.doCheckTimes(dbAccount);
-
-        List<String> typeList = new ArrayList<String>();
-        typeList.add(EAddressType.X.getCode());
-        typeList.add(EAddressType.M.getCode());
-        typeList.add(EAddressType.W.getCode());
-
-        EthAddress condition1 = new EthAddress();
-        condition1.setAddress(payCardNo);
-        condition1.setTypeList(typeList);
-
-        if (ethAddressBO.getTotalCount(condition1) > 0) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(),
-                "提现地址已经在本平台被使用，请仔细核对！");
-        }
 
         // 生成取现订单
         String withdrawCode = withdrawBO.applyOrder(dbAccount, amount, fee,
@@ -227,6 +173,24 @@ public class WithdrawAOImpl implements IWithdrawAO {
     @Override
     @Transactional
     public void broadcast(String code, String mAddressCode, String approveUser) {
+        // 获取取现订单详情
+        Withdraw withdraw = withdrawBO.getWithdraw(code,
+            ESystemCode.COIN.getCode());
+        Account account = accountBO.getAccount(withdraw.getAccountNumber());
+        if (ECoin.ETH.getCode().equals(account.getCurrency())) {
+            if (StringUtils.isBlank(mAddressCode)) {
+                throw new BizException(EBizErrorCode.DEFAULT.getCode(),
+                    "散取地址不能为空");
+            }
+            doEthBroadcast(withdraw, mAddressCode, approveUser);
+        } else if (ECoin.SC.getCode().equals(account.getCurrency())) {
+            doScBroadcast(withdraw, approveUser);
+        }
+
+    }
+
+    private void doEthBroadcast(Withdraw withdraw, String mAddressCode,
+            String approveUser) {
         // 获取今日散取地址
         EthAddress mEthAddress = ethAddressBO.getEthAddress(mAddressCode);
         if (!EAddressType.M.getCode().endsWith(mEthAddress.getType())) {
@@ -243,9 +207,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
         EthAddress secret = ethAddressBO.getEthAddressSecret(mEthAddress
             .getCode());
 
-        // 获取取现订单详情
-        Withdraw withdraw = withdrawBO.getWithdraw(code,
-            ESystemCode.COIN.getCode());
         // 实际到账金额=取现金额-取现手续费
         BigDecimal realAmount = withdraw.getAmount()
             .subtract(withdraw.getFee());
@@ -278,6 +239,36 @@ public class WithdrawAOImpl implements IWithdrawAO {
         // 修改取现地址状态为广播中
         ethAddressBO.refreshStatus(mEthAddress,
             EMAddressStatus.IN_USE.getCode());
+
+    }
+
+    private void doScBroadcast(Withdraw withdraw, String approveUser) {
+
+        // 实际到账金额=取现金额-取现手续费
+        BigDecimal realAmount = withdraw.getAmount()
+            .subtract(withdraw.getFee());
+        // 默认矿工费用
+        BigDecimal txFee = new BigDecimal("22500000000000000000000");
+        // 查询钱包余额
+        BigDecimal balance = SiadClient.getSiacoinBalance();
+
+        logger.info("Sia钱包余额：" + balance.toString());
+        if (balance.compareTo(realAmount.add(txFee)) < 0) {
+            throw new BizException("xn625000", "Sia钱包余额不足以支付提现金额和矿工费！");
+        }
+        // 广播
+        if (!SiadClient.verifyAddress(withdraw.getPayCardNo())) {
+            throw new BizException("xn625000", "无效的取现地址："
+                    + withdraw.getPayCardInfo());
+        }
+        String txHash = SiadClient.sendSingleAddress(withdraw.getPayCardNo(),
+            realAmount);
+        if (StringUtils.isBlank(txHash)) {
+            throw new BizException("xn625000", "交易广播失败");
+        }
+        logger.info("广播成功：交易hash=" + txHash);
+        withdrawBO.broadcastOrder(withdraw, txHash, approveUser);
+
     }
 
     @Override
@@ -352,33 +343,18 @@ public class WithdrawAOImpl implements IWithdrawAO {
             Withdraw condition) {
         Paginable<Withdraw> page = withdrawBO.getPaginable(start, limit,
             condition);
-        if (CollectionUtils.isNotEmpty(page.getList())) {
-            List<Withdraw> list = page.getList();
-            for (Withdraw withdraw : list) {
-                User user = userBO.getUser(withdraw.getApplyUser());
-                withdraw.setUser(user);
-            }
-        }
         return page;
     }
 
     @Override
     public List<Withdraw> queryWithdrawList(Withdraw condition) {
         List<Withdraw> list = withdrawBO.queryWithdrawList(condition);
-        if (CollectionUtils.isNotEmpty(list)) {
-            for (Withdraw withdraw : list) {
-                User user = userBO.getUser(withdraw.getApplyUser());
-                withdraw.setUser(user);
-            }
-        }
         return list;
     }
 
     @Override
     public Withdraw getWithdraw(String code, String systemCode) {
         Withdraw withdraw = withdrawBO.getWithdraw(code, systemCode);
-        User user = userBO.getUser(withdraw.getApplyUser());
-        withdraw.setUser(user);
         return withdraw;
     }
 
@@ -428,6 +404,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
         // 取现订单详情
         Withdraw withdraw = withdrawBO.getWithdraw(code,
             ESystemCode.COIN.getCode());
+        Account account = accountBO.getAccount(withdraw.getAccountNumber());
 
         // 取现对应流水记录
         Jour jour = new Jour();
@@ -435,15 +412,24 @@ public class WithdrawAOImpl implements IWithdrawAO {
         jour.setKind(EJourKind.BALANCE.getCode());
         List<Jour> jourList = jourBO.queryJourList(jour);
 
-        // 取现对应广播记录
-        EthTransaction ethTransaction = new EthTransaction();
-        ethTransaction.setRefNo(withdraw.getCode());
-        List<EthTransaction> resultList = ethTransactionBO
-            .queryEthTransactionList(ethTransaction);
+        if (ECoin.ETH.getCode().equals(account.getCurrency())) {
+            // 取现对应广播记录
+            EthTransaction ethTransaction = new EthTransaction();
+            ethTransaction.setRefNo(withdraw.getCode());
+            List<EthTransaction> resultList = ethTransactionBO
+                .queryEthTransactionList(ethTransaction);
+            res.setEthTransList(resultList);
+        } else if (ECoin.SC.getCode().equals(account.getCurrency())) {
+            // 取现对应广播记录
+            ScTransaction scTransaction = new ScTransaction();
+            scTransaction.setRefNo(withdraw.getCode());
+            List<ScTransaction> resultList = scTransactionBO
+                .queryScTransactionList(scTransaction);
+            res.setScTransList(resultList);
+        }
 
         res.setWithdraw(withdraw);
         res.setJourList(jourList);
-        res.setTransList(resultList);
 
         return res;
     }

@@ -137,10 +137,6 @@ public class ScAddressAOImpl implements IScAddressAO {
             ScAddress condition) {
         Paginable<ScAddress> results = scAddressBO.getPaginable(start, limit,
             condition);
-        for (ScAddress scAddress : results.getList()) {
-            // 地址拥有者信息
-            scAddress.setUser(userBO.getUser(scAddress.getUserId()));
-        }
         return results;
     }
 
