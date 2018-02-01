@@ -13,11 +13,11 @@ import com.cdkj.coin.wallet.bo.IScAddressBO;
 import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IScAddressDAO;
-import com.cdkj.coin.wallet.domain.ScAddress;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.EXAddressStatus;
 import com.cdkj.coin.wallet.exception.BizException;
+import com.cdkj.coin.wallet.siacoin.ScAddress;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
 
 @Component

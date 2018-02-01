@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 
 public interface IWithdrawBO extends IPaginableBO<Withdraw> {
 

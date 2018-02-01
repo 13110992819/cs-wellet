@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.cdkj.coin.wallet.dao.IEthAddressDAO;
 import com.cdkj.coin.wallet.dao.base.support.AMybatisTemplate;
-import com.cdkj.coin.wallet.domain.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 
 @Repository("ethAddressDAOImpl")
 public class EthAddressDAOImpl extends AMybatisTemplate implements

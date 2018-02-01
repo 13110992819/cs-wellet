@@ -9,7 +9,6 @@
 package com.cdkj.coin.wallet.siacoin;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -23,8 +22,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.cdkj.coin.wallet.common.PropertiesUtil;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Credentials;
 
 /** 
@@ -94,25 +91,6 @@ public class SiadClient {
         String resStr = doAccessHTTPGetJson(SC_URL + "/consensus");
         String height = JSONObject.parseObject(resStr).getString("height");
         result = new BigInteger(height);
-        return result;
-    }
-
-    // 获取钱包相关的交易列表
-    public static List<Transaction> getTransactions(BigInteger startheight,
-            BigInteger endheight) {
-        List<Transaction> result = null;
-        String resStr = doAccessHTTPGetJson(SC_URL
-                + "/wallet/transactions?startheight=" + startheight
-                + "&endheight=" + endheight);
-        String txStr = JSONObject.parseObject(resStr).getString(
-            "confirmedtransactions");
-
-        if (txStr != null) {
-            Gson gson = new Gson();
-            result = gson.fromJson(txStr, new TypeToken<List<Transaction>>() {
-            }.getType());
-        }
-
         return result;
     }
 

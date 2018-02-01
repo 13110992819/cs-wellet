@@ -13,10 +13,10 @@ import com.cdkj.coin.wallet.bo.IEthCollectionBO;
 import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IEthCollectionDAO;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.EthCollection;
 import com.cdkj.coin.wallet.enums.EEthCollectionStatus;
 import com.cdkj.coin.wallet.enums.EGeneratePrefix;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
 import com.cdkj.coin.wallet.exception.BizException;
 
 @Component

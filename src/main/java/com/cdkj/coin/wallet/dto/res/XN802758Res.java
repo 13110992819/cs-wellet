@@ -10,9 +10,9 @@ package com.cdkj.coin.wallet.dto.res;
 
 import java.util.List;
 
-import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.domain.Withdraw;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
 
 /** 
  * @author: haiqingzheng 

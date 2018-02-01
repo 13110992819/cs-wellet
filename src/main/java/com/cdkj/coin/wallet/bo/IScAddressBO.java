@@ -3,8 +3,8 @@ package com.cdkj.coin.wallet.bo;
 import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
-import com.cdkj.coin.wallet.domain.ScAddress;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.siacoin.ScAddress;
 
 public interface IScAddressBO extends IPaginableBO<ScAddress> {
 

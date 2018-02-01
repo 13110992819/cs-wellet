@@ -10,11 +10,12 @@
 		<typeAlias alias="withdraw" type="com.cdkj.coin.wallet.domain.Withdraw" />
 		<typeAlias alias="hlOrder" type="com.cdkj.coin.wallet.domain.HLOrder" />
 
-		<typeAlias alias="ethAddress" type="com.cdkj.coin.wallet.domain.EthAddress" />
-		<typeAlias alias="ethTransaction" type="com.cdkj.coin.wallet.domain.EthTransaction" />
-		<typeAlias alias="ethCollection" type="com.cdkj.coin.wallet.domain.EthCollection" />
+		<typeAlias alias="ethAddress" type="com.cdkj.coin.wallet.ethereum.EthAddress" />
+		<typeAlias alias="ethTransaction" type="com.cdkj.coin.wallet.ethereum.EthTransaction" />
+		<typeAlias alias="ethCollection" type="com.cdkj.coin.wallet.ethereum.EthCollection" />
 		
-		<typeAlias alias="scAddress" type="com.cdkj.coin.wallet.domain.ScAddress" />
+		<typeAlias alias="scAddress" type="com.cdkj.coin.wallet.siacoin.ScAddress" />
+		<typeAlias alias="scTransaction" type="com.cdkj.coin.wallet.siacoin.ScTransaction" />
 		
 		<typeAlias alias="sysDict" type="com.cdkj.coin.wallet.domain.SYSDict" />
 		<typeAlias alias="sysConfig" type="com.cdkj.coin.wallet.domain.SYSConfig" />

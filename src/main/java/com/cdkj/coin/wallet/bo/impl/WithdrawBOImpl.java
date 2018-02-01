@@ -18,11 +18,11 @@ import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IWithdrawDAO;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.EGeneratePrefix;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 
 @Component

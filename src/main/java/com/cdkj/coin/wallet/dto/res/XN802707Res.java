@@ -11,9 +11,10 @@ package com.cdkj.coin.wallet.dto.res;
 import java.util.List;
 
 import com.cdkj.coin.wallet.domain.Charge;
-import com.cdkj.coin.wallet.domain.EthCollection;
-import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.domain.Jour;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
+import com.cdkj.coin.wallet.siacoin.ScTransaction;
 
 /** 
  * @author: haiqingzheng 
@@ -31,8 +32,11 @@ public class XN802707Res {
     // 充值订单相关流水
     private List<Jour> jourList;
 
-    // 充值相关广播记录
-    private List<EthTransaction> transList;
+    // ETH充值相关广播记录
+    private List<EthTransaction> ethTransList;
+
+    // SC充值相关广播记录
+    private List<ScTransaction> scTransList;
 
     public EthCollection getEthCollection() {
         return ethCollection;
@@ -58,12 +62,20 @@ public class XN802707Res {
         this.jourList = jourList;
     }
 
-    public List<EthTransaction> getTransList() {
-        return transList;
+    public List<EthTransaction> getEthTransList() {
+        return ethTransList;
     }
 
-    public void setTransList(List<EthTransaction> transList) {
-        this.transList = transList;
+    public void setEthTransList(List<EthTransaction> ethTransList) {
+        this.ethTransList = ethTransList;
+    }
+
+    public List<ScTransaction> getScTransList() {
+        return scTransList;
+    }
+
+    public void setScTransList(List<ScTransaction> scTransList) {
+        this.scTransList = scTransList;
     }
 
 }

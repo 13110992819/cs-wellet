@@ -1,7 +1,7 @@
 package com.cdkj.coin.wallet.dao;
 
 import com.cdkj.coin.wallet.dao.base.IBaseDAO;
-import com.cdkj.coin.wallet.domain.ScAddress;
+import com.cdkj.coin.wallet.siacoin.ScAddress;
 
 public interface IScAddressDAO extends IBaseDAO<ScAddress> {
     String NAMESPACE = IScAddressDAO.class.getName().concat(".");

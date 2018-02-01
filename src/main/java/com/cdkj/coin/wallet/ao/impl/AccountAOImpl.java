@@ -16,14 +16,14 @@ import com.cdkj.coin.wallet.bo.IJourBO;
 import com.cdkj.coin.wallet.bo.IScAddressBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.ScAddress;
 import com.cdkj.coin.wallet.enums.EAccountType;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
+import com.cdkj.coin.wallet.siacoin.ScAddress;
 
 @Service
 public class AccountAOImpl implements IAccountAO {

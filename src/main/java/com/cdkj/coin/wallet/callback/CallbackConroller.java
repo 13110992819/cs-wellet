@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.cdkj.coin.wallet.ao.IEthAddressAO;
 import com.cdkj.coin.wallet.ao.IEthTransactionAO;
+import com.cdkj.coin.wallet.ao.IScAddressAO;
+import com.cdkj.coin.wallet.ao.IScTransactionAO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
+import com.cdkj.coin.wallet.siacoin.CtqScTransaction;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -38,11 +41,17 @@ public class CallbackConroller {
     IEthTransactionAO ethTransactionAO;
 
     @Autowired
+    IScAddressAO scAddressAO;
+
+    @Autowired
+    IScTransactionAO scTransactionAO;
+
+    @Autowired
     ICtqBO ctqBO;
 
-    // 交易通知
+    // ETH交易通知
     @RequestMapping("/eth/tx/notice")
-    public synchronized void doCallback(HttpServletRequest request,
+    public synchronized void doEthCallback(HttpServletRequest request,
             HttpServletResponse response) {
         List<String> hashList = new ArrayList<String>();
         try {
@@ -103,6 +112,70 @@ public class CallbackConroller {
             logger.info("*****橙提取交易确认,交易个数为" + hashList.size() + "*****");
             if (CollectionUtils.isNotEmpty(hashList)) {
                 ctqBO.confirmEth(hashList);
+            }
+            logger.info("*****complete*****");
+        }
+    }
+
+    // SC交易通知
+    @RequestMapping("/sc/tx/notice")
+    public synchronized void doScCallback(HttpServletRequest request,
+            HttpServletResponse response) {
+        List<String> hashList = new ArrayList<String>();
+        try {
+            logger.info("*****Siacoin交易通知开始*****");
+            logger.info(request.getParameter("scTxlist"));
+            String txJson = request.getParameter("scTxlist");
+            Gson gson = new Gson();
+            List<CtqScTransaction> list = gson.fromJson(txJson,
+                new TypeToken<List<CtqScTransaction>>() {
+                }.getType());
+
+            for (CtqScTransaction scEthTransaction : list) {
+                String fromAddress = scEthTransaction.getFrom();
+                String toAddress = scEthTransaction.getTo();
+                EAddressType fromType = scAddressAO.getType(fromAddress);
+                EAddressType toType = scAddressAO.getType(toAddress);
+
+                if (EAddressType.M == fromType) { // fromAddress=M 提现
+                    // ethTransactionAO.withdrawNotice(scEthTransaction);
+                    // hashList.add(scEthTransaction.getHash());
+                    // if (EAddressType.X == toType) { // toAddress=X 充值
+                    // String code = ethTransactionAO
+                    // .chargeNotice(ctqEthTransaction);
+                    // if (StringUtils.isNotBlank(code)) {
+                    // ethTransactionAO.collection(
+                    // ctqEthTransaction.getTo(), code);
+                    // }
+                    // }
+                    // hashList.add(ctqEthTransaction.getHash());
+                } else if (EAddressType.X == toType) { // toAddress=X 充值
+                    String code = scTransactionAO
+                        .chargeNotice(scEthTransaction);
+                    hashList.add(scEthTransaction.getTransactionid());
+                } else if (EAddressType.X == fromType
+                        && EAddressType.W == toType) {
+                    // fromAddress=X toAddress=W 归集
+                    // ethTransactionAO.collectionNotice(ctqEthTransaction);
+                    hashList.add(scEthTransaction.getTransactionid());
+                } else if (EAddressType.M == toType) {
+                    // toAddress=M 每日定存
+                    // ethTransactionAO.depositNotice(ctqEthTransaction);
+                    hashList.add(scEthTransaction.getTransactionid());
+                } else if (EAddressType.W == fromType) {
+                    // fromAddress=W 每日转移
+                    hashList.add(scEthTransaction.getTransactionid());
+                }
+
+                logger.info("处理交易：" + scEthTransaction.getTransactionid());
+            }
+            logger.info("*****业务处理完成*****");
+        } catch (Exception e) {
+            logger.info("交易通知异常,原因：" + e.getMessage());
+        } finally {
+            logger.info("*****橙提取交易确认,交易个数为" + hashList.size() + "*****");
+            if (CollectionUtils.isNotEmpty(hashList)) {
+                ctqBO.confirmSc(hashList);
             }
             logger.info("*****complete*****");
         }

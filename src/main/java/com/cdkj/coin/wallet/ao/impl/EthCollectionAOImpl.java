@@ -15,8 +15,8 @@ import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IEthCollectionBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.EthCollection;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
 import com.cdkj.coin.wallet.exception.BizException;
 
 @Service

@@ -32,9 +32,6 @@ import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.EthCollection;
-import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
@@ -47,6 +44,9 @@ import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 
 /** 

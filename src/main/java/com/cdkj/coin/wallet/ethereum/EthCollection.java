@@ -1,4 +1,4 @@
-package com.cdkj.coin.wallet.domain;
+package com.cdkj.coin.wallet.ethereum;
 
 import java.math.BigDecimal;
 import java.util.Date;

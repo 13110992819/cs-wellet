@@ -3,8 +3,8 @@ package com.cdkj.coin.wallet.dao;
 import java.math.BigDecimal;
 
 import com.cdkj.coin.wallet.dao.base.IBaseDAO;
-import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.Withdraw;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 
 public interface IWithdrawDAO extends IBaseDAO<Withdraw> {
     String NAMESPACE = IWithdrawDAO.class.getName().concat(".");

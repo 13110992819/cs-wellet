@@ -3,7 +3,7 @@ package com.cdkj.coin.wallet.ao;
 import java.math.BigDecimal;
 
 import com.cdkj.coin.wallet.bo.base.Paginable;
-import com.cdkj.coin.wallet.domain.EthCollection;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
 
 public interface IEthCollectionAO {
 

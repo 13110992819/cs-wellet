@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cdkj.coin.wallet.dao.IScTransactionDAO">
+	<resultMap id="scTransaction_DB_Result" type="scTransaction">
+		<result column="transactionid" property="transactionid" />
+		<result column="confirmationheight" property="confirmationheight" />
+		<result column="confirmationtimestamp" property="confirmationtimestamp" />
+		<result column="from" property="from" />
+		<result column="to" property="to" />
+		<result column="value" property="value" />
+		<result column="minerfee" property="minerfee" />
+		<result column="ref_no" property="refNo" />
+	</resultMap>
+	<sql id="where_condition">
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="transactionid != null and transactionid != '' ">
+				AND t.transactionid = #{transactionid}
+			</if>
+			<if test="refNo != null and refNo != '' ">
+				AND t.ref_no = #{refNo}
+			</if>
+		</trim>
+	</sql>
+	<select id="select_scTransaction" parameterType="scTransaction" resultMap="scTransaction_DB_Result">
+		SELECT
+		t.transactionid
+		,t.confirmationheight
+		,t.confirmationtimestamp
+		,t.from
+		,t.to
+		,t.value
+		,t.minerfee
+		,t.ref_no
+		FROM
+		tcoin_sc_transaction t
+		<include refid="where_condition" />
+		<trim prefix="ORDER BY ">
+			<if test="order != null and order != '' ">
+				t.${order}
+			</if>
+		</trim>
+	</select>
+
+	<select id="select_scTransaction_count" parameterType="scTransaction"
+		resultType="java.lang.Long">
+		SELECT count(1) FROM tcoin_sc_transaction t
+		<include refid="where_condition" />
+	</select>
+
+	<insert id="insert_scTransaction" parameterType="scTransaction">
+		INSERT INTO
+		tcoin_sc_transaction(
+		transactionid
+		,confirmationheight
+		,confirmationtimestamp
+		,`from`
+		,`to`
+		,`value`
+		,minerfee
+		,ref_no
+		)
+		VALUES(
+		#{transactionid}
+		,#{confirmationheight}
+		,#{confirmationtimestamp}
+		,#{from}
+		,#{to}
+		,#{value}
+		,#{minerfee}
+		,#{refNo}
+		)
+	</insert>
+
+</mapper>

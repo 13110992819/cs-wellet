@@ -13,8 +13,8 @@ public enum EAddressType {
         this.value = value;
     }
 
-    public static EAddressType getEthAddressType(String code) {
-        Map<String, EAddressType> map = getEthAddressTypeMap();
+    public static EAddressType getAddressType(String code) {
+        Map<String, EAddressType> map = getAddressTypeMap();
         EAddressType result = map.get(code);
         if (result == null) {
             throw new BizException("XN0000", code + "对应的bizType不存在");
@@ -22,7 +22,7 @@ public enum EAddressType {
         return result;
     }
 
-    public static Map<String, EAddressType> getEthAddressTypeMap() {
+    public static Map<String, EAddressType> getAddressTypeMap() {
         Map<String, EAddressType> map = new HashMap<String, EAddressType>();
         for (EAddressType ethAddressType : EAddressType.values()) {
             map.put(ethAddressType.getCode(), ethAddressType);

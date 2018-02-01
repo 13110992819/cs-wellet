@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.cdkj.coin.wallet.dao.IScAddressDAO;
 import com.cdkj.coin.wallet.dao.base.support.AMybatisTemplate;
-import com.cdkj.coin.wallet.domain.ScAddress;
+import com.cdkj.coin.wallet.siacoin.ScAddress;
 
 @Repository("scAddressDAOImpl")
 public class ScAddressDAOImpl extends AMybatisTemplate implements IScAddressDAO {

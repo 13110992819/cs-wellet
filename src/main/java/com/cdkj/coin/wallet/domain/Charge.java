@@ -94,9 +94,6 @@ public class Charge extends ABaseDO {
     // 支付时间止
     private Date payDatetimeEnd;
 
-    // 用户信息
-    private User user;
-
     public String getCode() {
         return code;
     }
@@ -304,14 +301,6 @@ public class Charge extends ABaseDO {
 
     public void setPayDatetimeEnd(Date payDatetimeEnd) {
         this.payDatetimeEnd = payDatetimeEnd;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getCodeForQuery() {

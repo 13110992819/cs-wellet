@@ -9,8 +9,11 @@ import java.util.Map;
  * @history:
  */
 public enum ESystemAccount {
-    SYS_ACOUNT_ETH("SYS_ACOUNT_ETH", "平台盈亏账户"), SYS_ACOUNT_ETH_COLD(
-            "SYS_ACOUNT_ETH_COLD", "平台冷钱包");
+    SYS_ACOUNT_ETH("SYS_ACOUNT_ETH", "平台ETH盈亏账户"), SYS_ACOUNT_ETH_COLD(
+            "SYS_ACOUNT_ETH_COLD", "平台ETH冷钱包")
+
+    , SYS_ACOUNT_SC("SYS_ACOUNT_SC", "平台SC盈亏账户"), SYS_ACOUNT_SC_COLD(
+            "SYS_ACOUNT_SC_COLD", "平台SC冷钱包");
     public static Map<String, ESystemAccount> getMap() {
         Map<String, ESystemAccount> map = new HashMap<String, ESystemAccount>();
         for (ESystemAccount direction : ESystemAccount.values()) {

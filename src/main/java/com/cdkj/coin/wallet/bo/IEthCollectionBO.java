@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.EthCollection;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
 
 public interface IEthCollectionBO extends IPaginableBO<EthCollection> {
 

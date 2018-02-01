@@ -24,12 +24,12 @@ import com.cdkj.coin.wallet.common.PropertiesUtil;
 import com.cdkj.coin.wallet.common.RandomUtil;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IEthAddressDAO;
-import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.EXAddressStatus;
 import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.ethereum.AdminClient;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 
 @Component

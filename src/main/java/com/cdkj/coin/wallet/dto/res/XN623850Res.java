@@ -9,7 +9,7 @@
 package com.cdkj.coin.wallet.dto.res;
 
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.domain.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 
 /** 
  * @author: haiqingzheng 

@@ -3,7 +3,6 @@ package com.cdkj.coin.wallet.ao.impl;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +13,12 @@ import com.cdkj.coin.wallet.bo.IChargeBO;
 import com.cdkj.coin.wallet.bo.IEthCollectionBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
+import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
-import com.cdkj.coin.wallet.domain.EthCollection;
-import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.domain.Jour;
-import com.cdkj.coin.wallet.domain.User;
 import com.cdkj.coin.wallet.dto.res.XN802707Res;
 import com.cdkj.coin.wallet.enums.EBoolean;
 import com.cdkj.coin.wallet.enums.EChannelType;
@@ -32,7 +29,10 @@ import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.ESystemCode;
+import com.cdkj.coin.wallet.ethereum.EthCollection;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
+import com.cdkj.coin.wallet.siacoin.ScTransaction;
 
 @Service
 public class ChargeAOImpl implements IChargeAO {
@@ -50,6 +50,9 @@ public class ChargeAOImpl implements IChargeAO {
 
     @Autowired
     private IEthTransactionBO ethTransactionBO;
+
+    @Autowired
+    private IScTransactionBO scTransactionBO;
 
     @Autowired
     private IEthCollectionBO ethCollectionBO;
@@ -91,19 +94,31 @@ public class ChargeAOImpl implements IChargeAO {
 
     private void payOrderYES(Charge data, String payUser, String payNote) {
         chargeBO.payOrder(data, true, payUser, payNote);
-        // 用户账户加钱
-        Account userAccount = accountBO.getAccount(data.getAccountNumber());
-        userAccount = accountBO.changeAmount(userAccount, data.getAmount(),
-            EChannelType.Offline, null, null, data.getCode(),
-            EJourBizTypeUser.AJ_CHARGE.getCode(), "ETH线下充值");
 
+        Account userAccount = accountBO.getAccount(data.getAccountNumber());
         if (ECoin.ETH.getCode().equals(userAccount.getCurrency())) {
+            // 用户账户加钱
+            userAccount = accountBO.changeAmount(userAccount, data.getAmount(),
+                EChannelType.Offline, null, null, data.getCode(),
+                EJourBizTypeUser.AJ_CHARGE.getCode(), "ETH线下充值");
             Account coldAccount = accountBO
                 .getAccount(ESystemAccount.SYS_ACOUNT_ETH_COLD.getCode());
             // 冷钱包加钱
             accountBO.changeAmount(coldAccount, data.getAmount(),
                 EChannelType.Offline, null, null, data.getCode(),
                 EJourBizTypeCold.AJ_INCOME.getCode(), "ETH线下充值，充值账户："
+                        + userAccount.getRealName());
+        } else if (ECoin.SC.getCode().equals(userAccount.getCurrency())) {
+            // 用户账户加钱
+            userAccount = accountBO.changeAmount(userAccount, data.getAmount(),
+                EChannelType.Offline, null, null, data.getCode(),
+                EJourBizTypeUser.AJ_CHARGE.getCode(), "SC线下充值");
+            Account coldAccount = accountBO
+                .getAccount(ESystemAccount.SYS_ACOUNT_SC_COLD.getCode());
+            // 冷钱包加钱
+            accountBO.changeAmount(coldAccount, data.getAmount(),
+                EChannelType.Offline, null, null, data.getCode(),
+                EJourBizTypeCold.AJ_INCOME.getCode(), "SC线下充值，充值账户："
                         + userAccount.getRealName());
         }
     }
@@ -112,33 +127,18 @@ public class ChargeAOImpl implements IChargeAO {
     public Paginable<Charge> queryChargePage(int start, int limit,
             Charge condition) {
         Paginable<Charge> page = chargeBO.getPaginable(start, limit, condition);
-        if (CollectionUtils.isNotEmpty(page.getList())) {
-            List<Charge> list = page.getList();
-            for (Charge charge : list) {
-                User user = userBO.getUser(charge.getApplyUser());
-                charge.setUser(user);
-            }
-        }
         return page;
     }
 
     @Override
     public List<Charge> queryChargeList(Charge condition) {
         List<Charge> list = chargeBO.queryChargeList(condition);
-        if (CollectionUtils.isNotEmpty(list)) {
-            for (Charge charge : list) {
-                User user = userBO.getUser(charge.getApplyUser());
-                charge.setUser(user);
-            }
-        }
         return list;
     }
 
     @Override
     public Charge getCharge(String code, String systemCode) {
         Charge charge = chargeBO.getCharge(code, systemCode);
-        User user = userBO.getUser(charge.getApplyUser());
-        charge.setUser(user);
         return charge;
     }
 
@@ -155,31 +155,41 @@ public class ChargeAOImpl implements IChargeAO {
         jour.setKind(EJourKind.BALANCE.getCode());
         List<Jour> jourList1 = jourBO.queryJourList(jour);
 
-        // 充值对应广播记录
-        EthTransaction ethTransaction = new EthTransaction();
-        ethTransaction.setRefNo(charge.getCode());
-        List<EthTransaction> resultList1 = ethTransactionBO
-            .queryEthTransactionList(ethTransaction);
-
-        EthCollection ethCollection = ethCollectionBO
-            .getEthCollectionByRefNo(charge.getCode());
-        // 如果有归集
-        if (ethCollection != null) {
-            // 归集对应流水
-            jour.setRefNo(ethCollection.getCode());
-            List<Jour> jourList2 = jourBO.queryJourList(jour);
-            jourList1.addAll(jourList2);
-            // 归集对应广播记录
-            ethTransaction.setRefNo(ethCollection.getCode());
-            List<EthTransaction> resultList2 = ethTransactionBO
+        if (ECoin.ETH.getCode().equals(charge.getCurrency())) {
+            // 充值对应广播记录
+            EthTransaction ethTransaction = new EthTransaction();
+            ethTransaction.setRefNo(charge.getCode());
+            List<EthTransaction> resultList1 = ethTransactionBO
                 .queryEthTransactionList(ethTransaction);
-            resultList1.addAll(resultList2);
+
+            EthCollection ethCollection = ethCollectionBO
+                .getEthCollectionByRefNo(charge.getCode());
+            // 如果有归集
+            if (ethCollection != null) {
+                // 归集对应流水
+                jour.setRefNo(ethCollection.getCode());
+                List<Jour> jourList2 = jourBO.queryJourList(jour);
+                jourList1.addAll(jourList2);
+                // 归集对应广播记录
+                ethTransaction.setRefNo(ethCollection.getCode());
+                List<EthTransaction> resultList2 = ethTransactionBO
+                    .queryEthTransactionList(ethTransaction);
+                resultList1.addAll(resultList2);
+                res.setEthCollection(ethCollection);
+                res.setEthTransList(resultList1);
+            }
+        } else if (ECoin.SC.getCode().equals(charge.getCurrency())) {
+            // 充值对应广播记录
+            ScTransaction scTransaction = new ScTransaction();
+            scTransaction.setRefNo(charge.getCode());
+            List<ScTransaction> resultList1 = scTransactionBO
+                .queryScTransactionList(scTransaction);
+
+            res.setScTransList(resultList1);
         }
 
         res.setCharge(charge);
-        res.setEthCollection(ethCollection);
         res.setJourList(jourList1);
-        res.setTransList(resultList1);
 
         return res;
     }

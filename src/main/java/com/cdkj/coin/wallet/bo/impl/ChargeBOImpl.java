@@ -80,7 +80,7 @@ public class ChargeBOImpl extends PaginableBOImpl<Charge> implements IChargeBO {
         data.setCurrency(account.getCurrency());
         data.setBizType(bizType);
         data.setBizNote(bizNote);
-        data.setPayCardInfo("ETH");
+        data.setPayCardInfo(account.getCurrency());
         data.setPayCardNo(fromAddress);
 
         data.setStatus(EChargeStatus.Pay_YES.getCode());

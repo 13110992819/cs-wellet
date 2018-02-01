@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
 
 public interface IEthTransactionBO extends IPaginableBO<EthTransaction> {
 

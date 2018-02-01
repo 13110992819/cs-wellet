@@ -1,9 +1,10 @@
-package com.cdkj.coin.wallet.domain;
+package com.cdkj.coin.wallet.siacoin;
 
 import java.util.Date;
 import java.util.List;
 
 import com.cdkj.coin.wallet.dao.base.ABaseDO;
+import com.cdkj.coin.wallet.domain.User;
 
 /**
 * SC地址
@@ -55,6 +56,9 @@ public class ScAddress extends ABaseDO {
 
     // 地址模糊查询
     private String addressForQuery;
+
+    // 所属用户信息
+    private User user;
 
     public String getCode() {
         return code;
@@ -158,6 +162,14 @@ public class ScAddress extends ABaseDO {
 
     public void setAddressForQuery(String addressForQuery) {
         this.addressForQuery = addressForQuery;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
 }

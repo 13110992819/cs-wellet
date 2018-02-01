@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import com.cdkj.coin.wallet.dao.IWithdrawDAO;
 import com.cdkj.coin.wallet.dao.base.support.AMybatisTemplate;
-import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.Withdraw;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 
 @Repository("withdrawDAOImpl")
 public class WithdrawDAOImpl extends AMybatisTemplate implements IWithdrawDAO {

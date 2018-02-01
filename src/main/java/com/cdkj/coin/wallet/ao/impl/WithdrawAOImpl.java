@@ -30,8 +30,6 @@ import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.common.AmountUtil;
 import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.domain.EthAddress;
-import com.cdkj.coin.wallet.domain.EthTransaction;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.domain.SYSDict;
 import com.cdkj.coin.wallet.domain.User;
@@ -46,6 +44,8 @@ import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 

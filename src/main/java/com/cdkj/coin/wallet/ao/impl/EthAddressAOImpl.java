@@ -34,7 +34,6 @@ import com.cdkj.coin.wallet.bo.ISmsOutBO;
 import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
-import com.cdkj.coin.wallet.domain.EthAddress;
 import com.cdkj.coin.wallet.domain.User;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBoolean;
@@ -44,6 +43,7 @@ import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.enums.EWAddressStatus;
 import com.cdkj.coin.wallet.enums.EYAddressStatus;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 
@@ -169,7 +169,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
         List<EthAddress> results = ethAddressBO.queryEthAddressList(condition);
         if (CollectionUtils.isNotEmpty(results)) {
             EthAddress ethAddress = results.get(0);
-            type = EAddressType.getEthAddressType(ethAddress.getType());
+            type = EAddressType.getAddressType(ethAddress.getType());
         }
         return type;
     }
