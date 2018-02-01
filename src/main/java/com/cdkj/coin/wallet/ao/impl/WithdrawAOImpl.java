@@ -31,19 +31,18 @@ import com.cdkj.coin.wallet.common.AmountUtil;
 import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Jour;
-import com.cdkj.coin.wallet.domain.SYSDict;
 import com.cdkj.coin.wallet.domain.User;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.dto.res.XN802758Res;
 import com.cdkj.coin.wallet.enums.EAccountType;
-import com.cdkj.coin.wallet.enums.EBoolean;
 import com.cdkj.coin.wallet.enums.EAddressType;
-import com.cdkj.coin.wallet.enums.EMAddressStatus;
-import com.cdkj.coin.wallet.enums.EYAddressStatus;
+import com.cdkj.coin.wallet.enums.EBoolean;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
+import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
+import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
@@ -156,16 +155,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
             EJourBizTypeUser.AJ_WITHDRAW_FROZEN.getCode(),
             EJourBizTypeUser.AJ_WITHDRAW_FROZEN.getValue(), withdrawCode);
 
-        // 通知相关人员
-        String content = String.format(SysConstants.WITHDRAW, withdrawCode);
-        SYSDict condition2 = new SYSDict();
-        condition2.setParentKey(SysConstants.QX_SMS_NOTICE);
-        List<SYSDict> mobiledDicts = sysDictBO.querySYSDictList(condition2);
-        for (SYSDict sysDict : mobiledDicts) {
-            smsOutBO.sendSmsOut(sysDict.getDkey(), content,
-                ESystemCode.COIN.getCode(), ESystemCode.COIN.getCode());
-        }
-
         return withdrawCode;
     }
 
@@ -246,8 +235,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
         if (EMAddressStatus.IN_USE.getCode().equals(mEthAddress.getStatus())) {
             throw new BizException("该散取地址正在广播使用，请稍后再试！");
         }
-        if (EMAddressStatus.INVALID.getCode()
-            .equals(mEthAddress.getStatus())) {
+        if (EMAddressStatus.INVALID.getCode().equals(mEthAddress.getStatus())) {
             throw new BizException("该散取地址已被弃用！");
         }
 

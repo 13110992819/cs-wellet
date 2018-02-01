@@ -26,7 +26,7 @@ public interface IScTransactionAO {
     public void withdrawNotice(CtqScTransaction ctqScTransaction);
 
     // 归集
-    public void collection(String address, String chargeCode);
+    public void collection(String chargeCode);
 
     // 归集交易通知处理
     public void collectionNotice(CtqScTransaction ctqScTransaction);

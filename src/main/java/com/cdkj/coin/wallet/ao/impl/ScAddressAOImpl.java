@@ -29,10 +29,12 @@ import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.ESysUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
+import com.cdkj.coin.wallet.enums.EWAddressStatus;
 import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
+import com.cdkj.coin.wallet.siacoin.SiadClient;
 
 /** 
  * @author: haiqingzheng 
@@ -72,13 +74,38 @@ public class ScAddressAOImpl implements IScAddressAO {
     ISmsOutBO smsOutBO;
 
     @Override
-    public void abandonAddress(String code) {
+    @Transactional
+    public String importWAddress(String address, String updater, String remark) {
+        if (scAddressBO.isScAddressExist(address)) {
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
+                    + address + "已经在平台内被使用，请仔细核对");
+        }
+        // 地址有效性校验
+        if (!SiadClient.verifyAddress(address)) {
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
+                    + address + "不符合Siacoin规则，请仔细核对");
+        }
+        String code = scAddressBO.saveScAddress(EAddressType.W, address,
+            ESysUser.SYS_USER_SC_COLD.getCode(),
+            ESystemAccount.SYS_ACOUNT_SC_COLD.getCode(),
+            EWAddressStatus.NORMAL.getCode(), updater, remark);
+        // 通知橙提取
+        ctqBO.uploadScAddress(address, EAddressType.M.getCode());
+        return code;
+    }
+
+    @Override
+    public void abandonAddress(String code, String updater, String remark) {
         ScAddress scAddress = scAddressBO.getScAddress(code);
+        if (!EAddressType.M.getCode().equals(scAddress.getType())
+                && !EAddressType.W.getCode().equals(scAddress.getType())) {
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "该类型地址不能弃用");
+        }
         if (EYAddressStatus.INVALID.getCode().equals(scAddress.getStatus())) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(),
                 "地址已失效，无需重复弃用");
         }
-        scAddressBO.abandonAddress(scAddress);
+        scAddressBO.abandonAddress(scAddress, updater, remark);
     }
 
     @Override
@@ -97,8 +124,8 @@ public class ScAddressAOImpl implements IScAddressAO {
     @Override
     public String generateMAddress(String updater, String remark) {
         String address = scAddressBO.generateAddress(EAddressType.M,
-            ESysUser.SYS_USER_ETH.getCode(),
-            ESystemAccount.SYS_ACOUNT_ETH.getCode(), updater, remark);
+            ESysUser.SYS_USER_SC.getCode(),
+            ESystemAccount.SYS_ACOUNT_SC.getCode(), updater, remark);
         // 通知橙提取
         ctqBO.uploadScAddress(address, EAddressType.M.getCode());
         return address;

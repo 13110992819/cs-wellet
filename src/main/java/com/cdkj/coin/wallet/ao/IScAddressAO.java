@@ -19,13 +19,16 @@ import com.cdkj.coin.wallet.siacoin.ScAddress;
  */
 public interface IScAddressAO {
 
+    // 导入归集地址
+    public String importWAddress(String address, String updater, String remark);
+
     // 弃用地址
-    public void abandonAddress(String code);
+    public void abandonAddress(String code, String updater, String remark);
 
     // 根据地址获取地址类型
     public EAddressType getType(String address);
 
-    // 生成散取️地址（有私钥）
+    // 生成散取️地址
     public String generateMAddress(String updater, String remark);
 
     public Paginable<ScAddress> queryScAddressPage(int start, int limit,

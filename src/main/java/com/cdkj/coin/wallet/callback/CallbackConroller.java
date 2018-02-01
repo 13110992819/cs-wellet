@@ -152,6 +152,9 @@ public class CallbackConroller {
                 } else if (EAddressType.X == toType) { // toAddress=X 充值
                     String code = scTransactionAO
                         .chargeNotice(scEthTransaction);
+                    if (StringUtils.isNotBlank(code)) {
+                        scTransactionAO.collection(code);
+                    }
                     hashList.add(scEthTransaction.getTransactionid());
                 } else if (EAddressType.X == fromType
                         && EAddressType.W == toType) {

@@ -34,7 +34,7 @@ public class Account extends ABaseDO {
     private String currency;
 
     // 余额
-    private transient BigDecimal amount;
+    private BigDecimal amount;
 
     private String amountString;
 

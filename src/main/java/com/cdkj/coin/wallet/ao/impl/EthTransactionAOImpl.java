@@ -33,14 +33,14 @@ import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
 import com.cdkj.coin.wallet.domain.Withdraw;
+import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
-import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EEthCollectionStatus;
-import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
 import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
+import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
@@ -205,7 +205,7 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
             throw new BizException("xn625000", "该地址不能归集");
         }
         BigDecimal limit = sysConfigBO
-            .getBigDecimalValue(SysConstants.COLLECTION_LIMIT);
+            .getBigDecimalValue(SysConstants.COLLECTION_LIMIT_ETH);
         BigDecimal balance = ethAddressBO.getEthBalance(address);
         // 余额大于配置值时，进行归集
         if (balance.compareTo(Convert.toWei(limit, Unit.ETHER)) < 0) {

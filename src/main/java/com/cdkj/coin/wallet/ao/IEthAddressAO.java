@@ -36,7 +36,7 @@ public interface IEthAddressAO {
     // 生成散取️地址（有私钥）
     public String generateMAddress();
 
-    // 导入估计地址（无私钥）
+    // 导入归集地址（无私钥）
     public String importWAddress(String address, Date availableDatetimeStart,
             Date availableDatetimeEnd);
 

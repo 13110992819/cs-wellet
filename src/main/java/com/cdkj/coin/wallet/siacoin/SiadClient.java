@@ -8,6 +8,7 @@
  */
 package com.cdkj.coin.wallet.siacoin;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +19,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cdkj.coin.wallet.common.PropertiesUtil;
 import com.cdkj.coin.wallet.exception.BizException;
@@ -38,7 +42,8 @@ public class SiadClient {
     public static void main(String[] args) {
         // createWalletWithSeed("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
         // unlock("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
-        System.out.println(getSingleAddress());
+        // System.out.println(getSingleAddress());
+        System.out.println(getSiacoinBalance());
     }
 
     // 根据已有的种子创建钱包，需要unlock
@@ -46,6 +51,16 @@ public class SiadClient {
         RequestBody formBody = new FormBody.Builder().add("seed", seed)
             .add("force", "true").build();
         return doAccessHTTPPostJson(SC_URL + "/wallet/init/seed", formBody);
+    }
+
+    // 获取钱包余额
+    public static BigDecimal getSiacoinBalance() {
+        BigDecimal result = BigDecimal.ZERO;
+        String resStr = doAccessHTTPGetJson(SC_URL + "/wallet");
+        System.out.println(resStr);
+        result = JSONObject.parseObject(resStr).getBigDecimal(
+            "confirmedsiacoinbalance");
+        return result;
     }
 
     // 获取钱包信息
@@ -97,10 +112,28 @@ public class SiadClient {
     // 获取当前区块高度
     public static boolean verifyAddress(String address) {
         boolean result = false;
-        String resStr = doAccessHTTPGetJson(SC_URL + "/wallet/verify/address/"
-                + address);
-        result = JSONObject.parseObject(resStr).getBoolean("valid");
+        if (StringUtils.isNotBlank(address)) {
+            String resStr = doAccessHTTPGetJson(SC_URL
+                    + "/wallet/verify/address/" + address);
+            result = JSONObject.parseObject(resStr).getBoolean("valid");
+        }
         return result;
+    }
+
+    // 转账
+    public static String sendSingleAddress(String toAddress, BigDecimal amount) {
+        String txId = null;
+        RequestBody formBody = new FormBody.Builder()
+            .add("destination", toAddress).add("amount", amount.toString())
+            .build();
+        String resStr = doAccessHTTPPostJson(SC_URL + "/wallet/siacoins",
+            formBody);
+        JSONArray txIdList = JSONObject.parseObject(resStr).getJSONArray(
+            "transactionids");
+        if (!txIdList.isEmpty()) {
+            txId = (String) txIdList.get(txIdList.size() - 1);
+        }
+        return txId;
     }
 
     public static String doAccessHTTPPostJson(String sendUrl,
@@ -154,5 +187,17 @@ public class SiadClient {
             System.out.println(e.getMessage());
         }
         return jsonStr;
+    }
+
+    public static BigDecimal toHasting(BigDecimal value) {
+        BigDecimal result = null;
+        result = value.multiply(new BigDecimal("1000000000000000000000000"));
+        return result;
+    }
+
+    public static BigDecimal fromHasting(BigDecimal value) {
+        BigDecimal result = null;
+        result = value.divide(new BigDecimal("1000000000000000000000000"));
+        return result;
     }
 }

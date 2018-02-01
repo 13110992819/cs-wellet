@@ -17,6 +17,9 @@ public interface IScAddressBO extends IPaginableBO<ScAddress> {
             String userId, String accountNumber, String status, String updater,
             String remark);
 
+    // 获取今日归集地址
+    public ScAddress getWScAddressToday();
+
     // 更新状态
     public int refreshStatus(ScAddress address, String status);
 
@@ -32,6 +35,6 @@ public interface IScAddressBO extends IPaginableBO<ScAddress> {
 
     public ScAddress getScAddress(String code);
 
-    public int abandonAddress(ScAddress scAddress);
+    public int abandonAddress(ScAddress scAddress, String updater, String remark);
 
 }

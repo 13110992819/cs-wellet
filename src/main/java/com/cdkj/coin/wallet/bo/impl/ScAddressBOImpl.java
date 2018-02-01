@@ -16,6 +16,7 @@ import com.cdkj.coin.wallet.dao.IScAddressDAO;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.EXAddressStatus;
+import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
@@ -80,7 +81,7 @@ public class ScAddressBOImpl extends PaginableBOImpl<ScAddress> implements
             condition.setCode(code);
             data = scAddressDAO.select(condition);
             if (data == null) {
-                throw new BizException("xn0000", "以太坊地址不存在");
+                throw new BizException("xn0000", "SC地址不存在");
             }
         }
         return data;
@@ -124,15 +125,30 @@ public class ScAddressBOImpl extends PaginableBOImpl<ScAddress> implements
     }
 
     @Override
-    public int abandonAddress(ScAddress scAddress) {
+    public int abandonAddress(ScAddress scAddress, String updater, String remark) {
         int count = 0;
         if (scAddress != null) {
             Date now = new Date();
             scAddress.setStatus(EXAddressStatus.INVALID.getCode());
+            scAddress.setUpdater(updater);
             scAddress.setUpdateDatetime(now);
+            scAddress.setRemark(remark);
             scAddressDAO.updateAbandon(scAddress);
         }
         return count;
+    }
+
+    @Override
+    public ScAddress getWScAddressToday() {
+        ScAddress condition = new ScAddress();
+        condition.setType(EAddressType.W.getCode());
+        condition.setStatus(EYAddressStatus.NORMAL.getCode());
+        condition.setOrder("create_datetime", "desc");
+        List<ScAddress> wList = scAddressDAO.selectList(condition);
+        if (CollectionUtils.isEmpty(wList)) {
+            throw new BizException("xn625000", "未找到今日可用的归集地址");
+        }
+        return wList.get(0);
     }
 
     @Override
