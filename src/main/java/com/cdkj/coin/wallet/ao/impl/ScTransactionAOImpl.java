@@ -259,19 +259,15 @@ public class ScTransactionAOImpl implements IScTransactionAO {
 
     @Override
     public void depositNotice(CtqScTransaction ctqScTransaction) {
-        // // 平台冷钱包减钱
-        // BigDecimal amount = new BigDecimal(ctqScTransaction.getValue());
-        // Account coldAccount = accountBO
-        // .getAccount(ESystemAccount.SYS_ACOUNT_ETH_COLD.getCode());
-        // coldAccount = accountBO.changeAmount(coldAccount, amount.negate(),
-        // EChannelType.ETH, ctqScTransaction.getHash(), "ETH",
-        // ctqScTransaction.getHash(), EJourBizTypeCold.AJ_PAY.getCode(),
-        // "ETH定存至取现地址(M):" + ctqScTransaction.getTo());
-        // // 更新散取地址余额
-        // ScAddress to = scAddressBO.getScAddress(EAddressType.M,
-        // ctqScTransaction.getTo());
-        // scAddressBO.refreshBalance(to);
-
+        // 平台冷钱包减钱
+        BigDecimal amount = new BigDecimal(ctqScTransaction.getValue());
+        Account coldAccount = accountBO
+            .getAccount(ESystemAccount.SYS_ACOUNT_SC_COLD.getCode());
+        coldAccount = accountBO.changeAmount(coldAccount, amount.negate(),
+            EChannelType.SC, ctqScTransaction.getTransactionid(),
+            EChannelType.SC.getCode(), ctqScTransaction.getTransactionid(),
+            EJourBizTypeCold.AJ_PAY.getCode(),
+            "SC定存至钱包:" + ctqScTransaction.getTo());
     }
 
 }

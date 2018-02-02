@@ -137,19 +137,7 @@ public class CallbackConroller {
                 EAddressType fromType = scAddressAO.getType(fromAddress);
                 EAddressType toType = scAddressAO.getType(toAddress);
 
-                if (EAddressType.M == fromType) { // fromAddress=M 提现
-                    // ethTransactionAO.withdrawNotice(scEthTransaction);
-                    // hashList.add(scEthTransaction.getHash());
-                    // if (EAddressType.X == toType) { // toAddress=X 充值
-                    // String code = ethTransactionAO
-                    // .chargeNotice(ctqEthTransaction);
-                    // if (StringUtils.isNotBlank(code)) {
-                    // ethTransactionAO.collection(
-                    // ctqEthTransaction.getTo(), code);
-                    // }
-                    // }
-                    // hashList.add(ctqEthTransaction.getHash());
-                } else if (EAddressType.X == toType) { // toAddress=X 充值
+                if (EAddressType.X == toType) { // toAddress=X 充值
                     String code = scTransactionAO
                         .chargeNotice(ctqScTransaction);
                     if (StringUtils.isNotBlank(code)) {
@@ -162,7 +150,7 @@ public class CallbackConroller {
                     hashList.add(ctqScTransaction.getTransactionid());
                 } else if (EAddressType.M == toType) {
                     // toAddress=M 每日定存
-                    // ethTransactionAO.depositNotice(ctqEthTransaction);
+                    scTransactionAO.depositNotice(ctqScTransaction);
                     hashList.add(ctqScTransaction.getTransactionid());
                 } else if (EAddressType.W == fromType) {
                     // fromAddress=W 每日转移
