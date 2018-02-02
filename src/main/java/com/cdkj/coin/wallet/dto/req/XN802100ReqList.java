@@ -15,15 +15,15 @@ import java.util.List;
  * @since: 2017年11月8日 下午3:48:07 
  * @history:
  */
-public class XN625201ReqList {
+public class XN802100ReqList {
 
-    List<XN625201Req> wAddressList;
+    List<XN802100Req> wAddressList;
 
-    public List<XN625201Req> getwAddressList() {
+    public List<XN802100Req> getwAddressList() {
         return wAddressList;
     }
 
-    public void setwAddressList(List<XN625201Req> wAddressList) {
+    public void setwAddressList(List<XN802100Req> wAddressList) {
         this.wAddressList = wAddressList;
     }
 

@@ -13,7 +13,7 @@ package com.cdkj.coin.wallet.dto.req;
  * @since: 2017年11月9日 下午7:02:19 
  * @history:
  */
-public class XN625105Req extends APageReq {
+public class XN802115Req extends APageReq {
 
     private static final long serialVersionUID = -542370069342373487L;
 

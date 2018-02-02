@@ -20,7 +20,7 @@ import com.cdkj.coin.wallet.spring.SpringContextHolder;
  * @since: 2017年3月26日 上午9:08:19 
  * @history:
  */
-public class XN625800 extends AProcessor {
+public class XN802901 extends AProcessor {
     private IEthNodeAO ethNodeAO = SpringContextHolder
         .getBean(IEthNodeAO.class);
 

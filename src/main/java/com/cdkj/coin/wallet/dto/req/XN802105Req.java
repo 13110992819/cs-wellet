@@ -15,7 +15,7 @@ import java.util.List;
  * @since: 2017年11月8日 下午3:25:36 
  * @history:
  */
-public class XN625205Req extends APageReq {
+public class XN802105Req extends APageReq {
 
     private static final long serialVersionUID = -4584603630956235345L;
 

@@ -15,17 +15,17 @@ import org.hibernate.validator.constraints.NotBlank;
  * @since: 2017年11月9日 下午7:02:19 
  * @history:
  */
-public class XN625106Req {
+public class XN802110Req {
 
-    @NotBlank
-    private String code;
+    @NotBlank(message = "请先设置归集阀值")
+    private String balanceStart; // 归集阀值
 
-    public String getCode() {
-        return code;
+    public String getBalanceStart() {
+        return balanceStart;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setBalanceStart(String balanceStart) {
+        this.balanceStart = balanceStart;
     }
 
 }

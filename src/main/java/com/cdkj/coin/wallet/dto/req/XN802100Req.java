@@ -14,7 +14,7 @@ package com.cdkj.coin.wallet.dto.req;
  * @since: 2017年11月8日 下午3:48:07 
  * @history:
  */
-public class XN625201Req {
+public class XN802100Req {
 
     // 以太坊地址
     private String address;

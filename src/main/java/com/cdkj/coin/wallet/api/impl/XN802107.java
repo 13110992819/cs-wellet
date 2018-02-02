@@ -8,44 +8,50 @@
  */
 package com.cdkj.coin.wallet.api.impl;
 
-import com.cdkj.coin.wallet.ao.IEthCollectionAO;
+import com.cdkj.coin.wallet.ao.IEthTransactionAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
 import com.cdkj.coin.wallet.core.StringValidater;
-import com.cdkj.coin.wallet.dto.req.XN625105Req;
-import com.cdkj.coin.wallet.ethereum.EthCollection;
+import com.cdkj.coin.wallet.dto.req.XN802107Req;
+import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
 import com.cdkj.coin.wallet.spring.SpringContextHolder;
 
 /** 
- * 分页查询归集订单
+ * 分页查询广播记录
  * @author: haiqingzheng 
  * @since: 2017年11月9日 下午7:00:49 
  * @history:
  */
-public class XN625105 extends AProcessor {
+public class XN802107 extends AProcessor {
 
-    private IEthCollectionAO ethCollectionAO = SpringContextHolder
-        .getBean(IEthCollectionAO.class);
+    private IEthTransactionAO ethTransactionAO = SpringContextHolder
+        .getBean(IEthTransactionAO.class);
 
-    private XN625105Req req = null;
+    private XN802107Req req = null;
 
     /** 
      * @see com.cdkj.coin.wallet.api.IProcessor#doBusiness()
      */
     @Override
     public Object doBusiness() throws BizException {
-        EthCollection condition = new EthCollection();
-        condition.setCodeForQuery(req.getCode());
-        condition.setFromAddress(req.getFromAddress());
-        condition.setToAddress(req.getToAddress());
-        condition.setStatus(req.getStatus());
-        condition.setTxHash(req.getTxHash());
+        EthTransaction condition = new EthTransaction();
+        condition.setHash(req.getHash());
+        condition.setBlockHash(req.getBlockHash());
+        condition.setBlockNumber(req.getBlockNumber());
+        condition.setFrom(req.getFrom());
+        condition.setTo(req.getTo());
+        condition.setRefNo(req.getRefNo());
+        condition.setCreatesStart(req.getDateStart());
+        condition.setCreatesEnd(req.getDateEnd());
+        condition.setAddress(req.getAddress());
+        condition.setOrder("creates", "desc");
         int start = StringValidater.toInteger(req.getStart());
         int limit = StringValidater.toInteger(req.getLimit());
-        return ethCollectionAO.queryEthCollectionPage(start, limit, condition);
+        return ethTransactionAO
+            .queryEthTransactionPage(start, limit, condition);
     }
 
     /** 
@@ -53,7 +59,7 @@ public class XN625105 extends AProcessor {
      */
     @Override
     public void doCheck(String inputparams, String operator) throws ParaException {
-        req = JsonUtil.json2Bean(inputparams, XN625105Req.class);
+        req = JsonUtil.json2Bean(inputparams, XN802107Req.class);
         ObjValidater.validateReq(req);
     }
 

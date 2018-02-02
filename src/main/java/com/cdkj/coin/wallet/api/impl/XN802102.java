@@ -12,24 +12,24 @@ import com.cdkj.coin.wallet.ao.IEthAddressAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
-import com.cdkj.coin.wallet.dto.req.XN625202Req;
+import com.cdkj.coin.wallet.dto.req.XN802102Req;
 import com.cdkj.coin.wallet.dto.res.BooleanRes;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
 import com.cdkj.coin.wallet.spring.SpringContextHolder;
 
 /** 
- * 弃用
+ * 弃用ETH散取/归集地址
  * @author: haiqingzheng 
  * @since: 2017年11月8日 下午3:12:21 
  * @history:
  */
-public class XN625202 extends AProcessor {
+public class XN802102 extends AProcessor {
 
     private IEthAddressAO ethAddressAO = SpringContextHolder
         .getBean(IEthAddressAO.class);
 
-    private XN625202Req req = null;
+    private XN802102Req req = null;
 
     /** 
      * @see com.cdkj.coin.wallet.api.IProcessor#doBusiness()
@@ -44,8 +44,9 @@ public class XN625202 extends AProcessor {
      * @see com.cdkj.coin.wallet.api.IProcessor#doCheck(java.lang.String)
      */
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
-        req = JsonUtil.json2Bean(inputparams, XN625202Req.class);
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
+        req = JsonUtil.json2Bean(inputparams, XN802102Req.class);
         ObjValidater.validateReq(req);
     }
 
