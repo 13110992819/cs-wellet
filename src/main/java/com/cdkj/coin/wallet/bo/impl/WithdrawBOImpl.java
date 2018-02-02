@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
-import com.cdkj.coin.wallet.common.DateUtil;
-import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IWithdrawDAO;
 import com.cdkj.coin.wallet.domain.Account;
@@ -123,20 +121,20 @@ public class WithdrawBOImpl extends PaginableBOImpl<Withdraw> implements
     @Override
     public void doCheckTimes(Account account) {
         // 判断本月申请次数是否达到上限
-        String monthTimesValue = sysConfigBO
-            .getStringValue(SysConstants.CUSERMONTIMES);
-        if (StringUtils.isNotBlank(monthTimesValue)) {// 月取现次数判断
-            Withdraw condition = new Withdraw();
-            condition.setAccountNumber(account.getAccountNumber());
-            condition.setApplyDatetimeStart(DateUtil.getCurrentMonthFirstDay());
-            condition.setApplyDatetimeEnd(DateUtil.getCurrentMonthLastDay());
-            long totalCount = withdrawDAO.selectTotalCount(condition);
-            long maxMonthTimes = Long.valueOf(monthTimesValue);
-            if (totalCount >= maxMonthTimes) {
-                throw new BizException("xn0000", "每月取现最多" + maxMonthTimes
-                        + "次,本月申请次数已用尽");
-            }
-        }
+        // String monthTimesValue = sysConfigBO
+        // .getStringValue(SysConstants.CUSERMONTIMES);
+        // if (StringUtils.isNotBlank(monthTimesValue)) {// 月取现次数判断
+        // Withdraw condition = new Withdraw();
+        // condition.setAccountNumber(account.getAccountNumber());
+        // condition.setApplyDatetimeStart(DateUtil.getCurrentMonthFirstDay());
+        // condition.setApplyDatetimeEnd(DateUtil.getCurrentMonthLastDay());
+        // long totalCount = withdrawDAO.selectTotalCount(condition);
+        // long maxMonthTimes = Long.valueOf(monthTimesValue);
+        // if (totalCount >= maxMonthTimes) {
+        // throw new BizException("xn0000", "每月取现最多" + maxMonthTimes
+        // + "次,本月申请次数已用尽");
+        // }
+        // }
 
         // 判断是否还有未处理的取现记录
         Withdraw condition = new Withdraw();
