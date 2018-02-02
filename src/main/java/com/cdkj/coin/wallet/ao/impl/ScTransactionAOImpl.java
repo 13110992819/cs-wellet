@@ -26,6 +26,7 @@ import com.cdkj.coin.wallet.bo.IScCollectionBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
+import com.cdkj.coin.wallet.common.DateUtil;
 import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
@@ -33,10 +34,15 @@ import com.cdkj.coin.wallet.domain.Charge;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
+import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
+import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
+import com.cdkj.coin.wallet.enums.EScCollectionStatus;
+import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.siacoin.CtqScTransaction;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
+import com.cdkj.coin.wallet.siacoin.ScCollection;
 import com.cdkj.coin.wallet.siacoin.ScTransaction;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
 
@@ -226,46 +232,37 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     @Override
     @Transactional
     public void collectionNotice(CtqScTransaction ctqScTransaction) {
-        // // 根据交易hash查询归集记录
-        // ScCollection collection = scCollectionBO
-        // .getScCollectionByTxHash(ctqScTransaction.getHash());
-        // if (!EScCollectionStatus.Broadcast.getCode().equals(
-        // collection.getStatus())) {
-        // throw new BizException("xn625000", "交易已处理，请勿重复处理");
-        // }
-        // // 归集订单状态更新
-        // BigDecimal gasPrice = new BigDecimal(ctqScTransaction.getGasPrice());
-        // BigDecimal gasUse = new
-        // BigDecimal(ctqScTransaction.getGas().toString());
-        // BigDecimal txFee = gasPrice.multiply(gasUse);
-        // scCollectionBO.colectionNotice(collection, txFee,
-        // ctqScTransaction.getBlockCreateDatetime());
-        // // 平台冷钱包加钱
-        // Account coldAccount = accountBO
-        // .getAccount(ESystemAccount.SYS_ACOUNT_ETH_COLD.getCode());
-        // BigDecimal amount = new BigDecimal(ctqScTransaction.getValue());
-        // accountBO.changeAmount(coldAccount, amount, EChannelType.ETH,
-        // ctqScTransaction.getHash(), "ETH", collection.getCode(),
-        // EJourBizTypeCold.AJ_INCOME.getCode(),
-        // "归集-来自地址：" + collection.getFromAddress());
-        // // 平台盈亏账户记入矿工费
-        // Account sysAccount =
-        // accountBO.getAccount(ESystemAccount.SYS_ACOUNT_ETH
-        // .getCode());
-        // accountBO.changeAmount(sysAccount, txFee.negate(), EChannelType.ETH,
-        // ctqScTransaction.getHash(), "ETH", collection.getCode(),
-        // EJourBizTypePlat.AJ_MFEE.getCode(),
-        // "归集地址：" + collection.getFromAddress());
-        // // 落地交易记录
-        // scTransactionBO.saveScTransaction(ctqScTransaction,
-        // collection.getCode());
-        // // 更新地址余额
-        // ScAddress from = scAddressBO.getScAddress(EAddressType.X,
-        // collection.getFromAddress());
-        // ScAddress to = scAddressBO.getScAddress(EAddressType.W,
-        // collection.getToAddress());
-        // scAddressBO.refreshBalance(from);
-        // scAddressBO.refreshBalance(to);
+        // 根据交易hash查询归集记录
+        ScCollection collection = scCollectionBO
+            .getScCollectionByTxHash(ctqScTransaction.getTransactionid());
+        if (!EScCollectionStatus.Broadcast.getCode().equals(
+            collection.getStatus())) {
+            throw new BizException("xn625000", "交易已处理，请勿重复处理");
+        }
+        // 归集订单状态更新
+        BigDecimal txFee = new BigDecimal(ctqScTransaction.getMinerfee());
+        scCollectionBO.colectionNotice(collection, ctqScTransaction.getFrom(),
+            txFee, DateUtil.TimeStamp2Date(ctqScTransaction
+                .getConfirmationtimestamp().toString(),
+                DateUtil.DATA_TIME_PATTERN_1));
+        // 平台冷钱包加钱
+        Account coldAccount = accountBO
+            .getAccount(ESystemAccount.SYS_ACOUNT_SC_COLD.getCode());
+        BigDecimal amount = new BigDecimal(ctqScTransaction.getValue());
+        accountBO.changeAmount(coldAccount, amount, EChannelType.SC,
+            ctqScTransaction.getTransactionid(), "SC", collection.getCode(),
+            EJourBizTypeCold.AJ_INCOME.getCode(),
+            "归集-来自地址：" + collection.getFromAddress());
+        // 平台盈亏账户记入矿工费
+        Account sysAccount = accountBO.getAccount(ESystemAccount.SYS_ACOUNT_SC
+            .getCode());
+        accountBO.changeAmount(sysAccount, txFee.negate(), EChannelType.SC,
+            ctqScTransaction.getTransactionid(), "SC", collection.getCode(),
+            EJourBizTypePlat.AJ_MFEE.getCode(),
+            "归集地址：" + collection.getFromAddress());
+        // 落地交易记录
+        scTransactionBO.saveScTransaction(ctqScTransaction,
+            collection.getCode());
     }
 
     @Override

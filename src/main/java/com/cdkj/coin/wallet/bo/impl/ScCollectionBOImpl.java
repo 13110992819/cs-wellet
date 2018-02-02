@@ -86,9 +86,10 @@ public class ScCollectionBOImpl extends PaginableBOImpl<ScCollection> implements
     }
 
     @Override
-    public int colectionNotice(ScCollection data, BigDecimal txfee,
-            Date scDatetime) {
+    public int colectionNotice(ScCollection data, String fromAddress,
+            BigDecimal txfee, Date scDatetime) {
         int count = 0;
+        data.setFromAddress(fromAddress);
         data.setTxFee(txfee);
         data.setStatus(EScCollectionStatus.Broadcast_YES.getCode());
         data.setScDatetime(scDatetime);

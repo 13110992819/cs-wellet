@@ -131,9 +131,9 @@ public class CallbackConroller {
                 new TypeToken<List<CtqScTransaction>>() {
                 }.getType());
 
-            for (CtqScTransaction scEthTransaction : list) {
-                String fromAddress = scEthTransaction.getFrom();
-                String toAddress = scEthTransaction.getTo();
+            for (CtqScTransaction ctqScTransaction : list) {
+                String fromAddress = ctqScTransaction.getFrom();
+                String toAddress = ctqScTransaction.getTo();
                 EAddressType fromType = scAddressAO.getType(fromAddress);
                 EAddressType toType = scAddressAO.getType(toAddress);
 
@@ -151,26 +151,25 @@ public class CallbackConroller {
                     // hashList.add(ctqEthTransaction.getHash());
                 } else if (EAddressType.X == toType) { // toAddress=X 充值
                     String code = scTransactionAO
-                        .chargeNotice(scEthTransaction);
+                        .chargeNotice(ctqScTransaction);
                     if (StringUtils.isNotBlank(code)) {
                         scTransactionAO.collection(code);
                     }
-                    hashList.add(scEthTransaction.getTransactionid());
-                } else if (EAddressType.X == fromType
-                        && EAddressType.W == toType) {
-                    // fromAddress=X toAddress=W 归集
-                    // ethTransactionAO.collectionNotice(ctqEthTransaction);
-                    hashList.add(scEthTransaction.getTransactionid());
+                    hashList.add(ctqScTransaction.getTransactionid());
+                } else if (EAddressType.W == toType) {
+                    // toAddress=W 归集
+                    scTransactionAO.collectionNotice(ctqScTransaction);
+                    hashList.add(ctqScTransaction.getTransactionid());
                 } else if (EAddressType.M == toType) {
                     // toAddress=M 每日定存
                     // ethTransactionAO.depositNotice(ctqEthTransaction);
-                    hashList.add(scEthTransaction.getTransactionid());
+                    hashList.add(ctqScTransaction.getTransactionid());
                 } else if (EAddressType.W == fromType) {
                     // fromAddress=W 每日转移
-                    hashList.add(scEthTransaction.getTransactionid());
+                    hashList.add(ctqScTransaction.getTransactionid());
                 }
 
-                logger.info("处理交易：" + scEthTransaction.getTransactionid());
+                logger.info("处理交易：" + ctqScTransaction.getTransactionid());
             }
             logger.info("*****业务处理完成*****");
         } catch (Exception e) {

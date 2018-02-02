@@ -109,7 +109,8 @@
 		UPDATE
 		tcoin_sc_collection
 		SET
-		tx_fee = #{txFee}
+		from_address = #{fromAddress}
+		,tx_fee = #{txFee}
 		,status = #{status}
 		,sc_datetime = #{scDatetime}
 		,update_datetime = #{updateDatetime}

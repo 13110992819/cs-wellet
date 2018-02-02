@@ -15,7 +15,7 @@ import org.hibernate.validator.constraints.NotBlank;
  * @since: 2017年11月9日 下午7:02:19 
  * @history:
  */
-public class XN802153Req {
+public class XN802160Req {
 
     @NotBlank(message = "请先设置归集阀值")
     private String balanceStart; // 归集阀值

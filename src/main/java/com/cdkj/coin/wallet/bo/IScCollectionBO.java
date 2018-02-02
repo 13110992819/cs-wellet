@@ -21,8 +21,8 @@ public interface IScCollectionBO extends IPaginableBO<ScCollection> {
 
     public ScCollection getScCollectionByRefNo(String refNo);
 
-    public int colectionNotice(ScCollection data, BigDecimal txfee,
-            Date ethDatetime);
+    public int colectionNotice(ScCollection data, String fromAddress,
+            BigDecimal txfee, Date scDatetime);
 
     // 归集地址使用次数及归集总额查询
     public ScAddress getAddressUseInfo(String toAddress);

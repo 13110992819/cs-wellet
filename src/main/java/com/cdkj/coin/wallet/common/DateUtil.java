@@ -277,8 +277,14 @@ public class DateUtil {
         return currentDate.getTime();
     }
 
+    public static Date TimeStamp2Date(String timestampString, String formats) {
+        Long timestamp = Long.parseLong(timestampString) * 1000;
+        String date = new java.text.SimpleDateFormat(formats)
+            .format(new java.util.Date(timestamp));
+        return strToDate(date, formats);
+    }
+
     public static void main(String[] args) {
-        System.out.println(getEndDatetime(dateToStr(new Date(),
-            FRONT_DATE_FORMAT_STRING)));
+        System.out.println(TimeStamp2Date("", DATA_TIME_PATTERN_1));
     }
 }

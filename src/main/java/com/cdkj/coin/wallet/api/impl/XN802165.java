@@ -8,42 +8,44 @@
  */
 package com.cdkj.coin.wallet.api.impl;
 
-import java.math.BigDecimal;
-
 import com.cdkj.coin.wallet.ao.IScCollectionAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
 import com.cdkj.coin.wallet.core.StringValidater;
-import com.cdkj.coin.wallet.dto.req.XN802153Req;
-import com.cdkj.coin.wallet.dto.res.BooleanRes;
+import com.cdkj.coin.wallet.dto.req.XN802165Req;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
-import com.cdkj.coin.wallet.siacoin.SiadClient;
+import com.cdkj.coin.wallet.siacoin.ScCollection;
 import com.cdkj.coin.wallet.spring.SpringContextHolder;
 
 /** 
- * 手动归集
+ * 分页查询归集订单
  * @author: haiqingzheng 
  * @since: 2017年11月9日 下午7:00:49 
  * @history:
  */
-public class XN802153 extends AProcessor {
+public class XN802165 extends AProcessor {
 
     private IScCollectionAO scCollectionAO = SpringContextHolder
         .getBean(IScCollectionAO.class);
 
-    private XN802153Req req = null;
+    private XN802165Req req = null;
 
     /** 
      * @see com.cdkj.coin.wallet.api.IProcessor#doBusiness()
      */
     @Override
     public Object doBusiness() throws BizException {
-        BigDecimal balanceStart = SiadClient.toHasting(StringValidater
-            .toBigDecimal(req.getBalanceStart()));
-        scCollectionAO.collectionManual(balanceStart);
-        return new BooleanRes(true);
+        ScCollection condition = new ScCollection();
+        condition.setCodeForQuery(req.getCode());
+        condition.setFromAddress(req.getFromAddress());
+        condition.setToAddress(req.getToAddress());
+        condition.setStatus(req.getStatus());
+        condition.setTxHash(req.getTxHash());
+        int start = StringValidater.toInteger(req.getStart());
+        int limit = StringValidater.toInteger(req.getLimit());
+        return scCollectionAO.queryScCollectionPage(start, limit, condition);
     }
 
     /** 
@@ -52,7 +54,7 @@ public class XN802153 extends AProcessor {
     @Override
     public void doCheck(String inputparams, String operator)
             throws ParaException {
-        req = JsonUtil.json2Bean(inputparams, XN802153Req.class);
+        req = JsonUtil.json2Bean(inputparams, XN802165Req.class);
         ObjValidater.validateReq(req);
     }
 
