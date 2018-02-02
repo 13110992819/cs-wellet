@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.WalletUtils;
 
+import com.cdkj.coin.wallet.ao.IScTransactionAO;
 import com.cdkj.coin.wallet.ao.IWithdrawAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
@@ -46,9 +48,13 @@ import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
+import com.cdkj.coin.wallet.siacoin.CtqScTransaction;
+import com.cdkj.coin.wallet.siacoin.Input;
+import com.cdkj.coin.wallet.siacoin.Output;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
 import com.cdkj.coin.wallet.siacoin.ScTransaction;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
+import com.cdkj.coin.wallet.siacoin.Transaction;
 
 @Service
 public class WithdrawAOImpl implements IWithdrawAO {
@@ -93,6 +99,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Autowired
     private ISYSDictBO sysDictBO;
+
+    @Autowired
+    private IScTransactionAO scTransactionAO;
 
     @Override
     @Transactional
@@ -437,4 +446,41 @@ public class WithdrawAOImpl implements IWithdrawAO {
         return withdrawBO.getTotalWithdraw();
     }
 
+    public void doCheckBroadcastStatus() {
+        while (true) {
+            Withdraw condition = new Withdraw();
+            condition.setStatus(EWithdrawStatus.Broadcast.getCode());
+            List<Withdraw> withdraws = withdrawBO.queryWithdrawList(condition);
+            if (CollectionUtils.isEmpty(withdraws)) {
+                break;
+            }
+            for (Withdraw withdraw : withdraws) {
+                if (ECoin.SC.getCode().equals(withdraw.getCurrency())) {
+                    Transaction tx = SiadClient.getTransaction(withdraw
+                        .getChannelOrder());
+                    if (tx != null && tx.getInputs().size() == 1
+                            && tx.getOutputs().size() == 2) {
+                        logger
+                            .info("扫描到SC取现广播成功，开始处理取现订单" + withdraw.getCode());
+                        Input fromInfo = tx.getInputs().get(0);
+                        Output toInfo = tx.getOutputs().get(0);
+                        Output minerInfo = tx.getOutputs().get(1);
+
+                        CtqScTransaction scTx = new CtqScTransaction();
+                        scTx.setTransactionid(tx.getTransactionid());
+                        scTx.setConfirmationheight(tx.getConfirmationheight());
+                        scTx.setConfirmationtimestamp(tx
+                            .getConfirmationtimestamp());
+                        scTx.setFrom(fromInfo.getRelatedaddress());
+                        scTx.setTo(toInfo.getRelatedaddress());
+                        scTx.setValue(toInfo.getValue());
+                        scTx.setMinerfee(minerInfo.getValue());
+
+                        scTransactionAO.withdrawNotice(scTx);
+                    }
+                }
+            }
+
+        }
+    }
 }

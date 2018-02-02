@@ -31,6 +31,7 @@ import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
+import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
@@ -39,6 +40,7 @@ import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EScCollectionStatus;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
+import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.siacoin.CtqScTransaction;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
@@ -114,84 +116,68 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     @Override
     @Transactional
     public void withdrawNotice(CtqScTransaction ctqScTransaction) {
-        // // 根据交易hash查询取现订单
-        // Withdraw withdraw =
-        // withdrawBO.getWithdraw(ctqScTransaction.getHash());
-        // if (withdraw == null) {
-        // return;
-        // }
-        // // 计算矿工费
-        // BigDecimal gasPrice = new BigDecimal(ctqScTransaction.getGasPrice());
-        // BigDecimal gasUse = new
-        // BigDecimal(ctqScTransaction.getGas().toString());
-        // BigDecimal txFee = gasPrice.multiply(gasUse);
-        // // 取现订单更新
-        // withdrawBO.payOrder(withdraw, EWithdrawStatus.Pay_YES,
-        // ctqScTransaction.getFrom(), "广播成功", ctqScTransaction.getHash(),
-        // ctqScTransaction.getHash(), txFee);
-        // Account userAccount =
-        // accountBO.getAccount(withdraw.getAccountNumber());
-        // // 取现金额解冻
-        // userAccount = accountBO.unfrozenAmount(userAccount,
-        // withdraw.getAmount(),
-        // EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getCode(),
-        // EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getValue(),
-        // withdraw.getCode());
-        // // 取现金额扣减
-        // userAccount = accountBO.changeAmount(
-        // userAccount,
-        // withdraw.getAmount().subtract(withdraw.getFee()).negate(),
-        // EChannelType.ETH,
-        // ctqScTransaction.getHash(),
-        // "ETH",
-        // withdraw.getCode(),
-        // EJourBizTypeUser.AJ_WITHDRAW.getCode(),
-        // EJourBizTypeUser.AJ_WITHDRAW.getValue() + "-外部地址："
-        // + withdraw.getPayCardNo());
-        // if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
-        // // 取现手续费扣减
-        // userAccount = accountBO.changeAmount(userAccount, withdraw.getFee()
-        // .negate(), EChannelType.ETH, ctqScTransaction.getHash(), "ETH",
-        // withdraw.getCode(), EJourBizTypeUser.AJ_WITHDRAWFEE.getCode(),
-        // EJourBizTypeUser.AJ_WITHDRAWFEE.getValue());
-        // }
-        //
-        // // 平台盈亏账户记入取现手续费
-        // Account sysAccount =
-        // accountBO.getAccount(ESystemAccount.SYS_ACOUNT_ETH
-        // .getCode());
-        // if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
-        // sysAccount = accountBO.changeAmount(sysAccount, withdraw.getFee(),
-        // EChannelType.ETH, ctqScTransaction.getHash(), "ETH",
-        // withdraw.getCode(), EJourBizTypePlat.AJ_WITHDRAWFEE.getCode(),
-        // EJourBizTypePlat.AJ_WITHDRAWFEE.getValue() + "-外部地址："
-        // + withdraw.getPayCardNo());
-        // }
-        // // 平台盈亏账户记入取现矿工费
-        // sysAccount = accountBO.changeAmount(
-        // sysAccount,
-        // txFee.negate(),
-        // EChannelType.ETH,
-        // ctqScTransaction.getHash(),
-        // "ETH",
-        // withdraw.getCode(),
-        // EJourBizTypePlat.AJ_WFEE.getCode(),
-        // EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
-        // + withdraw.getPayCardNo());
-        // // 落地交易记录
-        // scTransactionBO.saveScTransaction(ctqScTransaction,
-        // withdraw.getCode());
-        //
-        // // 更新地址余额
-        // ScAddress from = scAddressBO.getScAddress(EAddressType.M,
-        // ctqScTransaction.getFrom());
-        // ScAddress to = scAddressBO.getScAddress(EAddressType.W,
-        // ctqScTransaction.getTo());
-        // scAddressBO.refreshBalance(from);
-        // scAddressBO.refreshBalance(to);
-        //
-        // // 修改散取地址状态为可使用
-        // scAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
+        // 根据交易hash查询取现订单
+        Withdraw withdraw = withdrawBO.getWithdraw(ctqScTransaction
+            .getTransactionid());
+        if (withdraw == null) {
+            return;
+        }
+        // 计算矿工费
+        BigDecimal txFee = new BigDecimal(ctqScTransaction.getMinerfee());
+        String txId = ctqScTransaction.getTransactionid();
+        // 取现订单更新
+        withdrawBO.payOrder(withdraw, EWithdrawStatus.Pay_YES,
+            ctqScTransaction.getFrom(), "广播成功", txId, txId, txFee);
+        Account userAccount = accountBO.getAccount(withdraw.getAccountNumber());
+        // 取现金额解冻
+        userAccount = accountBO.unfrozenAmount(userAccount,
+            withdraw.getAmount(),
+            EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getCode(),
+            EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getValue(),
+            withdraw.getCode());
+        // 取现金额扣减
+        userAccount = accountBO.changeAmount(
+            userAccount,
+            withdraw.getAmount().subtract(withdraw.getFee()).negate(),
+            EChannelType.SC,
+            txId,
+            "SC",
+            withdraw.getCode(),
+            EJourBizTypeUser.AJ_WITHDRAW.getCode(),
+            EJourBizTypeUser.AJ_WITHDRAW.getValue() + "-外部地址："
+                    + withdraw.getPayCardNo());
+        if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
+            // 取现手续费扣减
+            userAccount = accountBO.changeAmount(userAccount, withdraw.getFee()
+                .negate(), EChannelType.SC, txId, "SC", withdraw.getCode(),
+                EJourBizTypeUser.AJ_WITHDRAWFEE.getCode(),
+                EJourBizTypeUser.AJ_WITHDRAWFEE.getValue());
+        }
+
+        // 平台盈亏账户记入取现手续费
+        Account sysAccount = accountBO.getAccount(ESystemAccount.SYS_ACOUNT_ETH
+            .getCode());
+        if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
+            sysAccount = accountBO.changeAmount(sysAccount, withdraw.getFee(),
+                EChannelType.SC, txId, "SC", withdraw.getCode(),
+                EJourBizTypePlat.AJ_WITHDRAWFEE.getCode(),
+                EJourBizTypePlat.AJ_WITHDRAWFEE.getValue() + "-外部地址："
+                        + withdraw.getPayCardNo());
+        }
+        // 平台盈亏账户记入取现矿工费
+        sysAccount = accountBO.changeAmount(
+            sysAccount,
+            txFee.negate(),
+            EChannelType.SC,
+            txId,
+            "SC",
+            withdraw.getCode(),
+            EJourBizTypePlat.AJ_WFEE.getCode(),
+            EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
+                    + withdraw.getPayCardNo());
+        // 落地交易记录
+        scTransactionBO.saveScTransaction(ctqScTransaction, withdraw.getCode());
+
     }
 
     @Override
