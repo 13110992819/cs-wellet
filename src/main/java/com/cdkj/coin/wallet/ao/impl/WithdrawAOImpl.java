@@ -14,6 +14,7 @@ import org.web3j.crypto.WalletUtils;
 
 import com.cdkj.coin.wallet.ao.IWithdrawAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
+import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.IGoogleAuthBO;
@@ -65,6 +66,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Autowired
     private IUserBO userBO;
+
+    @Autowired
+    private ICtqBO ctqBO;
 
     @Autowired
     private IEthAddressBO ethAddressBO;
@@ -120,15 +124,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
             if (!SiadClient.verifyAddress(payCardNo)) {
                 throw new BizException("xn000000", "提现地址不符合Sia规则，请仔细核对");
             }
-            List<String> typeList = new ArrayList<String>();
-            typeList.add(EAddressType.X.getCode());
-            typeList.add(EAddressType.M.getCode());
-            typeList.add(EAddressType.W.getCode());
 
             ScAddress condition1 = new ScAddress();
             condition1.setAddress(payCardNo);
-            condition1.setTypeList(typeList);
-
             if (scAddressBO.getTotalCount(condition1) > 0) {
                 throw new BizException(EBizErrorCode.DEFAULT.getCode(),
                     "提现地址已经在本平台被使用，请仔细核对！");
