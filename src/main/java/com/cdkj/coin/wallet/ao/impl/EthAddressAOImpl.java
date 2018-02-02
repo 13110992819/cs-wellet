@@ -154,7 +154,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
     @Override
     public void abandonAddress(String code) {
         EthAddress ethAddress = ethAddressBO.getEthAddress(code);
-        if (EYAddressStatus.INVALID.getCode().equals(ethAddress.getStatus())) {
+        if (EWAddressStatus.INVALID.getCode().equals(ethAddress.getStatus())) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(),
                 "地址已失效，无需重复弃用");
         }

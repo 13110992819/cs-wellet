@@ -26,6 +26,7 @@ import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.dao.IEthAddressDAO;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EMAddressStatus;
+import com.cdkj.coin.wallet.enums.EWAddressStatus;
 import com.cdkj.coin.wallet.enums.EXAddressStatus;
 import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.ethereum.AdminClient;
@@ -284,7 +285,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
         int count = 0;
         if (ethAddress != null) {
             Date now = new Date();
-            ethAddress.setStatus(EYAddressStatus.INVALID.getCode());
+            ethAddress.setStatus(EWAddressStatus.INVALID.getCode());
             ethAddress.setAbandonDatetime(now);
             ethAddress.setUpdateDatetime(now);
             ethAddressDAO.updateAbandon(ethAddress);

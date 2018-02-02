@@ -21,6 +21,9 @@ public class Withdraw extends ABaseDO {
     // 针对户名（手机号或其他）
     private String accountName;
 
+    // 币种
+    private String currency;
+
     // 账户类型
     private String type;
 
@@ -198,6 +201,14 @@ public class Withdraw extends ABaseDO {
 
     public void setAccountName(String accountName) {
         this.accountName = accountName;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public String getType() {

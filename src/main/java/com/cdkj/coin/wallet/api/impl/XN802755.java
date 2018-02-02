@@ -33,22 +33,24 @@ public class XN802755 extends AProcessor {
         }
         condition.setCodeForQuery(req.getCode());
         condition.setAccountName(req.getAccountName());
+        condition.setCurrency(req.getCurrency());
         condition.setType(req.getType());
         condition.setChannelType(req.getChannelType());
+
         condition.setStatus(req.getStatus());
         condition.setApplyUser(req.getApplyUser());
-
         condition.setApproveUser(req.getApproveUser());
         condition.setPayUser(req.getPayUser());
         condition.setPayGroup(req.getPayGroup());
+
         condition.setChannelOrder(req.getChannelOrder());
         condition.setCompanyCode(req.getCompanyCode());
         condition.setSystemCode(req.getSystemCode());
-
         condition.setApplyDatetimeStart(DateUtil.getFrontDate(
             req.getApplyDateStart(), false));
         condition.setApplyDatetimeEnd(DateUtil.getFrontDate(
             req.getApplyDateEnd(), true));
+
         condition.setApproveDatetimeStart(DateUtil.getFrontDate(
             req.getApproveDateStart(), false));
         condition.setApproveDatetimeEnd(DateUtil.getFrontDate(
@@ -69,7 +71,8 @@ public class XN802755 extends AProcessor {
     }
 
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
         req = JsonUtil.json2Bean(inputparams, XN802755Req.class);
         StringValidater.validateNumber(req.getStart(), req.getLimit());
         StringValidater

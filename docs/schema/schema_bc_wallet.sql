@@ -356,6 +356,7 @@ CREATE TABLE `tstd_withdraw` (
   `code` varchar(32) NOT NULL COMMENT '针对编号',
   `account_number` varchar(32) DEFAULT NULL COMMENT '针对账号',
   `account_name` varchar(32) DEFAULT NULL COMMENT '针对户名',
+  `currency` varchar(32) DEFAULT NULL COMMENT '币种',
   `type` varchar(4) DEFAULT NULL COMMENT '类别（B端账号，C端账号，平台账号）',
   `amount` decimal(64,0) DEFAULT NULL COMMENT '取现金额',
   `fee` decimal(64,0) DEFAULT NULL COMMENT '手续费',

@@ -26,6 +26,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.cdkj.coin.wallet.common.PropertiesUtil;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Credentials;
 
 /** 
@@ -43,7 +45,8 @@ public class SiadClient {
         // createWalletWithSeed("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
         // unlock("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
         // System.out.println(getSingleAddress());
-        System.out.println(getSiacoinBalance());
+        System.out
+            .println(getTransaction("716b17fbfece111839adb92d7aaaccffd97169ee4bf64333fa44b666433c62eb"));
     }
 
     // 根据已有的种子创建钱包，需要unlock
@@ -139,6 +142,18 @@ public class SiadClient {
             txId = (String) txIdList.get(txIdList.size() - 1);
         }
         return txId;
+    }
+
+    // 获取单个交易信息
+    public static Transaction getTransaction(String txId) {
+        Transaction transaction = null;
+        String resStr = doAccessHTTPGetJson(SC_URL + "/wallet/transaction/"
+                + txId);
+        String txStr = JSONObject.parseObject(resStr).getString("transaction");
+        Gson gson = new Gson();
+        transaction = gson.fromJson(txStr, new TypeToken<Transaction>() {
+        }.getType());
+        return transaction;
     }
 
     public static String doAccessHTTPPostJson(String sendUrl,

@@ -46,21 +46,23 @@ public class WithdrawBOImpl extends PaginableBOImpl<Withdraw> implements
         Withdraw data = new Withdraw();
         data.setCode(code);
         data.setAccountNumber(account.getAccountNumber());
+        data.setCurrency(account.getCurrency());
         data.setType(account.getType());
         data.setAmount(amount);
-        data.setFee(fee);
 
+        data.setFee(fee);
         data.setChannelType(account.getCurrency());
         data.setPayCardInfo(payCardInfo);
         // 取现户名，应该和银行卡户名一致
         data.setAccountName(account.getRealName());
         data.setPayCardNo(payCardNo);
+
         data.setStatus(EWithdrawStatus.toApprove.getCode());
         data.setApplyUser(applyUser);
-
         data.setApplyNote(applyNote);
         data.setApplyDatetime(new Date());
         data.setSystemCode(account.getSystemCode());
+
         data.setCompanyCode(account.getCompanyCode());
         withdrawDAO.insert(data);
         return code;

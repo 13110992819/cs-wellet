@@ -27,10 +27,10 @@ import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.ESysUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWAddressStatus;
-import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
@@ -101,7 +101,7 @@ public class ScAddressAOImpl implements IScAddressAO {
                 && !EAddressType.W.getCode().equals(scAddress.getType())) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(), "该类型地址不能弃用");
         }
-        if (EYAddressStatus.INVALID.getCode().equals(scAddress.getStatus())) {
+        if (EMAddressStatus.INVALID.getCode().equals(scAddress.getStatus())) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(),
                 "地址已失效，无需重复弃用");
         }
