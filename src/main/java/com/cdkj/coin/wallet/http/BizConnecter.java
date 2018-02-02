@@ -24,9 +24,7 @@ public class BizConnecter {
 
     public static final String CTQ_URL = PropertiesUtil.Config.CTQ_URL;
 
-    public static final String SMS_URL = PropertiesUtil.Config.SMS_URL;
-
-    public static final String CERTI_URL = PropertiesUtil.Config.CERTI_URL;
+    public static final String CORE_URL = PropertiesUtil.Config.CORE_URL;
 
     public static final String POST_URL = "...";
 
@@ -62,10 +60,8 @@ public class BizConnecter {
         String postUrl = POST_URL;
         if (code.startsWith("626") || "625917".equals(code)) {
             postUrl = CTQ_URL;
-        } else if (code.startsWith("798")) {
-            postUrl = CERTI_URL;
-        } else if (code.startsWith("804")) {
-            postUrl = SMS_URL;
+        } else if (code.startsWith("660")) {
+            postUrl = CORE_URL;
         }
         return postUrl;
     }

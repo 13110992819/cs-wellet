@@ -2,7 +2,7 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 	<typeAliases>
-		<typeAlias alias="user" type="com.cdkj.coin.wallet.domain.User" />
+	
 		<typeAlias alias="account" type="com.cdkj.coin.wallet.domain.Account" />
 		<typeAlias alias="jour" type="com.cdkj.coin.wallet.domain.Jour" />
 		<typeAlias alias="exchangeCurrency" type="com.cdkj.coin.wallet.domain.ExchangeCurrency" />
@@ -19,8 +19,6 @@
 		<typeAlias alias="scTransaction" type="com.cdkj.coin.wallet.siacoin.ScTransaction" />
 		<typeAlias alias="scCollection" type="com.cdkj.coin.wallet.siacoin.ScCollection" />
 		
-		<typeAlias alias="sysDict" type="com.cdkj.coin.wallet.domain.SYSDict" />
-		<typeAlias alias="sysConfig" type="com.cdkj.coin.wallet.domain.SYSConfig" />
 	</typeAliases>
 </configuration>
 

@@ -1,23 +1,17 @@
 package com.cdkj.coin.wallet.bo.impl;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
-import com.cdkj.coin.wallet.dao.ISYSConfigDAO;
 import com.cdkj.coin.wallet.domain.SYSConfig;
+import com.cdkj.coin.wallet.dto.req.XN660917Req;
 import com.cdkj.coin.wallet.enums.ESystemCode;
-import com.cdkj.coin.wallet.exception.BizException;
+import com.cdkj.coin.wallet.http.BizConnecter;
+import com.cdkj.coin.wallet.http.JsonUtils;
 
 /**
  * 
@@ -32,76 +26,15 @@ public class SYSConfigBOImpl extends PaginableBOImpl<SYSConfig> implements
 
     static Logger logger = Logger.getLogger(SYSConfigBOImpl.class);
 
-    @Autowired
-    private ISYSConfigDAO sysConfigDAO;
-
-    @Override
-    public int refreshSYSConfig(Long id, String cvalue, String updater,
-            String remark) {
-        SYSConfig data = new SYSConfig();
-        data.setId(id);
-        data.setCvalue(cvalue);
-
-        data.setUpdater(updater);
-        data.setUpdateDatetime(new Date());
-        data.setRemark(remark);
-        return sysConfigDAO.updateValue(data);
-    }
-
-    @Override
-    public SYSConfig getSYSConfig(Long id) {
-        SYSConfig sysConfig = null;
-        if (id > 0) {
-            SYSConfig condition = new SYSConfig();
-            condition.setId(id);
-            sysConfig = sysConfigDAO.select(condition);
-        }
-        if (sysConfig == null) {
-            throw new BizException("xn000000", "id记录不存在");
-        }
-        return sysConfig;
-    }
-
-    @Override
-    public Map<String, String> getConfigsMap(String systemCode) {
-        Map<String, String> map = new HashMap<String, String>();
-        if (StringUtils.isNotBlank(systemCode)) {
-            SYSConfig condition = new SYSConfig();
-            condition.setSystemCode(systemCode);
-            List<SYSConfig> list = sysConfigDAO.selectList(condition);
-            if (CollectionUtils.isNotEmpty(list)) {
-                for (SYSConfig sysConfig : list) {
-                    map.put(sysConfig.getCkey(), sysConfig.getCvalue());
-                }
-            }
-        }
-        return map;
-
-    }
-
     @Override
     public SYSConfig getSYSConfig(String key, String companyCode,
             String systemCode) {
-        SYSConfig sysConfig = null;
-        if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(systemCode)
-                && StringUtils.isNotBlank(companyCode)) {
-            SYSConfig condition = new SYSConfig();
-            condition.setCkey(key);
-            condition.setCompanyCode(companyCode);
-            condition.setSystemCode(systemCode);
-            List<SYSConfig> sysConfigList = sysConfigDAO.selectList(condition);
-            if (CollectionUtils.isNotEmpty(sysConfigList)) {
-                sysConfig = sysConfigList.get(0);
-            } else {
-                throw new BizException("xn000000", key + "对应记录不存在");
-            }
-        }
-        return sysConfig;
-    }
-
-    @Override
-    public SYSConfig getSYSConfig(String key, String systemCode) {
-        return getSYSConfig(key, systemCode, systemCode);
+        XN660917Req req = new XN660917Req();
+        req.setCkey(key);
+        req.setCompanyCode(companyCode);
+        req.setSystemCode(systemCode);
+        return BizConnecter.getBizData("660917", JsonUtils.object2Json(req),
+            SYSConfig.class);
     }
 
     @Override
@@ -165,45 +98,6 @@ public class SYSConfigBOImpl extends PaginableBOImpl<SYSConfig> implements
                     + e.getMessage());
         }
         return result;
-    }
-
-    @Override
-    public Map<String, String> getConfigsMap(String systemCode,
-            String companyCode) {
-        Map<String, String> map = new HashMap<String, String>();
-        if (StringUtils.isNotBlank(systemCode)
-                && StringUtils.isNotBlank(companyCode)) {
-            SYSConfig condition = new SYSConfig();
-            condition.setSystemCode(systemCode);
-            condition.setCompanyCode(companyCode);
-            List<SYSConfig> list = sysConfigDAO.selectList(condition);
-            if (CollectionUtils.isNotEmpty(list)) {
-                for (SYSConfig sysConfig : list) {
-                    map.put(sysConfig.getCkey(), sysConfig.getCvalue());
-                }
-            }
-        }
-        return map;
-    }
-
-    @Override
-    public Map<String, String> getConfigsMap(String type, String companyCode,
-            String systemCode) {
-        Map<String, String> map = new HashMap<String, String>();
-        if (StringUtils.isNotBlank(systemCode)) {
-            SYSConfig condition = new SYSConfig();
-            condition.setCompanyCode(companyCode);
-            condition.setSystemCode(systemCode);
-            condition.setType(type);
-            List<SYSConfig> list = sysConfigDAO.selectList(condition);
-            if (CollectionUtils.isNotEmpty(list)) {
-                for (SYSConfig sysConfig : list) {
-                    map.put(sysConfig.getCkey(), sysConfig.getCvalue());
-                }
-            }
-        }
-        return map;
-
     }
 
 }

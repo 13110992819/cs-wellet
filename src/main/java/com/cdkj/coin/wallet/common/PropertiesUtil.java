@@ -29,9 +29,7 @@ public class PropertiesUtil {
     public static final class Config {
         public static String CTQ_URL = props.getProperty("CTQ_URL");
 
-        public static String SMS_URL = props.getProperty("SMS_URL");
-
-        public static String CERTI_URL = props.getProperty("CERTI_URL");
+        public static String CORE_URL = props.getProperty("CORE_URL");
 
         public static String ETH_URL_SELF = props.getProperty("ETH_URL_SELF");
 

@@ -12,10 +12,6 @@
 
 	
 	<!-- 分页BO层注入paginableDao -->
-	<bean id="userBO" class="com.cdkj.coin.wallet.bo.impl.UserBOImpl">
-		<property name="paginableDAO" ref="userDAOImpl" />
-	</bean>
-	
 	<bean id="accountBO" class="com.cdkj.coin.wallet.bo.impl.AccountBOImpl">
 		<property name="paginableDAO" ref="accountDAOImpl" />
 	</bean>
@@ -69,13 +65,5 @@
 	<bean id="scCollectionBO" class="com.cdkj.coin.wallet.bo.impl.ScCollectionBOImpl">
 		<property name="paginableDAO" ref="scCollectionDAOImpl" />
 	</bean>
-	
-	<bean id="sysDictBO" class="com.cdkj.coin.wallet.bo.impl.SYSDictBOImpl">
-		<property name="paginableDAO" ref="sysDictDAOImpl"/>
-	</bean>	
-	
-	<bean id="sysConfigBO" class="com.cdkj.coin.wallet.bo.impl.SYSConfigBOImpl">
-		<property name="paginableDAO" ref="sysConfigDAOImpl"/>
-	</bean>	
 	
 </beans>

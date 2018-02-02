@@ -1,6 +1,5 @@
 package com.cdkj.coin.wallet.ao.impl;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,16 +7,11 @@ import com.cdkj.coin.wallet.ao.IExchangeCurrencyAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IExchangeCurrencyBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
-import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.ExchangeCurrency;
-import com.cdkj.coin.wallet.domain.User;
 
 @Service
 public class ExchangeCurrencyAOImpl implements IExchangeCurrencyAO {
-
-    @Autowired
-    private IUserBO userBO;
 
     @Autowired
     private IAccountBO accountBO;
@@ -33,15 +27,6 @@ public class ExchangeCurrencyAOImpl implements IExchangeCurrencyAO {
             int limit, ExchangeCurrency condition) {
         Paginable<ExchangeCurrency> page = exchangeCurrencyBO.getPaginable(
             start, limit, condition);
-        if (page != null && CollectionUtils.isNotEmpty(page.getList())) {
-            for (ExchangeCurrency exchangeCurrency : page.getList()) {
-                User fromUser = userBO
-                    .getUser(exchangeCurrency.getFromUserId());
-                exchangeCurrency.setFromUser(fromUser);
-                User toUser = userBO.getUser(exchangeCurrency.getToUserId());
-                exchangeCurrency.setToUser(toUser);
-            }
-        }
         return page;
     }
 
@@ -49,8 +34,6 @@ public class ExchangeCurrencyAOImpl implements IExchangeCurrencyAO {
     public ExchangeCurrency getExchangeCurrency(String code) {
         ExchangeCurrency exchangeCurrency = exchangeCurrencyBO
             .getExchangeCurrency(code);
-        User fromUser = userBO.getUser(exchangeCurrency.getFromUserId());
-        exchangeCurrency.setFromUser(fromUser);
         return exchangeCurrency;
     }
 

@@ -14,7 +14,6 @@ import com.cdkj.coin.wallet.bo.IEthCollectionBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
-import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
@@ -44,9 +43,6 @@ public class ChargeAOImpl implements IChargeAO {
 
     @Autowired
     private IJourBO jourBO;
-
-    @Autowired
-    private IUserBO userBO;
 
     @Autowired
     private IEthTransactionBO ethTransactionBO;

@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +27,13 @@ import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IEthCollectionBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
-import com.cdkj.coin.wallet.bo.IGoogleAuthBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
-import com.cdkj.coin.wallet.bo.ISmsOutBO;
-import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
-import com.cdkj.coin.wallet.domain.User;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBoolean;
-import com.cdkj.coin.wallet.enums.ECaptchaType;
 import com.cdkj.coin.wallet.enums.ESysUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
-import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.enums.EWAddressStatus;
 import com.cdkj.coin.wallet.enums.EYAddressStatus;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
@@ -73,19 +66,10 @@ public class EthAddressAOImpl implements IEthAddressAO {
     private IAccountBO accountBO;
 
     @Autowired
-    private IUserBO userBO;
-
-    @Autowired
     private ICtqBO ctqBO;
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
-
-    @Autowired
-    ISmsOutBO smsOutBO;
-
-    @Autowired
-    IGoogleAuthBO googleAuthBO;
 
     @Override
     public void addEthAddress(String address, String label, String userId,
@@ -96,13 +80,6 @@ public class EthAddressAOImpl implements IEthAddressAO {
         if (!WalletUtils.isValidAddress(address)) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
                     + address + "不符合以太坊规则，请仔细核对");
-        }
-
-        // 用户ID校验
-        User user = userBO.getUser(userId);
-        if (user == null) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "编号为"
-                    + userId + "的用户不存在");
         }
 
         List<String> typeList = new ArrayList<String>();
@@ -120,31 +97,10 @@ public class EthAddressAOImpl implements IEthAddressAO {
         }
 
         String status = EYAddressStatus.NORMAL.getCode();
-
         // 是否设置为认证账户
         if (EBoolean.YES.getCode().equals(isCerti)) {
-            if (StringUtils.isBlank(tradePwd)) {
-                throw new BizException(EBizErrorCode.DEFAULT.getCode(),
-                    "资金密码不能为空");
-            }
-            // 验证资金密码
-            userBO.checkTradePwd(userId, tradePwd);
-            // 假如开启了谷歌认证，校验谷歌验证码
-            if (StringUtils.isNotBlank(user.getGoogleSecret())) {
-                if (StringUtils.isBlank(googleCaptcha)) {
-                    throw new BizException("xn000000", "您已开启谷歌认证，请输入谷歌验证码！");
-                } else {
-                    googleAuthBO.checkCode(user.getGoogleSecret(),
-                        googleCaptcha, System.currentTimeMillis());
-                }
-            }
             status = EYAddressStatus.CERTI.getCode();
         }
-
-        // 验证码校验
-        smsOutBO.checkCaptcha(user.getMobile(), smsCaptcha,
-            ECaptchaType.ADDRESS_ADD.getCode(), ESystemCode.COIN.getCode(),
-            ESystemCode.COIN.getCode());
 
         ethAddressBO.saveEthAddress(EAddressType.Y, userId, address, label,
             null, BigDecimal.ZERO, null, null, status, null, null);
@@ -210,8 +166,6 @@ public class EthAddressAOImpl implements IEthAddressAO {
         Paginable<EthAddress> results = ethAddressBO.getPaginable(start, limit,
             condition);
         for (EthAddress ethAddress : results.getList()) {
-            // 地址拥有者信息
-            ethAddress.setUser(userBO.getUser(ethAddress.getUserId()));
             // 归集地址统计
             if (EAddressType.W.getCode().equals(ethAddress.getType())) {
                 EthAddress xAddress = ethCollectionBO

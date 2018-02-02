@@ -22,8 +22,6 @@ import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IScAddressBO;
-import com.cdkj.coin.wallet.bo.ISmsOutBO;
-import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.enums.EAddressType;
@@ -62,16 +60,10 @@ public class ScAddressAOImpl implements IScAddressAO {
     private IAccountBO accountBO;
 
     @Autowired
-    private IUserBO userBO;
-
-    @Autowired
     private ICtqBO ctqBO;
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
-
-    @Autowired
-    ISmsOutBO smsOutBO;
 
     @Override
     @Transactional

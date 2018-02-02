@@ -3,7 +3,6 @@ package com.cdkj.coin.wallet.bo.impl;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -124,10 +123,8 @@ public class WithdrawBOImpl extends PaginableBOImpl<Withdraw> implements
     @Override
     public void doCheckTimes(Account account) {
         // 判断本月申请次数是否达到上限
-        Map<String, String> argsMap = sysConfigBO.getConfigsMap(
-            account.getSystemCode(), account.getCompanyCode());
-        String monthTimesKey = SysConstants.CUSERMONTIMES;
-        String monthTimesValue = argsMap.get(monthTimesKey);
+        String monthTimesValue = sysConfigBO
+            .getStringValue(SysConstants.CUSERMONTIMES);
         if (StringUtils.isNotBlank(monthTimesValue)) {// 月取现次数判断
             Withdraw condition = new Withdraw();
             condition.setAccountNumber(account.getAccountNumber());

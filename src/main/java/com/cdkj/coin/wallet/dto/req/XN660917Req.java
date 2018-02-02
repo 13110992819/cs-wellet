@@ -1,33 +1,19 @@
 package com.cdkj.coin.wallet.dto.req;
 
-public class XN805040Req {
-    // 手机号（必填）
-    private String mobile;
-
-    // kind(必填)
-    private String kind;
+/**
+ * @author: xieyj 
+ * @since: 2016年9月17日 下午3:58:52 
+ * @history:
+ */
+public class XN660917Req {
+    // 配置名（必填）
+    private String ckey;
 
     // 公司编号（必填）
     private String companyCode;
 
     // 系统编号（必填）
     private String systemCode;
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
-
-    public String getKind() {
-        return kind;
-    }
-
-    public void setKind(String kind) {
-        this.kind = kind;
-    }
 
     public String getCompanyCode() {
         return companyCode;
@@ -43,5 +29,13 @@ public class XN805040Req {
 
     public void setSystemCode(String systemCode) {
         this.systemCode = systemCode;
+    }
+
+    public String getCkey() {
+        return ckey;
+    }
+
+    public void setCkey(String ckey) {
+        this.ckey = ckey;
     }
 }

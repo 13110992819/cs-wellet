@@ -3,7 +3,6 @@ package com.cdkj.coin.wallet.ao.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,23 +18,16 @@ import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
-import com.cdkj.coin.wallet.bo.IGoogleAuthBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
-import com.cdkj.coin.wallet.bo.ISYSDictBO;
 import com.cdkj.coin.wallet.bo.IScAddressBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
-import com.cdkj.coin.wallet.bo.ISmsOutBO;
-import com.cdkj.coin.wallet.bo.IUserBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
-import com.cdkj.coin.wallet.common.AmountUtil;
-import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.dto.res.XN802758Res;
-import com.cdkj.coin.wallet.enums.EAccountType;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBoolean;
 import com.cdkj.coin.wallet.enums.ECoin;
@@ -71,9 +63,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
     private IJourBO jourBO;
 
     @Autowired
-    private IUserBO userBO;
-
-    @Autowired
     private ICtqBO ctqBO;
 
     @Autowired
@@ -90,15 +79,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
-
-    @Autowired
-    private IGoogleAuthBO googleAuthBO;
-
-    @Autowired
-    private ISmsOutBO smsOutBO;
-
-    @Autowired
-    private ISYSDictBO sysDictBO;
 
     @Autowired
     private IScTransactionAO scTransactionAO;
@@ -365,43 +345,43 @@ public class WithdrawAOImpl implements IWithdrawAO {
         return withdraw;
     }
 
-    /**
-     * 取现申请检查，验证参数，返回手续费
-     * @param accountType
-     * @param amount
-     * @param systemCode
-     * @param companyCode
-     * @return 
-     * @create: 2017年5月17日 上午7:53:01 xieyj
-     * @history:
-     */
-    private BigDecimal doGetFee(String accountType, BigDecimal amount,
-            String systemCode, String companyCode) {
-        Map<String, String> argsMap = sysConfigBO.getConfigsMap(systemCode,
-            companyCode);
-        String qxfl = null;
-        if (EAccountType.Customer.getCode().equals(accountType)) {
-            qxfl = SysConstants.CUSERQXFL;
-        } else {// 暂定其他账户类型不收手续费
-            return BigDecimal.ZERO;
-        }
-        // 取现单笔最大金额
-        String qxDbzdjeValue = argsMap.get(SysConstants.QXDBZDJE);
-        if (StringUtils.isNotBlank(qxDbzdjeValue)) {
-            BigDecimal qxDbzdje = BigDecimal.valueOf(Double
-                .valueOf(qxDbzdjeValue));
-            if (amount.compareTo(qxDbzdje) == 1) {
-                throw new BizException("xn000000", "取现单笔最大金额不能超过"
-                        + qxDbzdjeValue + "元。");
-            }
-        }
-        String feeRateValue = argsMap.get(qxfl);
-        Double feeRate = 0D;
-        if (StringUtils.isNotBlank(feeRateValue)) {
-            feeRate = Double.valueOf(feeRateValue);
-        }
-        return AmountUtil.mul(amount, feeRate);
-    }
+    // /**
+    // * 取现申请检查，验证参数，返回手续费
+    // * @param accountType
+    // * @param amount
+    // * @param systemCode
+    // * @param companyCode
+    // * @return
+    // * @create: 2017年5月17日 上午7:53:01 xieyj
+    // * @history:
+    // */
+    // private BigDecimal doGetFee(String accountType, BigDecimal amount,
+    // String systemCode, String companyCode) {
+    // Map<String, String> argsMap = sysConfigBO.getConfigsMap(systemCode,
+    // companyCode);
+    // String qxfl = null;
+    // if (EAccountType.Customer.getCode().equals(accountType)) {
+    // qxfl = SysConstants.CUSERQXFL;
+    // } else {// 暂定其他账户类型不收手续费
+    // return BigDecimal.ZERO;
+    // }
+    // // 取现单笔最大金额
+    // String qxDbzdjeValue = argsMap.get(SysConstants.QXDBZDJE);
+    // if (StringUtils.isNotBlank(qxDbzdjeValue)) {
+    // BigDecimal qxDbzdje = BigDecimal.valueOf(Double
+    // .valueOf(qxDbzdjeValue));
+    // if (amount.compareTo(qxDbzdje) == 1) {
+    // throw new BizException("xn000000", "取现单笔最大金额不能超过"
+    // + qxDbzdjeValue + "元。");
+    // }
+    // }
+    // String feeRateValue = argsMap.get(qxfl);
+    // Double feeRate = 0D;
+    // if (StringUtils.isNotBlank(feeRateValue)) {
+    // feeRate = Double.valueOf(feeRateValue);
+    // }
+    // return AmountUtil.mul(amount, feeRate);
+    // }
 
     @Override
     public XN802758Res getWithdrawCheckInfo(String code) {
