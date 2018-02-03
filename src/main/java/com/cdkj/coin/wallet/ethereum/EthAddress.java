@@ -72,8 +72,6 @@ public class EthAddress extends ABaseDO {
     // 所属用户信息
     private User user;
 
-    private Date today;
-
     private Long useCount;
 
     private transient BigDecimal useAmount;
@@ -247,14 +245,6 @@ public class EthAddress extends ABaseDO {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Date getToday() {
-        return today;
-    }
-
-    public void setToday(Date today) {
-        this.today = today;
     }
 
     public Long getUseCount() {

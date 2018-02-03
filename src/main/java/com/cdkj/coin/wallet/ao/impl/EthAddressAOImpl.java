@@ -10,7 +10,6 @@ package com.cdkj.coin.wallet.ao.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -103,7 +102,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
         }
 
         ethAddressBO.saveEthAddress(EAddressType.Y, userId, address, label,
-            null, BigDecimal.ZERO, null, null, status, null, null);
+            null, BigDecimal.ZERO, status, null, null);
 
     }
 
@@ -141,8 +140,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
     }
 
     @Override
-    public String importWAddress(String address, Date availableDatetimeStart,
-            Date availableDatetimeEnd) {
+    public String importWAddress(String address) {
         if (ethAddressBO.isEthAddressExist(address)) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
                     + address + "已经在平台内被使用，请仔细核对");
@@ -153,10 +151,9 @@ public class EthAddressAOImpl implements IEthAddressAO {
                     + address + "不符合以太坊规则，请仔细核对");
         }
         return ethAddressBO.saveEthAddress(EAddressType.W,
-            ESysUser.SYS_USER_ETH.getCode(), address,
-            EAddressType.W.getValue(), null, BigDecimal.ZERO,
-            availableDatetimeStart, availableDatetimeEnd,
-            EWAddressStatus.NORMAL.getCode(), null, null);
+            ESysUser.SYS_USER_ETH_COLD.getCode(),
+            ESystemAccount.SYS_ACOUNT_SC_COLD.getCode(), address, null,
+            BigDecimal.ZERO, EWAddressStatus.NORMAL.getCode(), null, null);
     }
 
     @Override

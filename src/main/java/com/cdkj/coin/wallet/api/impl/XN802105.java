@@ -8,13 +8,10 @@
  */
 package com.cdkj.coin.wallet.api.impl;
 
-import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.cdkj.coin.wallet.ao.IEthAddressAO;
 import com.cdkj.coin.wallet.api.AProcessor;
-import com.cdkj.coin.wallet.common.DateUtil;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
 import com.cdkj.coin.wallet.core.StringValidater;
@@ -43,15 +40,11 @@ public class XN802105 extends AProcessor {
     @Override
     public Object doBusiness() throws BizException {
         EthAddress condition = new EthAddress();
-        Date startDate = DateUtil.getStartDatetime(req
-            .getAvailableDatetimeStart());
-        Date endDate = DateUtil.getEndDatetime(req.getAvailableDatetimeEnd());
         condition.setStatusList(req.getStatusList());
         condition.setType(req.getType());
         condition.setAddressForQuery(req.getAddress());
         condition.setUserId(req.getUserId());
-        condition.setAvailableDatetimeStart(startDate);
-        condition.setAvailableDatetimeEnd(endDate);
+        condition.setAccountNumber(req.getAccountNumber());
         condition.setStatus(req.getStatus());
         if (StringUtils.isNotBlank(req.getBalanceStart())) {
             condition.setBalanceStart(StringValidater.toBigDecimal(req

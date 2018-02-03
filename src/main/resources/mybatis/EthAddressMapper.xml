@@ -11,8 +11,6 @@
 		<result column="account_number" property="accountNumber" />
 		<result column="initial_balance" property="initialBalance" />
 		<result column="balance" property="balance" />
-		<result column="available_datetime_start" property="availableDatetimeStart" />
-		<result column="available_datetime_end" property="availableDatetimeEnd" />
 		<result column="status" property="status" />
 		<result column="create_datetime" property="createDatetime" />
 		<result column="abandon_datetime" property="abandonDatetime" />
@@ -54,20 +52,11 @@
 			<if test="status != null and status != '' ">
 				AND t.status = #{status}
 			</if>
-			<if test="availableDatetimeStart != null and availableDatetimeStart != '' ">
-				<![CDATA[AND t.available_datetime_start >= #{availableDatetimeStart}]]>
-			</if>
-			<if test="availableDatetimeEnd != null and availableDatetimeEnd != '' ">
-				<![CDATA[AND t.available_datetime_end <= #{availableDatetimeEnd}]]>
-			</if>
 			<if test="statusList != null and statusList != '' ">
 				AND t.status in 
                 <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
 	            	#{item}
                 </foreach> 
-			</if>
-			<if test="today != null and today != '' ">
-				<![CDATA[AND t.available_datetime_start <= #{today} AND t.available_datetime_end >= #{today}]]>
 			</if>
 			<if test="balanceStart != null and balanceStart != '' ">
 				<![CDATA[AND t.balance >= #{balanceStart}]]>
@@ -86,8 +75,6 @@
 		,t.account_number
 		,t.initial_balance
 		,t.balance
-		,t.available_datetime_start
-		,t.available_datetime_end
 		,t.status
 		,t.create_datetime
 		,t.abandon_datetime
@@ -137,8 +124,6 @@
 		,account_number
 		,initial_balance
 		,balance
-		,available_datetime_start
-		,available_datetime_end
 		,status
 		,create_datetime
 		,abandon_datetime
@@ -155,8 +140,6 @@
 		,#{accountNumber}
 		,#{initialBalance}
 		,#{balance}
-		,#{availableDatetimeStart}
-		,#{availableDatetimeEnd}
 		,#{status}
 		,#{createDatetime}
 		,#{abandonDatetime}

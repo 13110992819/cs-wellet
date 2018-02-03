@@ -37,8 +37,7 @@ public interface IEthAddressAO {
     public String generateMAddress();
 
     // 导入归集地址（无私钥）
-    public String importWAddress(String address, Date availableDatetimeStart,
-            Date availableDatetimeEnd);
+    public String importWAddress(String address);
 
     public Paginable<EthAddress> queryEthAddressPage(int start, int limit,
             EthAddress condition);

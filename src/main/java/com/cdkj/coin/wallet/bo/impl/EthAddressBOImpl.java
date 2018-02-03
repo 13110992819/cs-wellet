@@ -143,7 +143,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
                 throw new BizException("不支持生成该类型的ETH地址");
             }
             this.saveEthAddress(type, userId, accountNumber, address, password,
-                BigDecimal.ZERO, null, null, status, keystoreFile.getName(),
+                BigDecimal.ZERO, status, keystoreFile.getName(),
                 keystoreContent);
         } catch (Exception e) {
             throw new BizException("xn6250000", "获取keystore文件异常，原因："
@@ -156,8 +156,7 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
     @Override
     public String saveEthAddress(EAddressType type, String userId,
             String accountNumber, String address, String password,
-            BigDecimal balance, Date availableDatetimeStart,
-            Date availableDatetimeEnd, String status, String keystoreName,
+            BigDecimal balance, String status, String keystoreName,
             String keystoreContent) {
         String code = OrderNoGenerater.generate("ETH");
         Date now = new Date();
@@ -170,8 +169,6 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
         data.setAccountNumber(accountNumber);
         data.setInitialBalance(getEthBalance(address));
         data.setBalance(balance);
-        data.setAvailableDatetimeStart(availableDatetimeStart);
-        data.setAvailableDatetimeEnd(availableDatetimeEnd);
         data.setStatus(status);
         data.setCreateDatetime(now);
         data.setUpdateDatetime(now);
@@ -191,10 +188,10 @@ public class EthAddressBOImpl extends PaginableBOImpl<EthAddress> implements
         EthAddress condition = new EthAddress();
         condition.setType(EAddressType.W.getCode());
         condition.setStatus(EYAddressStatus.NORMAL.getCode());
-        condition.setToday(new Date());
+        condition.setOrder("create_datetime", "desc");
         List<EthAddress> wList = ethAddressDAO.selectList(condition);
         if (CollectionUtils.isEmpty(wList)) {
-            throw new BizException("xn625000", "未找到今日可用的归集地址");
+            throw new BizException("xn625000", "未找到可用的归集地址");
         }
         return wList.get(0);
     }

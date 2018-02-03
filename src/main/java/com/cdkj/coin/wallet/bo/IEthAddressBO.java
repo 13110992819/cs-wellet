@@ -1,7 +1,6 @@
 package com.cdkj.coin.wallet.bo;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
@@ -17,8 +16,7 @@ public interface IEthAddressBO extends IPaginableBO<EthAddress> {
     // 导入（保存）地址
     public String saveEthAddress(EAddressType type, String userId,
             String accountNumber, String address, String password,
-            BigDecimal balance, Date availableDatetimeStart,
-            Date availableDatetimeEnd, String status, String keystoreName,
+            BigDecimal balance, String status, String keystoreName,
             String keystoreContent);
 
     // 获取今日归集地址

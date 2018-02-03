@@ -15,8 +15,6 @@ CREATE TABLE `tcoin_eth_address` (
   `account_number` varchar(32) DEFAULT NULL,
   `initial_balance` decimal(64,0) DEFAULT NULL COMMENT '初始金额',
   `balance` decimal(64,0) DEFAULT NULL COMMENT '余额',
-  `available_datetime_start` datetime DEFAULT NULL COMMENT '可用时间起',
-  `available_datetime_end` datetime DEFAULT NULL COMMENT '可用时间止',
   `status` varchar(32) DEFAULT NULL COMMENT '状态',
   `create_datetime` datetime DEFAULT NULL COMMENT '创建时间',
   `abandon_datetime` datetime DEFAULT NULL COMMENT '弃用时间',

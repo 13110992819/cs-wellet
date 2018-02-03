@@ -8,6 +8,7 @@
  */
 package com.cdkj.coin.wallet.dto.req;
 
+import org.hibernate.validator.constraints.NotBlank;
 
 /** 
  * @author: haiqingzheng 
@@ -17,13 +18,8 @@ package com.cdkj.coin.wallet.dto.req;
 public class XN802100Req {
 
     // 以太坊地址
+    @NotBlank(message = "归集地址不能为空")
     private String address;
-
-    // 可用时间起
-    private String availableDatetimeStart;
-
-    // 可用时间止
-    private String availableDatetimeEnd;
 
     public String getAddress() {
         return address;
@@ -33,19 +29,4 @@ public class XN802100Req {
         this.address = address;
     }
 
-    public String getAvailableDatetimeStart() {
-        return availableDatetimeStart;
-    }
-
-    public void setAvailableDatetimeStart(String availableDatetimeStart) {
-        this.availableDatetimeStart = availableDatetimeStart;
-    }
-
-    public String getAvailableDatetimeEnd() {
-        return availableDatetimeEnd;
-    }
-
-    public void setAvailableDatetimeEnd(String availableDatetimeEnd) {
-        this.availableDatetimeEnd = availableDatetimeEnd;
-    }
 }

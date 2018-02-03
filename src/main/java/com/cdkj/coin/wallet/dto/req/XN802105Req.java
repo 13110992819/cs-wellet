@@ -28,11 +28,8 @@ public class XN802105Req extends APageReq {
     // 用户编号
     private String userId;
 
-    // 可用时间起
-    private String availableDatetimeStart;
-
-    // 可用时间止
-    private String availableDatetimeEnd;
+    // 账户编号
+    private String accountNumber;
 
     // 状态
     private String status;
@@ -75,20 +72,12 @@ public class XN802105Req extends APageReq {
         this.userId = userId;
     }
 
-    public String getAvailableDatetimeStart() {
-        return availableDatetimeStart;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setAvailableDatetimeStart(String availableDatetimeStart) {
-        this.availableDatetimeStart = availableDatetimeStart;
-    }
-
-    public String getAvailableDatetimeEnd() {
-        return availableDatetimeEnd;
-    }
-
-    public void setAvailableDatetimeEnd(String availableDatetimeEnd) {
-        this.availableDatetimeEnd = availableDatetimeEnd;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public String getStatus() {
