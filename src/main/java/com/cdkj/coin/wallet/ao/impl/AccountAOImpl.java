@@ -18,7 +18,6 @@ import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.enums.EAccountType;
 import com.cdkj.coin.wallet.enums.EAddressType;
-import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
@@ -95,17 +94,6 @@ public class AccountAOImpl implements IAccountAO {
     }
 
     @Override
-    @Transactional
-    public void transAmountCZB(String fromUserId, String fromCurrency,
-            String toUserId, String toCurrency, BigDecimal transAmount,
-            String fromBizType, String toBizType, String fromBizNote,
-            String toBizNote, String refNo) {
-        accountBO.transAmountCZB(fromUserId, fromCurrency, toUserId,
-            toCurrency, transAmount, fromBizType, toBizType, fromBizNote,
-            toBizNote, refNo);
-    }
-
-    @Override
     public Paginable<Account> queryAccountPage(int start, int limit,
             Account condition) {
         return accountBO.getPaginable(start, limit, condition);
@@ -145,12 +133,30 @@ public class AccountAOImpl implements IAccountAO {
     }
 
     @Override
-    public void changeAmount(String accountNumber, String channelType,
-            String channelOrder, String payGroup, String refNo, String bizType,
-            String bizNote, BigDecimal transAmount) {
-        Account account = accountBO.getAccount(accountNumber);
-        accountBO.changeAmount(account, transAmount,
-            EChannelType.getEChannelType(channelType), channelOrder, payGroup,
-            refNo, bizType, bizNote);
+    @Transactional
+    public void transAmount(String fromUserId, String fromCurrency,
+            String toUserId, String toCurrency, BigDecimal transAmount,
+            String fromBizType, String toBizType, String fromBizNote,
+            String toBizNote, String refNo) {
+        accountBO.transAmount(fromUserId, fromCurrency, toUserId, toCurrency,
+            transAmount, fromBizType, toBizType, fromBizNote, toBizNote, refNo);
+    }
+
+    @Override
+    public Account frozenAmount(String userId, String currency,
+            BigDecimal freezeAmount, String bizType, String bizNote,
+            String refNo) {
+        Account dbAccount = accountBO.getAccountByUser(userId, currency);
+        return accountBO.frozenAmount(dbAccount, freezeAmount, bizType,
+            bizNote, refNo);
+    }
+
+    @Override
+    public Account unfrozenAmount(String userId, String currency,
+            BigDecimal unfreezeAmount, String bizType, String bizNote,
+            String refNo) {
+        Account dbAccount = accountBO.getAccountByUser(userId, currency);
+        return accountBO.unfrozenAmount(dbAccount, unfreezeAmount, bizType,
+            bizNote, refNo);
     }
 }

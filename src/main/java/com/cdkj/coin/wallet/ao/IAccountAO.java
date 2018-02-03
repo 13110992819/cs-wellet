@@ -16,12 +16,6 @@ public interface IAccountAO {
     // 更新户名
     public void editAccountName(String userId, String realName);
 
-    // 不同用户不同币种间资金划转
-    void transAmountCZB(String fromUserId, String fromCurrency,
-            String toUserId, String toCurrency, BigDecimal transAmount,
-            String fromBizType, String toBizType, String fromBizNote,
-            String toBizNote, String refNo);
-
     // 分页查询账户
     public Paginable<Account> queryAccountPage(int start, int limit,
             Account condition);
@@ -35,8 +29,20 @@ public interface IAccountAO {
     // 列表查询账户
     public List<Account> queryAccountList(Account condition);
 
-    public void changeAmount(String accountNumber, String channelType,
-            String channelOrder, String payGroup, String refNo, String bizType,
-            String bizNote, BigDecimal transAmount);
+    // 不同用户不同币种间资金划转
+    public void transAmount(String fromUserId, String fromCurrency,
+            String toUserId, String toCurrency, BigDecimal transAmount,
+            String fromBizType, String toBizType, String fromBizNote,
+            String toBizNote, String refNo);
+
+    // 冻结金额
+    public Account frozenAmount(String userId, String currency,
+            BigDecimal freezeAmount, String bizType, String bizNote,
+            String refNo);
+
+    // 解冻(冻结金额原路返回)
+    public Account unfrozenAmount(String userId, String currency,
+            BigDecimal freezeAmount, String bizType, String bizNote,
+            String refNo);
 
 }

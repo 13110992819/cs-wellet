@@ -191,13 +191,13 @@ public class AccountBOImpl extends PaginableBOImpl<Account> implements
     }
 
     @Override
-    public Account unfrozenAmount(Account dbAccount, BigDecimal freezeAmount,
+    public Account unfrozenAmount(Account dbAccount, BigDecimal unfreezeAmount,
             String bizType, String bizNote, String refNo) {
-        if (freezeAmount.compareTo(BigDecimal.ZERO) <= 0) {
+        if (unfreezeAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return dbAccount;
         }
         BigDecimal nowFrozenAmount = dbAccount.getFrozenAmount().subtract(
-            freezeAmount);
+            unfreezeAmount);
         if (nowFrozenAmount.compareTo(BigDecimal.ZERO) == -1) {
             throw new BizException("xn000000", "本次解冻会使账户冻结金额小于0");
         }
@@ -205,7 +205,7 @@ public class AccountBOImpl extends PaginableBOImpl<Account> implements
         // 记录流水
         String lastOrder = jourBO.addFrozenJour(dbAccount,
             EChannelType.Offline, null, null, refNo, bizType, bizNote,
-            freezeAmount.negate());
+            unfreezeAmount.negate());
         dbAccount.setFrozenAmount(nowFrozenAmount);
         dbAccount.setLastOrder(lastOrder);
         accountDAO.unfrozenAmount(dbAccount);
@@ -287,17 +287,17 @@ public class AccountBOImpl extends PaginableBOImpl<Account> implements
     }
 
     @Override
-    public void transAmountCZB(String fromUserId, String fromCurrency,
+    public void transAmount(String fromUserId, String fromCurrency,
             String toUserId, String toCurrency, BigDecimal transAmount,
             String fromBizType, String toBizType, String fromBizNote,
             String toBizNote, String refNo) {
         Account fromAccount = this.getAccountByUser(fromUserId, fromCurrency);
         Account toAccount = this.getAccountByUser(toUserId, toCurrency);
-        transAmountCZB(fromAccount, toAccount, transAmount, fromBizType,
+        transAmount(fromAccount, toAccount, transAmount, fromBizType,
             toBizType, fromBizNote, toBizNote, refNo);
     }
 
-    private void transAmountCZB(Account fromAccount, Account toAccount,
+    private void transAmount(Account fromAccount, Account toAccount,
             BigDecimal transAmount, String fromBizType, String toBizType,
             String fromBizNote, String toBizNote, String refNo) {
         String fromAccountNumber = fromAccount.getAccountNumber();

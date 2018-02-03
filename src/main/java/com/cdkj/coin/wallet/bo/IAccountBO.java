@@ -40,11 +40,11 @@ public interface IAccountBO extends IPaginableBO<Account> {
             String bizType, String bizNote, String refNo);
 
     // 解冻账户(冻结金额原路返回)
-    public Account unfrozenAmount(Account dbAccount, BigDecimal freezeAmount,
+    public Account unfrozenAmount(Account dbAccount, BigDecimal unfreezeAmount,
             String bizType, String bizNote, String refNo);
 
     // 内部转账
-    public void transAmountCZB(String fromUserId, String fromCurrency,
+    public void transAmount(String fromUserId, String fromCurrency,
             String toUserId, String toCurrency, BigDecimal transAmount,
             String fromBizType, String toBizType, String fromBizNote,
             String toBizNote, String refNo);
