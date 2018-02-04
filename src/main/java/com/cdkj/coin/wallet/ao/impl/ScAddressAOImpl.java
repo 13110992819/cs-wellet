@@ -78,7 +78,7 @@ public class ScAddressAOImpl implements IScAddressAO {
                     + address + "不符合Siacoin规则，请仔细核对");
         }
         String code = scAddressBO.saveScAddress(EAddressType.W, address,
-            ESysUser.SYS_USER_SC_COLD.getCode(),
+            ESysUser.SYS_USER_COLD.getCode(),
             ESystemAccount.SYS_ACOUNT_SC_COLD.getCode(),
             EWAddressStatus.NORMAL.getCode(), updater, remark);
         // 通知橙提取
@@ -116,7 +116,7 @@ public class ScAddressAOImpl implements IScAddressAO {
     @Override
     public String generateMAddress(String updater, String remark) {
         String address = scAddressBO.generateAddress(EAddressType.M,
-            ESysUser.SYS_USER_SC.getCode(),
+            ESysUser.SYS_USER.getCode(),
             ESystemAccount.SYS_ACOUNT_SC.getCode(), updater, remark);
         // 通知橙提取
         ctqBO.uploadScAddress(address, EAddressType.M.getCode());

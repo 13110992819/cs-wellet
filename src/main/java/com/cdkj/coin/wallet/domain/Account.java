@@ -39,7 +39,7 @@ public class Account extends ABaseDO {
     private String amountString;
 
     // 冻结金额
-    private transient BigDecimal frozenAmount;
+    private BigDecimal frozenAmount;
 
     private String frozenAmountString;
 
@@ -47,17 +47,17 @@ public class Account extends ABaseDO {
     private String md5;
 
     // 累计增加金额
-    private transient BigDecimal addAmount;
+    private BigDecimal addAmount;
 
     private String addAmountString;
 
     // 入金
-    private transient BigDecimal inAmount;
+    private BigDecimal inAmount;
 
     private String inAmountString;
 
     // 出金
-    private transient BigDecimal outAmount;
+    private BigDecimal outAmount;
 
     private String outAmountString;
 

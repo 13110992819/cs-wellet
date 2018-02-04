@@ -132,7 +132,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
     @Override
     public String generateMAddress() {
         String address = ethAddressBO.generateAddress(EAddressType.M,
-            ESysUser.SYS_USER_ETH.getCode(),
+            ESysUser.SYS_USER.getCode(),
             ESystemAccount.SYS_ACOUNT_ETH.getCode());
         // 通知橙提取
         ctqBO.uploadEthAddress(address, EAddressType.M.getCode());
@@ -151,7 +151,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
                     + address + "不符合以太坊规则，请仔细核对");
         }
         return ethAddressBO.saveEthAddress(EAddressType.W,
-            ESysUser.SYS_USER_ETH_COLD.getCode(),
+            ESysUser.SYS_USER_COLD.getCode(),
             ESystemAccount.SYS_ACOUNT_SC_COLD.getCode(), address, null,
             BigDecimal.ZERO, EWAddressStatus.NORMAL.getCode(), null, null);
     }
