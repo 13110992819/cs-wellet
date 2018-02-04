@@ -37,10 +37,8 @@ public class XN802150 extends AProcessor {
     @Override
     public Object doBusiness() throws BizException {
 
-        for (String waddress : req.getwAddressList()) {
-            scAddressAO.importWAddress(waddress, req.getUpdater(),
-                req.getRemark());
-        }
+        scAddressAO.importWAddress(req.getAddress(), req.getUpdater(),
+            req.getRemark());
 
         return new BooleanRes(true);
     }

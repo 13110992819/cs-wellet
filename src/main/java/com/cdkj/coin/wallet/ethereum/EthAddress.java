@@ -45,12 +45,6 @@ public class EthAddress extends ABaseDO {
 
     private String balanceString;
 
-    // 可用时间起
-    private Date availableDatetimeStart;
-
-    // 可用时间止
-    private Date availableDatetimeEnd;
-
     // 状态
     private String status;
 
@@ -173,22 +167,6 @@ public class EthAddress extends ABaseDO {
 
     public void setBalanceString(String balanceString) {
         this.balanceString = balanceString;
-    }
-
-    public Date getAvailableDatetimeStart() {
-        return availableDatetimeStart;
-    }
-
-    public void setAvailableDatetimeStart(Date availableDatetimeStart) {
-        this.availableDatetimeStart = availableDatetimeStart;
-    }
-
-    public Date getAvailableDatetimeEnd() {
-        return availableDatetimeEnd;
-    }
-
-    public void setAvailableDatetimeEnd(Date availableDatetimeEnd) {
-        this.availableDatetimeEnd = availableDatetimeEnd;
     }
 
     public String getStatus() {

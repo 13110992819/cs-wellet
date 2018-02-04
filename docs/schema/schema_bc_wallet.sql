@@ -144,6 +144,28 @@ CREATE TABLE `tcoin_sc_transaction` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `tcoin_withdraw_address`
+--
+
+DROP TABLE IF EXISTS `tcoin_withdraw_address`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tcoin_withdraw_address` (
+  `code` varchar(32) NOT NULL DEFAULT '' COMMENT '编号',
+  `currency` varchar(32) DEFAULT NULL COMMENT '币种',
+  `address` varchar(255) DEFAULT NULL COMMENT '提现地址',
+  `label` varchar(64) DEFAULT NULL COMMENT '标签',
+  `user_id` varchar(32) DEFAULT NULL COMMENT '用户编号',
+  `status` varchar(32) DEFAULT NULL COMMENT '状态',
+  `create_datetime` datetime DEFAULT NULL COMMENT '创建时间',
+  `updater` varchar(32) DEFAULT NULL COMMENT '最后操作人',
+  `update_datetime` datetime DEFAULT NULL COMMENT '最后一次更时间',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `tstd_account`
 --
 
@@ -382,46 +404,3 @@ CREATE TABLE `tstd_withdraw` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `tsys_config`
---
-
-DROP TABLE IF EXISTS `tsys_config`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tsys_config` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `type` varchar(32) DEFAULT NULL COMMENT '类型',
-  `ckey` varchar(32) DEFAULT NULL COMMENT 'key值',
-  `cvalue` text COMMENT '值',
-  `updater` varchar(32) DEFAULT NULL COMMENT '更新人',
-  `update_datetime` datetime DEFAULT NULL COMMENT '更新时间',
-  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
-  `company_code` varchar(32) DEFAULT NULL COMMENT '公司编号',
-  `system_code` varchar(32) DEFAULT NULL COMMENT '系统编号',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `tsys_dict`
---
-
-DROP TABLE IF EXISTS `tsys_dict`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tsys_dict` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号（自增长）',
-  `type` char(1) NOT NULL COMMENT '类型（0=下拉框意义 1=下拉框选项）',
-  `parent_key` varchar(32) DEFAULT NULL COMMENT '父key',
-  `dkey` varchar(32) NOT NULL COMMENT 'key',
-  `dvalue` varchar(64) NOT NULL COMMENT '值',
-  `updater` varchar(32) NOT NULL COMMENT '更新人',
-  `update_datetime` datetime NOT NULL COMMENT '更新时间',
-  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
-  `company_code` varchar(32) DEFAULT NULL COMMENT '公司编号',
-  `system_code` varchar(32) DEFAULT NULL COMMENT '系统编号',
-  PRIMARY KEY (`id`) COMMENT '数据字典'
-) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

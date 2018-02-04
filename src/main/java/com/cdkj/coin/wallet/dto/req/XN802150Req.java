@@ -8,11 +8,6 @@
  */
 package com.cdkj.coin.wallet.dto.req;
 
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 /** 
@@ -22,21 +17,20 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public class XN802150Req {
 
-    @NotNull
-    @Size(min = 1)
-    List<String> wAddressList;
+    @NotEmpty
+    String address;
 
     @NotEmpty
     private String updater;
 
     private String remark;
 
-    public List<String> getwAddressList() {
-        return wAddressList;
+    public String getAddress() {
+        return address;
     }
 
-    public void setwAddressList(List<String> wAddressList) {
-        this.wAddressList = wAddressList;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getUpdater() {
