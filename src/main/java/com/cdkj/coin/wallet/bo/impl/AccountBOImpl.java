@@ -312,4 +312,16 @@ public class AccountBOImpl extends PaginableBOImpl<Account> implements
         this.changeAmount(toAccount, AmountUtil.mul(transAmount, rate),
             EChannelType.NBZ, null, null, refNo, toBizType, toBizNote);
     }
+
+    @Override
+    public boolean isAccountExist(String userId, String currency) {
+        boolean flag = false;
+        Account condition = new Account();
+        condition.setUserId(userId);
+        condition.setCurrency(currency);
+        if (this.getTotalCount(condition) > 0) {
+            flag = true;
+        }
+        return flag;
+    }
 }

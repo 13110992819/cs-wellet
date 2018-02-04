@@ -67,4 +67,6 @@ public interface IAccountBO extends IPaginableBO<Account> {
 
     // 获取账户列表
     public List<Account> queryAccountList(Account data);
+
+    public boolean isAccountExist(String userId, String currency);
 }

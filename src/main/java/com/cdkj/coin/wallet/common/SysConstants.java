@@ -8,10 +8,6 @@ public class SysConstants {
 
     public static final String COLLECTION_LIMIT_SC = "collection_limit_sc"; // SC钱包余额大于等于该值时，进行归集
 
-    public static final String WITHDRAW_FEE_ETH = "withdraw_fee_eth"; // 提现手续费
-
-    public static final String WITHDRAW_FEE_SC = "withdraw_fee_sc"; // 提现手续费
-
     // 取现规则配置
     public static String CUSERQXBS = "CUSERQXBS"; // C端用户取现倍数
 
