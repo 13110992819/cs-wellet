@@ -22,6 +22,8 @@ import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IScAddressBO;
+import com.cdkj.coin.wallet.bo.IScCollectionBO;
+import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.enums.EAddressType;
@@ -29,6 +31,7 @@ import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.ESysUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWAddressStatus;
+import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
@@ -47,14 +50,14 @@ public class ScAddressAOImpl implements IScAddressAO {
     @Autowired
     private IScAddressBO scAddressBO;
 
-    // @Autowired
-    // private IScCollectionBO scCollectionBO;
+    @Autowired
+    private IScCollectionBO scCollectionBO;
 
     @Autowired
     private IWithdrawBO withdrawBO;
 
-    // @Autowired
-    // private IScTransactionBO scTransactionBO;
+    @Autowired
+    private IScTransactionBO scTransactionBO;
 
     @Autowired
     private IAccountBO accountBO;
@@ -129,6 +132,22 @@ public class ScAddressAOImpl implements IScAddressAO {
             ScAddress condition) {
         Paginable<ScAddress> results = scAddressBO.getPaginable(start, limit,
             condition);
+        for (ScAddress scAddress : results.getList()) {
+            // 归集地址统计
+            if (EAddressType.W.getCode().equals(scAddress.getType())) {
+                ScAddress xAddress = scCollectionBO.getAddressUseInfo(scAddress
+                    .getAddress());
+                scAddress.setUseCount(xAddress.getUseCount());
+                scAddress.setUseAmount(xAddress.getUseAmount());
+            }
+            // 散取地址统计
+            if (EAddressType.M.getCode().equals(scAddress.getType())) {
+                EthAddress xAddress = withdrawBO.getAddressUseInfo(scAddress
+                    .getAddress());
+                scAddress.setUseCount(xAddress.getUseCount());
+                scAddress.setUseAmount(xAddress.getUseAmount());
+            }
+        }
         return results;
     }
 

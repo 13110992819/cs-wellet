@@ -17,8 +17,20 @@
 			<if test="transactionid != null and transactionid != '' ">
 				AND t.transactionid = #{transactionid}
 			</if>
+			<if test="confirmationheight != null and confirmationheight != '' ">
+				AND t.confirmationheight = #{confirmationheight}
+			</if>
 			<if test="refNo != null and refNo != '' ">
 				AND t.ref_no = #{refNo}
+			</if>
+			<if test="from != null and from != '' ">
+				AND t.from = #{from}
+			</if>
+			<if test="to != null and to != '' ">
+				AND t.to = #{to}
+			</if>
+			<if test="address != null and address != '' ">
+				AND t.from = #{address} or t.to = #{address}
 			</if>
 		</trim>
 	</sql>

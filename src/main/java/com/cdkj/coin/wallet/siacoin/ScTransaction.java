@@ -38,6 +38,10 @@ public class ScTransaction extends ABaseDO {
     // 关联订单号
     private String refNo;
 
+    // **** 查询条件字段
+
+    private String address;
+
     public String getTransactionid() {
         return transactionid;
     }
@@ -100,6 +104,14 @@ public class ScTransaction extends ABaseDO {
 
     public void setRefNo(String refNo) {
         this.refNo = refNo;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
 }

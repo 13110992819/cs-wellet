@@ -1,5 +1,6 @@
 package com.cdkj.coin.wallet.siacoin;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +56,12 @@ public class ScAddress extends ABaseDO {
 
     // 地址模糊查询
     private String addressForQuery;
+
+    private Long useCount;
+
+    private BigDecimal useAmount;
+
+    private String useAmountString;
 
     public String getCode() {
         return code;
@@ -158,6 +165,31 @@ public class ScAddress extends ABaseDO {
 
     public void setAddressForQuery(String addressForQuery) {
         this.addressForQuery = addressForQuery;
+    }
+
+    public Long getUseCount() {
+        return useCount;
+    }
+
+    public void setUseCount(Long useCount) {
+        this.useCount = useCount;
+    }
+
+    public BigDecimal getUseAmount() {
+        return useAmount;
+    }
+
+    public void setUseAmount(BigDecimal useAmount) {
+        this.useAmount = useAmount;
+        this.useAmountString = useAmount.toString();
+    }
+
+    public String getUseAmountString() {
+        return useAmountString;
+    }
+
+    public void setUseAmountString(String useAmountString) {
+        this.useAmountString = useAmountString;
     }
 
 }
