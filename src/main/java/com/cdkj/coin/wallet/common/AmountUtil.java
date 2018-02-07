@@ -35,4 +35,14 @@ public class AmountUtil {
         return Long.valueOf(CalculationUtil.multDown(amountString));
     }
 
+    /**
+     * 100000000sta 转换为 1btc
+     *
+     * @param orgNum
+     * @return
+     */
+    public static BigDecimal convertBtc(BigDecimal orgNum) {
+        return orgNum.divide(BigDecimal.TEN.pow(8));
+    }
+
 }

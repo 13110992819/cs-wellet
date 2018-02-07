@@ -159,4 +159,9 @@ public class BizException extends RuntimeException {
         return message;
     }
 
+    public BizException(EBizErrorCode bizError) {
+        this(bizError.getCode(), bizError.getInfo());
+
+    }
+
 }
