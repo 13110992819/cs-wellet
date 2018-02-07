@@ -13,7 +13,7 @@ package com.cdkj.coin.wallet.dto.req;
  * @since: 2017年11月7日 下午2:03:47 
  * @history:
  */
-public class XN616080Req {
+public class XN626080Req {
 
     private String address;
 
