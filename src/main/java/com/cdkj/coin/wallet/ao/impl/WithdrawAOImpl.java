@@ -216,7 +216,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
         }
         // 足够提现，降序遍历可使用的M类地址UTXO，组装Input
         BitcoinOfflineRawTxBuilder rawTxBuilder = new BitcoinOfflineRawTxBuilder();
-        BigDecimal totalCount = BigDecimal.ZERO;
+        BigDecimal shouldWithdrawCount = BigDecimal.ZERO;
         List<BtcUtxo> inputBtcUtxoList = new ArrayList<BtcUtxo>();
         int pageNum = 0;
         while (true) {
@@ -231,8 +231,9 @@ public class WithdrawAOImpl implements IWithdrawAO {
                 for (BtcUtxo utxo : list) {
                     String txid = utxo.getTxid();
                     Integer vout = utxo.getVout();
-                    // 统计总额
-                    totalCount = totalCount.add(utxo.getCount());
+                    // 应取现总额
+                    shouldWithdrawCount = shouldWithdrawCount.add(utxo
+                        .getCount());
                     BtcAddress btcAddress = btcAddressBO.getBtcAddress(
                         EAddressType.M, utxo.getAddress());
                     // 构造签名交易，输入
@@ -241,7 +242,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
                         btcAddress.getPrivatekey());
                     rawTxBuilder.in(offlineTxInput);
                     inputBtcUtxoList.add(utxo);
-                    if (totalCount.compareTo(realAmount) > 0) {// 当大于取现金额时，跳出循环
+                    if (shouldWithdrawCount.compareTo(realAmount) > 0) {// 当大于取现金额时，跳出循环
                         break;
                     }
                 }
@@ -250,7 +251,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
             }
             pageNum++;// 不够再遍历
         }
-
         // 组装Output，设置找零账户
         // 如何估算手续费，先预先给一个size,然后拿这个size进行签名
         // 对签名的数据进行解码，拿到真实大小，然后进行矿工费的修正
@@ -262,9 +262,19 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
         // 构造输出
         OfflineTxOutput offlineTxOutput = new OfflineTxOutput(
-            withdrawAddress.getAddress(), AmountUtil.convertBtc(totalCount
-                .subtract(BigDecimal.valueOf(preFee))));
+            withdrawAddress.getAddress(),
+            AmountUtil.convertBtc(shouldWithdrawCount.subtract(BigDecimal
+                .valueOf(preFee))));
         rawTxBuilder.out(offlineTxOutput);
+
+        // 计算需要的找零, 现在是随机找零到一个提现地址
+        BigDecimal backCount = shouldWithdrawCount.subtract(realAmount);
+        if (backCount.compareTo(BigDecimal.ZERO) > 0) {
+            String backAddress = inputBtcUtxoList.get(0).getAddress();
+            OfflineTxOutput backOutput = new OfflineTxOutput(backAddress,
+                AmountUtil.convertBtc(backCount));
+            rawTxBuilder.out(backOutput);
+        }
         try {
             String signResult = rawTxBuilder.offlineSign();
             // 广播
