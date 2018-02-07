@@ -66,4 +66,8 @@
 		<property name="paginableDAO" ref="scCollectionDAOImpl" />
 	</bean>
 	
+	<bean id="btcAddressBO" class="com.cdkj.coin.wallet.bo.impl.BtcAddressBOImpl">
+		<property name="paginableDAO" ref="btcAddressDAOImpl" />
+	</bean>
+	
 </beans>

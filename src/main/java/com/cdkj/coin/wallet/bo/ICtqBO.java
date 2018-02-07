@@ -31,4 +31,7 @@ public interface ICtqBO {
 
     // SC交易确认
     public void confirmSc(List<String> hashList);
+
+    // 上传Btc地址
+    public void uploadBtcAddress(String address);
 }
