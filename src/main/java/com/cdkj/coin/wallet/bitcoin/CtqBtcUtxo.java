@@ -32,6 +32,10 @@ public class CtqBtcUtxo extends ABaseDO {
 
     private String status;
 
+    public String getRefNo() {
+        return txid + "|" + vout;
+    }
+
     public Long getId() {
         return id;
     }

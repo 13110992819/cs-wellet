@@ -8,6 +8,8 @@ public class SysConstants {
 
     public static final String COLLECTION_LIMIT_SC = "collection_limit_sc"; // SC钱包余额大于等于该值时，进行归集
 
+    public static final String COLLECTION_LIMIT_BTC = "collection_limit_btc"; // UTXO总额大于等于该值时，进行归集
+
     // 取现规则配置
     public static String CUSERQXBS = "CUSERQXBS"; // C端用户取现倍数
 

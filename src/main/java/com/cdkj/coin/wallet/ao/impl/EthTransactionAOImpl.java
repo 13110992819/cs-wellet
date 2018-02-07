@@ -132,6 +132,22 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
         withdrawBO.payOrder(withdraw, EWithdrawStatus.Pay_YES,
             ctqEthTransaction.getFrom(), "广播成功", ctqEthTransaction.getHash(),
             ctqEthTransaction.getHash(), txFee);
+
+        // 落地交易记录
+        ethTransactionBO.saveEthTransaction(ctqEthTransaction,
+            withdraw.getCode());
+
+        // 更新地址余额
+        EthAddress from = ethAddressBO.getEthAddress(EAddressType.M,
+            ctqEthTransaction.getFrom());
+        EthAddress to = ethAddressBO.getEthAddress(EAddressType.W,
+            ctqEthTransaction.getTo());
+        ethAddressBO.refreshBalance(from);
+        ethAddressBO.refreshBalance(to);
+
+        // 修改散取地址状态为可使用
+        ethAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
+
         Account userAccount = accountBO.getAccount(withdraw.getAccountNumber());
         // 取现金额解冻
         userAccount = accountBO.unfrozenAmount(userAccount,
@@ -179,20 +195,7 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
             EJourBizTypePlat.AJ_WFEE.getCode(),
             EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
                     + withdraw.getPayCardNo());
-        // 落地交易记录
-        ethTransactionBO.saveEthTransaction(ctqEthTransaction,
-            withdraw.getCode());
 
-        // 更新地址余额
-        EthAddress from = ethAddressBO.getEthAddress(EAddressType.M,
-            ctqEthTransaction.getFrom());
-        EthAddress to = ethAddressBO.getEthAddress(EAddressType.W,
-            ctqEthTransaction.getTo());
-        ethAddressBO.refreshBalance(from);
-        ethAddressBO.refreshBalance(to);
-
-        // 修改散取地址状态为可使用
-        ethAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
     }
 
     @Override

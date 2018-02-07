@@ -26,4 +26,6 @@ public interface IChargeBO extends IPaginableBO<Charge> {
 
     Charge getCharge(String code, String systemCode);
 
+    public boolean isExistOfRefNo(String refNo);
+
 }

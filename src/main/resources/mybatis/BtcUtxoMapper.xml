@@ -12,6 +12,7 @@
 		<result column="sync_time" property="syncTime" />
 		<result column="block_height" property="blockHeight" />
 		<result column="status" property="status" />
+		<result column="address_type" property="addressType" />
 		<result column="ref_type" property="refType" />
 		<result column="ref_no" property="refNo" />
 	</resultMap>
@@ -38,6 +39,9 @@
                     #{item}
                 </foreach>
             </if>
+            <if test="addressType != null and addressType != '' ">
+				AND t.address_type = #{addressType}
+			</if>
             <if test="refType != null and refType != '' ">
 				AND t.ref_type = #{refType}
 			</if>
@@ -57,6 +61,7 @@
 		,t.sync_time
 		,t.block_height
 		,t.status
+		,t.address_type
 		,t.ref_type
 		,t.ref_no
 		FROM
@@ -74,6 +79,12 @@
 		SELECT count(1) FROM tcoin_btc_utxo t
 		<include refid="where_condition" />
 	</select>
+	
+	<select id="select_totalUTXOCount" parameterType="btcUtxo"
+		resultType="java.math.BigDecimal">
+		SELECT COALESCE(SUM(count),0) FROM tcoin_btc_utxo t
+		<include refid="where_condition" />
+	</select>
 
 	<insert id="insert_btcUtxo" parameterType="btcUtxo">
 		INSERT INTO
@@ -86,6 +97,7 @@
 		,sync_time
 		,block_height
 		,status
+		,address_type
 		,ref_type
 		,ref_no
 		)
@@ -98,6 +110,7 @@
 		,#{syncTime}
 		,#{blockHeight}
 		,#{status}
+		,#{addressType}
 		,#{refType}
 		,#{refNo}
 		)

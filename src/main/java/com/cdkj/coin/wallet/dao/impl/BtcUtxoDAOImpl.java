@@ -1,5 +1,6 @@
 package com.cdkj.coin.wallet.dao.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -48,6 +49,12 @@ public class BtcUtxoDAOImpl extends AMybatisTemplate implements IBtcUtxoDAO {
     @Override
     public int updateStatus(BtcUtxo data) {
         return super.update(NAMESPACE.concat("update_status"), data);
+    }
+
+    @Override
+    public BigDecimal selectTotalUTXOCount(BtcUtxo data) {
+        return super.select(NAMESPACE.concat("select_totalUTXOCount"), data,
+            BigDecimal.class);
     }
 
 }

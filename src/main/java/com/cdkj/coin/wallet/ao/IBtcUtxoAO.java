@@ -25,7 +25,7 @@ public interface IBtcUtxoAO {
     public void withdrawNotice(CtqBtcUtxo ctqBtcUtxo);
 
     // 归集
-    public void collection(String address, String chargeCode);
+    public void collection(String chargeCode);
 
     // 归集交易通知处理
     public void collectionNotice(CtqBtcUtxo ctqBtcUtxo);

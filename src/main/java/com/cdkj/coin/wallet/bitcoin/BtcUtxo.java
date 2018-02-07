@@ -33,6 +33,8 @@ public class BtcUtxo extends ABaseDO {
 
     private String status;
 
+    private String addressType;
+
     private String refType;
 
     private String refNo;
@@ -110,6 +112,14 @@ public class BtcUtxo extends ABaseDO {
 
     public void setScriptPubKey(String scriptPubKey) {
         this.scriptPubKey = scriptPubKey;
+    }
+
+    public String getAddressType() {
+        return addressType;
+    }
+
+    public void setAddressType(String addressType) {
+        this.addressType = addressType;
     }
 
     public String getRefType() {

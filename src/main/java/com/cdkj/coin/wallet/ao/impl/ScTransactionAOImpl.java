@@ -103,13 +103,15 @@ public class ScTransactionAOImpl implements IScTransactionAO {
             EJourBizTypeUser.AJ_CHARGE.getCode(), "SC充值-来自地址："
                     + ctqScTransaction.getFrom(), amount, EChannelType.SC,
             account.getUserId(), ctqScTransaction.getFrom());
+
+        // 落地交易记录
+        scTransactionBO.saveScTransaction(ctqScTransaction, code);
+
         // 账户加钱
         accountBO.changeAmount(account, amount, EChannelType.SC,
             ctqScTransaction.getTransactionid(), payGroup, code,
             EJourBizTypeUser.AJ_CHARGE.getCode(), "SC充值-来自地址："
                     + ctqScTransaction.getFrom());
-        // 落地交易记录
-        scTransactionBO.saveScTransaction(ctqScTransaction, code);
         return code;
     }
 

@@ -21,6 +21,7 @@ import org.web3j.utils.Convert.Unit;
 
 import com.cdkj.coin.wallet.ao.IBtcUtxoAO;
 import com.cdkj.coin.wallet.bitcoin.BtcAddress;
+import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IBtcAddressBO;
@@ -32,7 +33,6 @@ import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
-import com.cdkj.coin.wallet.domain.Charge;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
@@ -69,7 +69,7 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     private IBtcAddressBO btcAddressBO;
 
     @Autowired
-    private IBtcUtxoBO btcTransactionBO;
+    private IBtcUtxoBO btcUtxoBO;
 
     // @Autowired
     // private IBtcCollectionBO btcCollectionBO;
@@ -80,34 +80,39 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     @Override
     @Transactional
     public String chargeNotice(CtqBtcUtxo ctqBtcUtxo) {
+
         BtcAddress btcAddress = btcAddressBO.getBtcAddress(EAddressType.X,
-            ctqBtcUtxo.getTo());
+            ctqBtcUtxo.getAddress());
         if (btcAddress == null) {
-            throw new BizException("xn6250000", "充值地址不存在");
+            throw new BizException("xn6250000", "BTC充值地址不存在");
         }
-        Charge condition = new Charge();
-        condition.setRefNo(ctqBtcUtxo.getHash());
-        if (chargeBO.getTotalCount(condition) > 0) {
+
+        // 判断是否已经处理过该交易
+        if (chargeBO.isExistOfRefNo(ctqBtcUtxo.getRefNo())) {
             return "";
         }
+
         Account account = accountBO.getAccountByUser(btcAddress.getUserId(),
             ECoin.BTC.getCode());
         String payGroup = OrderNoGenerater.generate("PG");
-        BigDecimal amount = new BigDecimal(ctqBtcUtxo.getValue());
+        BigDecimal amount = ctqBtcUtxo.getCount();
+
         // 充值订单落地
         String code = chargeBO.applyOrderOnline(account, payGroup,
-            ctqBtcUtxo.getHash(), EJourBizTypeUser.AJ_CHARGE.getCode(),
-            "BTC充值-来自地址：" + ctqBtcUtxo.getFrom(), amount, EChannelType.BTC,
-            account.getUserId(), ctqBtcUtxo.getFrom());
+            ctqBtcUtxo.getRefNo(), EJourBizTypeUser.AJ_CHARGE.getCode(),
+            EChannelType.BTC.getCode() + "充值-来自交易：" + ctqBtcUtxo.getRefNo(),
+            amount, EChannelType.BTC, account.getUserId(),
+            ctqBtcUtxo.getRefNo());
+
+        // 落地UTXO
+        btcUtxoBO.saveBtcUtxo(ctqBtcUtxo, EAddressType.X);
+
         // 账户加钱
         accountBO.changeAmount(account, amount, EChannelType.BTC,
-            ctqBtcUtxo.getHash(), payGroup, code,
-            EJourBizTypeUser.AJ_CHARGE.getCode(),
-            "BTC充值-来自地址：" + ctqBtcUtxo.getFrom());
-        // 落地交易记录
-        btcTransactionBO.saveBtcUtxo(ctqBtcUtxo, code);
-        // 更新地址余额
-        btcAddressBO.refreshBalance(btcAddress);
+            ctqBtcUtxo.getRefNo(), payGroup, code,
+            EJourBizTypeUser.AJ_CHARGE.getCode(), EChannelType.BTC.getCode()
+                    + "充值-来自交易：" + ctqBtcUtxo.getRefNo());
+
         return code;
     }
 
@@ -191,13 +196,8 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
 
     @Override
     @Transactional
-    public void collection(String address, String chargeCode) {
-        // 获取地址信息
-        BtcAddress xBtcAddress = btcAddressBO.getBtcAddress(EAddressType.X,
-            address);
-        if (xBtcAddress == null) {
-            throw new BizException("xn625000", "该地址不能归集");
-        }
+    public void collection(String chargeCode) {
+
         BigDecimal limit = sysConfigBO
             .getBigDecimalValue(SysConstants.COLLECTION_LIMIT_BTC);
         BigDecimal balance = btcAddressBO.getBtcBalance(address);

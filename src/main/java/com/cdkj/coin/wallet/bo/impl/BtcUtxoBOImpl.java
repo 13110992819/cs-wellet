@@ -1,5 +1,6 @@
 package com.cdkj.coin.wallet.bo.impl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
+import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
 import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
 import com.cdkj.coin.wallet.dao.IBtcUtxoDAO;
+import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 
@@ -33,10 +36,25 @@ public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
     }
 
     @Override
-    public int saveBtcUtxo(BtcUtxo data) {
+    public int saveBtcUtxo(CtqBtcUtxo ctqBtcUtxo, EAddressType addressType) {
         int count = 0;
-        if (data != null) {
+        if (ctqBtcUtxo != null) {
+
+            BtcUtxo data = new BtcUtxo();
+
+            data.setTxid(ctqBtcUtxo.getTxid());
+            data.setVout(ctqBtcUtxo.getVout());
+            data.setCount(ctqBtcUtxo.getCount());
+            data.setScriptPubKey(ctqBtcUtxo.getScriptPubKey());
+            data.setAddress(ctqBtcUtxo.getAddress());
+
+            data.setSyncTime(ctqBtcUtxo.getSyncTime());
+            data.setBlockHeight(ctqBtcUtxo.getBlockHeight());
+            data.setStatus(EBtcUtxoStatus.ENABLE.getCode());
+            data.setAddressType(addressType.getCode());
+
             count = btcUtxoDAO.insert(data);
+
         }
         return count;
     }
@@ -77,5 +95,13 @@ public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
         BtcUtxo condition = new BtcUtxo();
         condition.setStatusList(statusList);
         return btcUtxoDAO.selectList(condition);
+    }
+
+    @Override
+    public BigDecimal getTotalEnableUTXOCount(EAddressType addressType) {
+        BtcUtxo condition = new BtcUtxo();
+        condition.setAddressType(addressType.getCode());
+        condition.setStatus(EBtcUtxoStatus.ENABLE.getCode());
+        return btcUtxoDAO.selectTotalUTXOCount(condition);
     }
 }

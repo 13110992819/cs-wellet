@@ -18,6 +18,7 @@ import com.cdkj.coin.wallet.ao.IBtcUtxoAO;
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.ECtqBtcUtxoStatus;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -40,6 +41,8 @@ public class CallbackConrollerBTC {
     @Autowired
     ICtqBO ctqBO;
 
+    private CtqBtcUtxo ctqBtcUtxo;
+
     // BTC交易通知
     @RequestMapping("/btc/tx/notice")
     public synchronized void doEthCallback(HttpServletRequest request,
@@ -55,24 +58,36 @@ public class CallbackConrollerBTC {
                 }.getType());
 
             for (CtqBtcUtxo ctqBtcUtxo : list) {
+
+                // UTXO关联的地址
                 String address = ctqBtcUtxo.getAddress();
+
+                // UTXO关联的地址类型
                 EAddressType addressType = btcAddressAO.getType(address);
-                if (EAddressType.M == addressType) { // fromAddress=M 提现
-                    btcUtxoAO.withdrawNotice(ctqBtcUtxo);
-                    hashList.add(ctqBtcUtxo.getId());
-                    if (EAddressType.X == addressType) { // toAddress=X 充值
+
+                // 橙提取UTXO的状态
+                String ctqBtcUtxoStatus = ctqBtcUtxo.getStatus();
+
+                // addressType=X
+                // 1、ctqBtcUtxoStatus为输出未推送 本地UTXO未落地 则说明是分发地址充值
+                // 2、ctqBtcUtxoStatus为输入未推送 本地UTXO已落地 则说明是归集
+
+                // addressType=M
+                // 1、ctqBtcUtxoStatus为输出未推送 本地UTXO未落地 则说明是散取地址取现定存
+                // 2、ctqBtcUtxoStatus为输入未推送 本地UTXO已落地 则说明是取现
+
+                if (EAddressType.X == addressType) {
+                    if (ECtqBtcUtxoStatus.OUT_UN_PUSH.getCode().equals(
+                        ctqBtcUtxo)) {
                         String code = btcUtxoAO.chargeNotice(ctqBtcUtxo);
                         if (StringUtils.isNotBlank(code)) {
-                            btcUtxoAO.collection(ctqBtcUtxo.getTo(), code);
+                            btcUtxoAO.collection(code);
                         }
+                        hashList.add(ctqBtcUtxo.getHash());
                     }
-                    // hashList.add(ctqBtcUtxo.getHash());
-                } else if (EAddressType.X == addressType) { // toAddress=X 充值
-                    String code = btcUtxoAO.chargeNotice(ctqBtcUtxo);
-                    if (StringUtils.isNotBlank(code)) {
-                        btcUtxoAO.collection(ctqBtcUtxo.getTo(), code);
-                    }
-                    hashList.add(ctqBtcUtxo.getHash());
+                } else if (EAddressType.M == addressType) {
+                    btcUtxoAO.withdrawNotice(ctqBtcUtxo);
+                    hashList.add(ctqBtcUtxo.getId());
                 } else if (EAddressType.X == fromType
                         && EAddressType.W == toType) {
                     // fromAddress=X toAddress=W 归集
@@ -100,5 +115,4 @@ public class CallbackConrollerBTC {
             logger.info("*****complete*****");
         }
     }
-
 }

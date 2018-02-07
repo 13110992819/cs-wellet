@@ -111,6 +111,7 @@ CREATE TABLE `tcoin_btc_utxo` (
   `sync_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `block_height` int(11) NOT NULL,
   `status` varchar(4) NOT NULL COMMENT '0-未使用，1-广播中，2-已使用',
+  `address_type` varchar(4) NOT NULL COMMENT '地址类型',
   `ref_type` varchar(4) NOT NULL COMMENT '参考类型(1 取现 2 归集)',
   `ref_no` varchar(32) NOT NULL COMMENT '参考编号',
   PRIMARY KEY (`id`),
