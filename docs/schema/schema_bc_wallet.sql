@@ -101,6 +101,66 @@ CREATE TABLE `tcoin_sc_address` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `tcoin_btc_address`
+--
+
+DROP TABLE IF EXISTS `tcoin_btc_address`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tcoin_btc_address` (
+  `code` varchar(32) NOT NULL DEFAULT '' COMMENT '编号',
+  `type` varchar(32) DEFAULT NULL COMMENT '地址类型',
+  `address` varchar(255) DEFAULT NULL COMMENT '比特币地址',
+  `private_key` varchar(255) DEFAULT NULL COMMENT '私钥',
+  `user_id` varchar(32) DEFAULT NULL COMMENT '用户编号',
+  `account_number` varchar(32) DEFAULT NULL COMMENT '账户编号',
+  `status` varchar(32) DEFAULT NULL COMMENT '状态',
+  `create_datetime` datetime DEFAULT NULL COMMENT '创建时间',
+  `updater` varchar(32) DEFAULT NULL COMMENT '最后操作人',
+  `update_datetime` datetime DEFAULT NULL COMMENT '最后一次更时间',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `tcoin_btc_utxo`;
+CREATE TABLE `tcoin_btc_utxo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `txid` char(64) NOT NULL,
+  `vout` int(11) NOT NULL,
+  `count` decimal(64,0) NOT NULL,
+  `script_pub_key` text NOT NULL,
+  `address` varchar(40) NOT NULL,
+  `sync_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `block_height` int(11) NOT NULL,
+  `status` varchar(4) NOT NULL COMMENT '0-未使用，1-广播中，2-已使用',
+  `ref_type` varchar(4) NOT NULL COMMENT '参考类型(1 取现 2 归集)',
+  `ref_number` varchar(32) NOT NULL COMMENT '参考编号',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `txid_vout_unique_key` (`txid`,`vout`),
+  KEY `address` (`address`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `tcoin_btc_collection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tcoin_btc_collection` (
+  `code` varchar(32) NOT NULL COMMENT '编号',
+  `from_address` varchar(255) DEFAULT NULL COMMENT '被归集地址(json)',
+  `to_address` varchar(255) DEFAULT NULL COMMENT '归集地址(json)',
+  `amount` decimal(64,0) DEFAULT NULL COMMENT '归集数量',
+  `tx_hash` varchar(255) DEFAULT NULL COMMENT '交易hash',
+  `tx_fee` decimal(64,0) DEFAULT NULL COMMENT '矿工费',
+  `status` varchar(32) DEFAULT NULL COMMENT '状态(1 广播中 2 广播成功 3 广播失败)',
+  `create_datetime` datetime DEFAULT NULL COMMENT '发起时间',
+  `btc_datetime` datetime DEFAULT NULL COMMENT '网络记账时间',
+  `update_datetime` datetime DEFAULT NULL COMMENT '完成时间',
+  `ref_no` varchar(32) DEFAULT NULL COMMENT '关联订单号',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
 -- Table structure for table `tcoin_sc_collection`
 --
 
