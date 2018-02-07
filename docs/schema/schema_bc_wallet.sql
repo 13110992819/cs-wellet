@@ -135,7 +135,7 @@ CREATE TABLE `tcoin_btc_utxo` (
   `block_height` int(11) NOT NULL,
   `status` varchar(4) NOT NULL COMMENT '0-未使用，1-广播中，2-已使用',
   `ref_type` varchar(4) NOT NULL COMMENT '参考类型(1 取现 2 归集)',
-  `ref_number` varchar(32) NOT NULL COMMENT '参考编号',
+  `ref_no` varchar(32) NOT NULL COMMENT '参考编号',
   PRIMARY KEY (`id`),
   UNIQUE KEY `txid_vout_unique_key` (`txid`,`vout`),
   KEY `address` (`address`),
