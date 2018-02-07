@@ -41,8 +41,12 @@ public class AmountUtil {
      * @param orgNum
      * @return
      */
-    public static BigDecimal convertBtc(BigDecimal orgNum) {
+    public static BigDecimal fromBtc(BigDecimal orgNum) {
         return orgNum.divide(BigDecimal.TEN.pow(8));
+    }
+
+    public static BigDecimal toBtc(BigDecimal orgNum) {
+        return orgNum.multiply(BigDecimal.TEN.pow(8));
     }
 
 }

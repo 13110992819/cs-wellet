@@ -33,6 +33,7 @@ import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.common.AmountUtil;
+import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.domain.Withdraw;
@@ -201,19 +202,32 @@ public class WithdrawAOImpl implements IWithdrawAO {
     // 3、签名
     // 4、调用接口广播
     private void doBtcBroadcast(Withdraw withdraw, String approveUser) {
+
+        BigDecimal minMinerFee = AmountUtil.toBtc(sysConfigBO
+            .getBigDecimalValue(SysConstants.MIN_MINER_FEE_BTC));
+
+        BigDecimal maxMinerFee = AmountUtil.toBtc(sysConfigBO
+            .getBigDecimalValue(SysConstants.MAX_MINER_FEE_BTC));
+
         // 实际到账金额=取现金额-取现手续费
         BigDecimal realAmount = withdraw.getAmount()
             .subtract(withdraw.getFee());
-        BtcAddress withdrawAddress = btcAddressBO.getBtcAddress(EAddressType.Y,
-            withdraw.getPayCardNo());
+
+        // 本次提现至少需要有这么多UTXO
+        BigDecimal utxoMinCount = realAmount.add(minMinerFee);
+
+        // 提现至用户的私有地址
+        String withdrawAddress = withdraw.getPayCardNo();
+
         // 获取散取地址的UTXO总额，判断是否足够提现
         BigDecimal enableCount = btcUtxoBO
             .getTotalEnableUTXOCount(EAddressType.M);
-        if (enableCount.compareTo(realAmount) < 0) {
+        if (enableCount.compareTo(utxoMinCount) < 0) {
             // 相等或小于都应该是提现不成功，应为要有矿工费
             // 大于也不一定成功，因为矿工费不能太小，容易交易失败
             throw new BizException("xn0000", "提现账户余额不足");
         }
+
         // 足够提现，降序遍历可使用的M类地址UTXO，组装Input
         BitcoinOfflineRawTxBuilder rawTxBuilder = new BitcoinOfflineRawTxBuilder();
         BigDecimal shouldWithdrawCount = BigDecimal.ZERO;
@@ -242,7 +256,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
                         btcAddress.getPrivatekey());
                     rawTxBuilder.in(offlineTxInput);
                     inputBtcUtxoList.add(utxo);
-                    if (shouldWithdrawCount.compareTo(realAmount) > 0) {// 当大于取现金额时，跳出循环
+                    if (shouldWithdrawCount.compareTo(utxoMinCount) > 0) {// 当大于取现金额时，跳出循环
                         break;
                     }
                 }
@@ -261,9 +275,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
         int preFee = preSize * feePerByte;
 
         // 构造输出
-        OfflineTxOutput offlineTxOutput = new OfflineTxOutput(
-            withdrawAddress.getAddress(),
-            AmountUtil.convertBtc(shouldWithdrawCount.subtract(BigDecimal
+        OfflineTxOutput offlineTxOutput = new OfflineTxOutput(withdrawAddress,
+            AmountUtil.fromBtc(shouldWithdrawCount.subtract(BigDecimal
                 .valueOf(preFee))));
         rawTxBuilder.out(offlineTxOutput);
 
@@ -272,7 +285,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
         if (backCount.compareTo(BigDecimal.ZERO) > 0) {
             String backAddress = inputBtcUtxoList.get(0).getAddress();
             OfflineTxOutput backOutput = new OfflineTxOutput(backAddress,
-                AmountUtil.convertBtc(backCount));
+                AmountUtil.fromBtc(backCount));
             rawTxBuilder.out(backOutput);
         }
         try {
@@ -288,9 +301,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
                 }
                 logger.info("广播成功：交易hash=" + trueTxid);
                 withdrawBO.broadcastOrder(withdraw, trueTxid, approveUser);
-                // 修改取现地址状态为广播中
-                btcAddressBO.refreshStatus(withdrawAddress,
-                    EMAddressStatus.IN_USE.getCode());
             } else {
                 throw new BizException(EBizErrorCode.UTXO_COLLECTION_ERROR);
             }
