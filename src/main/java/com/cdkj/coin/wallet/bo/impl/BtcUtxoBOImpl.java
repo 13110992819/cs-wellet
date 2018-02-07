@@ -14,6 +14,7 @@ import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
 import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
 import com.cdkj.coin.wallet.dao.IBtcUtxoDAO;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.EBtcUtxoRefType;
 import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 
@@ -60,10 +61,13 @@ public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
     }
 
     @Override
-    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status) {
+    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status,
+            EBtcUtxoRefType refType, String refNo) {
         int count = 0;
         if (data != null) {
             data.setStatus(status.getCode());
+            data.setRefType(refType.getCode());
+            data.setRefNo(refNo);
             count = btcUtxoDAO.updateStatus(data);
         }
         return count;

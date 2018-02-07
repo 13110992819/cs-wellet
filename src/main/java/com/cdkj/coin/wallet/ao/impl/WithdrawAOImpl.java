@@ -14,7 +14,15 @@ import org.web3j.crypto.WalletUtils;
 
 import com.cdkj.coin.wallet.ao.IScTransactionAO;
 import com.cdkj.coin.wallet.ao.IWithdrawAO;
+import com.cdkj.coin.wallet.bitcoin.BitcoinOfflineRawTxBuilder;
+import com.cdkj.coin.wallet.bitcoin.BtcAddress;
+import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
+import com.cdkj.coin.wallet.bitcoin.OfflineTxInput;
+import com.cdkj.coin.wallet.bitcoin.OfflineTxOutput;
+import com.cdkj.coin.wallet.bitcoin.util.BtcBlockExplorer;
 import com.cdkj.coin.wallet.bo.IAccountBO;
+import com.cdkj.coin.wallet.bo.IBtcAddressBO;
+import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
@@ -24,12 +32,15 @@ import com.cdkj.coin.wallet.bo.IScAddressBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
+import com.cdkj.coin.wallet.common.AmountUtil;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.dto.res.XN802758Res;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBoolean;
+import com.cdkj.coin.wallet.enums.EBtcUtxoRefType;
+import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
 import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
@@ -82,6 +93,15 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Autowired
     private IScTransactionAO scTransactionAO;
+
+    @Autowired
+    private IBtcAddressBO btcAddressBO;
+
+    @Autowired
+    private IBtcUtxoBO btcUtxoBO;
+
+    @Autowired
+    private BtcBlockExplorer btcBlockExplorer;
 
     @Override
     @Transactional
@@ -172,8 +192,103 @@ public class WithdrawAOImpl implements IWithdrawAO {
             doEthBroadcast(withdraw, mAddressCode, approveUser);
         } else if (ECoin.SC.getCode().equals(account.getCurrency())) {
             doScBroadcast(withdraw, approveUser);
+        } else if (ECoin.BTC.getCode().equals(account.getCurrency())) {
+            doBtcBroadcast(withdraw, approveUser);
+        }
+    }
+
+    // btc广播逻辑：
+    // 1、验证参数(待验证)
+    // 2、预估矿工费得到取现总金额(加找零算法)
+    // 3、签名
+    // 4、调用接口广播
+    private void doBtcBroadcast(Withdraw withdraw, String approveUser) {
+        // 实际到账金额=取现金额-取现手续费
+        BigDecimal realAmount = withdraw.getAmount()
+            .subtract(withdraw.getFee());
+        BtcAddress withdrawAddress = btcAddressBO.getBtcAddress(EAddressType.Y,
+            withdraw.getPayCardNo());
+        // 获取散取地址的UTXO总额，判断是否足够提现
+        BigDecimal enableCount = btcUtxoBO
+            .getTotalEnableUTXOCount(EAddressType.M);
+        if (enableCount.compareTo(realAmount) < 0) {
+            // 相等或小于都应该是提现不成功，应为要有矿工费
+            // 大于也不一定成功，因为矿工费不能太小，容易交易失败
+            throw new BizException("xn0000", "提现账户余额不足");
+        }
+        // 足够提现，降序遍历可使用的M类地址UTXO，组装Input
+        BitcoinOfflineRawTxBuilder rawTxBuilder = new BitcoinOfflineRawTxBuilder();
+        BigDecimal totalCount = BigDecimal.ZERO;
+        List<BtcUtxo> inputBtcUtxoList = new ArrayList<BtcUtxo>();
+        int pageNum = 0;
+        while (true) {
+            BtcUtxo condition = new BtcUtxo();
+            condition.setAddressType(EAddressType.M.getCode());
+            condition.setStatus(EBtcUtxoStatus.ENABLE.getCode());
+            condition.setOrder("count", "decs");
+            Paginable<BtcUtxo> pageBtcUtxo = btcUtxoBO.getPaginable(pageNum,
+                20, condition);// 默认每次20条
+            List<BtcUtxo> list = pageBtcUtxo.getList();
+            if (CollectionUtils.isNotEmpty(list)) {
+                for (BtcUtxo utxo : list) {
+                    String txid = utxo.getTxid();
+                    Integer vout = utxo.getVout();
+                    // 统计总额
+                    totalCount = totalCount.add(utxo.getCount());
+                    BtcAddress btcAddress = btcAddressBO.getBtcAddress(
+                        EAddressType.M, utxo.getAddress());
+                    // 构造签名交易，输入
+                    OfflineTxInput offlineTxInput = new OfflineTxInput(txid,
+                        vout, utxo.getScriptPubKey(),
+                        btcAddress.getPrivatekey());
+                    rawTxBuilder.in(offlineTxInput);
+                    inputBtcUtxoList.add(utxo);
+                    if (totalCount.compareTo(realAmount) > 0) {// 当大于取现金额时，跳出循环
+                        break;
+                    }
+                }
+            } else {
+                break;
+            }
+            pageNum++;// 不够再遍历
         }
 
+        // 组装Output，设置找零账户
+        // 如何估算手续费，先预先给一个size,然后拿这个size进行签名
+        // 对签名的数据进行解码，拿到真实大小，然后进行矿工费的修正
+        int preSize = BitcoinOfflineRawTxBuilder.calculateSize(rawTxBuilder
+            .getSize().intValue(), 1);
+        int feePerByte = btcBlockExplorer.getFee();
+        // 计算出手续费
+        int preFee = preSize * feePerByte;
+
+        // 构造输出
+        OfflineTxOutput offlineTxOutput = new OfflineTxOutput(
+            withdrawAddress.getAddress(), AmountUtil.convertBtc(totalCount
+                .subtract(BigDecimal.valueOf(preFee))));
+        rawTxBuilder.out(offlineTxOutput);
+        try {
+            String signResult = rawTxBuilder.offlineSign();
+            // 广播
+            String trueTxid = btcBlockExplorer.broadcastRawTx(signResult);
+            if (trueTxid != null) {
+                if (CollectionUtils.isNotEmpty(inputBtcUtxoList)) {
+                    for (BtcUtxo data : inputBtcUtxoList) {
+                        btcUtxoBO.refreshStatus(data, EBtcUtxoStatus.USING,
+                            EBtcUtxoRefType.WITHDRAW, withdraw.getCode());
+                    }
+                }
+                logger.info("广播成功：交易hash=" + trueTxid);
+                withdrawBO.broadcastOrder(withdraw, trueTxid, approveUser);
+                // 修改取现地址状态为广播中
+                btcAddressBO.refreshStatus(withdrawAddress,
+                    EMAddressStatus.IN_USE.getCode());
+            } else {
+                throw new BizException(EBizErrorCode.UTXO_COLLECTION_ERROR);
+            }
+        } catch (Exception e) {
+            throw new BizException("-100", e.getMessage());
+        }
     }
 
     private void doEthBroadcast(Withdraw withdraw, String mAddressCode,
