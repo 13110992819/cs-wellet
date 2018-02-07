@@ -19,6 +19,8 @@
 		<typeAlias alias="scTransaction" type="com.cdkj.coin.wallet.siacoin.ScTransaction" />
 		<typeAlias alias="scCollection" type="com.cdkj.coin.wallet.siacoin.ScCollection" />
 		
+		<typeAlias alias="btcAddress" type="com.cdkj.coin.wallet.bitcoin.BtcAddress" />
+		
 	</typeAliases>
 </configuration>
 
