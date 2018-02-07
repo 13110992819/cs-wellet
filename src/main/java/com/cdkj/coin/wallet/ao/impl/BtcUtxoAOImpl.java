@@ -23,6 +23,8 @@ import com.cdkj.coin.wallet.ao.IBtcUtxoAO;
 import com.cdkj.coin.wallet.bitcoin.BtcAddress;
 import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
+import com.cdkj.coin.wallet.bitcoin.original.BTCOriginalTx;
+import com.cdkj.coin.wallet.bitcoin.util.BtcBlockExplorer;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IBtcAddressBO;
 import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
@@ -42,7 +44,6 @@ import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
 import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
-import com.cdkj.coin.wallet.enums.EMAddressStatus;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.exception.BizException;
@@ -78,6 +79,9 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
+
+    @Autowired
+    private BtcBlockExplorer btcBlockExplorer;
 
     @Override
     @Transactional
@@ -131,11 +135,27 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
                 && EBtcUtxoRefType.WITHDRAW.getCode()
                     .equals(btcUtxo.getRefNo())
                 && StringUtils.isNotBlank(btcUtxo.getRefNo())) {
+
+            // 修改UTXO状态
+            btcUtxoBO.refreshStatus(btcUtxo, EBtcUtxoStatus.USED);
+
             // 查询取现订单
             Withdraw withdraw = withdrawBO.getWithdraw(btcUtxo.getRefNo());
             if (withdraw == null) {
                 return;
             }
+            if (!EWithdrawStatus.Broadcast.getCode().equals(
+                withdraw.getStatus())) {
+                return;
+            }
+
+            // 查询交易详情
+            BTCOriginalTx btcOriginalTx = btcBlockExplorer.queryTxHash(withdraw
+                .getChannelOrder());
+            if (btcOriginalTx == null) {
+                return;
+            }
+
             // 取现订单更新
             withdrawBO.payOrder(withdraw, EWithdrawStatus.Pay_YES,
                 withdraw.getPayUser(), "广播成功", withdraw.getChannelOrder(),
@@ -175,7 +195,8 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
             if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
                 sysAccount = accountBO.changeAmount(sysAccount,
                     withdraw.getFee(), EChannelType.BTC,
-                    withdraw.getChannelOrder(), "BTC", withdraw.getCode(),
+                    withdraw.getChannelOrder(), EChannelType.BTC.getCode(),
+                    withdraw.getCode(),
                     EJourBizTypePlat.AJ_WITHDRAWFEE.getCode(),
                     EJourBizTypePlat.AJ_WITHDRAWFEE.getValue() + "-外部地址："
                             + withdraw.getPayCardNo());
@@ -183,27 +204,15 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
             // 平台盈亏账户记入取现矿工费
             sysAccount = accountBO.changeAmount(
                 sysAccount,
-                txFee.negate(),
+                btcOriginalTx.getFees().negate(),
                 EChannelType.BTC,
-                ctqBtcUtxo.getHash(),
-                "BTC",
+                withdraw.getChannelOrder(),
+                EChannelType.BTC.getCode(),
                 withdraw.getCode(),
                 EJourBizTypePlat.AJ_WFEE.getCode(),
                 EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
                         + withdraw.getPayCardNo());
-            // 落地交易记录
-            btcTransactionBO.saveBtcUtxo(ctqBtcUtxo, withdraw.getCode());
 
-            // 更新地址余额
-            BtcAddress from = btcAddressBO.getBtcAddress(EAddressType.M,
-                ctqBtcUtxo.getFrom());
-            BtcAddress to = btcAddressBO.getBtcAddress(EAddressType.W,
-                ctqBtcUtxo.getTo());
-            btcAddressBO.refreshBalance(from);
-            btcAddressBO.refreshBalance(to);
-
-            // 修改散取地址状态为可使用
-            btcAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
         }
 
     }
