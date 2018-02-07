@@ -55,11 +55,11 @@ public class ScCollectionAOImpl implements IScCollectionAO {
 
         // 获取钱包余额
         BigDecimal balance = SiadClient.getSiacoinBalance();
-        BigDecimal limit = balanceStart;
 
         // 余额大于配置值时，进行归集
-        if (balance.compareTo(SiadClient.toHasting(limit)) < 0) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "余额太少，无需归集");
+        if (balance.compareTo(SiadClient.toHasting(balanceStart)) < 0) {
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "SC钱包余额"
+                    + SiadClient.fromHasting(balance).toString() + "，无需归集");
         }
         // 获取今日归集地址
         ScAddress wScAddress = scAddressBO.getWScAddressToday();
