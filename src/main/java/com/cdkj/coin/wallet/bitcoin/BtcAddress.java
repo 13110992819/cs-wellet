@@ -26,7 +26,7 @@ public class BtcAddress extends ABaseDO {
     private String address;
 
     // 私钥
-    private String privatekey;
+    private transient String privatekey;
 
     // 用户编号
     private String userId;

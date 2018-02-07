@@ -20,7 +20,7 @@ import com.cdkj.coin.wallet.dto.req.XN616000Req;
 import com.cdkj.coin.wallet.dto.req.XN616020Req;
 import com.cdkj.coin.wallet.dto.req.XN616040Req;
 import com.cdkj.coin.wallet.dto.req.XN616060Req;
-import com.cdkj.coin.wallet.dto.req.XN616080Req;
+import com.cdkj.coin.wallet.dto.req.XN626080Req;
 import com.cdkj.coin.wallet.dto.req.XN625917Req;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.http.BizConnecter;
@@ -83,8 +83,8 @@ public class CtqBOImpl implements ICtqBO {
 
     @Override
     public void uploadBtcAddress(String address) {
-        XN616080Req req = new XN616080Req();
+        XN626080Req req = new XN626080Req();
         req.setAddress(address);
-        BizConnecter.getBizData("616080", JsonUtil.Object2Json(req));
+        BizConnecter.getBizData("626080", JsonUtil.Object2Json(req));
     }
 }

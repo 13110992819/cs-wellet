@@ -27,7 +27,6 @@ import com.cdkj.coin.wallet.enums.EWAddressStatus;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
-import com.cdkj.coin.wallet.siacoin.SiadClient;
 
 /**
  * @author: xieyj 
@@ -68,10 +67,10 @@ public class BtcAddressAOImpl implements IBtcAddressAO {
                     + address + "已经在平台内被使用，请仔细核对");
         }
         // 地址有效性校验
-        if (!SiadClient.verifyAddress(address)) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
-                    + address + "不符合Bitcoin规则，请仔细核对");
-        }
+        // if (!SiadClient.verifyAddress(address)) {
+        // throw new BizException(EBizErrorCode.DEFAULT.getCode(), "地址"
+        // + address + "不符合Bitcoin规则，请仔细核对");
+        // }
         String code = btcAddressBO.saveBtcAddress(EAddressType.W, address,
             null, ESysUser.SYS_USER_COLD.getCode(),
             ESystemAccount.SYS_ACOUNT_SC_COLD.getCode(),
@@ -112,7 +111,7 @@ public class BtcAddressAOImpl implements IBtcAddressAO {
     public String generateMAddress(String updater, String remark) {
         String address = btcAddressBO.generateAddress(EAddressType.M,
             ESysUser.SYS_USER.getCode(),
-            ESystemAccount.SYS_ACOUNT_SC.getCode(), updater, remark);
+            ESystemAccount.SYS_ACOUNT_BTC.getCode(), updater, remark);
         // 通知橙提取
         ctqBO.uploadBtcAddress(address);
         return address;

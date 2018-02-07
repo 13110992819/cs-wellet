@@ -57,12 +57,14 @@ public class BtcAddressBOImpl extends PaginableBOImpl<BtcAddress> implements
         data.setCode(code);
         data.setType(type.getCode());
         data.setAddress(address);
+        data.setPrivatekey(privatekey);
 
         data.setUserId(userId);
         data.setAccountNumber(accountNumber);
         data.setStatus(status);
         data.setCreateDatetime(now);
         data.setUpdater(updater);
+
         data.setUpdateDatetime(now);
         data.setRemark(remark);
         btcAddressDAO.insert(data);
