@@ -13,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.cdkj.coin.wallet.ao.IEthAddressAO;
-import com.cdkj.coin.wallet.ao.IEthTransactionAO;
+import com.cdkj.coin.wallet.ao.IBtcAddressAO;
+import com.cdkj.coin.wallet.ao.IBtcUtxoAO;
+import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.enums.EAddressType;
-import com.cdkj.coin.wallet.ethereum.CtqEthTransaction;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -32,10 +32,10 @@ public class CallbackConrollerBTC {
     private static Logger logger = Logger.getLogger(CallbackConrollerBTC.class);
 
     @Autowired
-    IEthAddressAO ethAddressAO;
+    IBtcAddressAO btcAddressAO;
 
     @Autowired
-    IEthTransactionAO ethTransactionAO;
+    IBtcUtxoAO btcUtxoAO;
 
     @Autowired
     ICtqBO ctqBO;
@@ -44,57 +44,50 @@ public class CallbackConrollerBTC {
     @RequestMapping("/btc/tx/notice")
     public synchronized void doEthCallback(HttpServletRequest request,
             HttpServletResponse response) {
-        List<String> hashList = new ArrayList<String>();
+        List<Long> hashList = new ArrayList<Long>();
         try {
             logger.info("*****比特币交易通知开始*****");
-            logger.info(request.getParameter("ethTxlist"));
-            String txJson = request.getParameter("ethTxlist");
+            logger.info(request.getParameter("btcUtxoList"));
+            String txJson = request.getParameter("btcUtxoList");
             Gson gson = new Gson();
-            List<CtqEthTransaction> list = gson.fromJson(txJson,
-                new TypeToken<List<CtqEthTransaction>>() {
+            List<CtqBtcUtxo> list = gson.fromJson(txJson,
+                new TypeToken<List<CtqBtcUtxo>>() {
                 }.getType());
 
-            for (CtqEthTransaction ctqEthTransaction : list) {
-                String fromAddress = ctqEthTransaction.getFrom();
-                String toAddress = ctqEthTransaction.getTo();
-                EAddressType fromType = ethAddressAO.getType(fromAddress);
-                EAddressType toType = ethAddressAO.getType(toAddress);
-
-                if (EAddressType.M == fromType) { // fromAddress=M 提现
-                    ethTransactionAO.withdrawNotice(ctqEthTransaction);
-                    hashList.add(ctqEthTransaction.getHash());
-                    if (EAddressType.X == toType) { // toAddress=X 充值
-                        String code = ethTransactionAO
-                            .chargeNotice(ctqEthTransaction);
+            for (CtqBtcUtxo ctqBtcUtxo : list) {
+                String address = ctqBtcUtxo.getAddress();
+                EAddressType addressType = btcAddressAO.getType(address);
+                if (EAddressType.M == addressType) { // fromAddress=M 提现
+                    btcUtxoAO.withdrawNotice(ctqBtcUtxo);
+                    hashList.add(ctqBtcUtxo.getId());
+                    if (EAddressType.X == addressType) { // toAddress=X 充值
+                        String code = btcUtxoAO.chargeNotice(ctqBtcUtxo);
                         if (StringUtils.isNotBlank(code)) {
-                            ethTransactionAO.collection(
-                                ctqEthTransaction.getTo(), code);
+                            btcUtxoAO.collection(ctqBtcUtxo.getTo(), code);
                         }
                     }
-                    // hashList.add(ctqEthTransaction.getHash());
-                } else if (EAddressType.X == toType) { // toAddress=X 充值
-                    String code = ethTransactionAO
-                        .chargeNotice(ctqEthTransaction);
+                    // hashList.add(ctqBtcUtxo.getHash());
+                } else if (EAddressType.X == addressType) { // toAddress=X 充值
+                    String code = btcUtxoAO.chargeNotice(ctqBtcUtxo);
                     if (StringUtils.isNotBlank(code)) {
-                        ethTransactionAO.collection(ctqEthTransaction.getTo(),
-                            code);
+                        btcUtxoAO.collection(ctqBtcUtxo.getTo(), code);
                     }
-                    hashList.add(ctqEthTransaction.getHash());
+                    hashList.add(ctqBtcUtxo.getHash());
                 } else if (EAddressType.X == fromType
                         && EAddressType.W == toType) {
                     // fromAddress=X toAddress=W 归集
-                    ethTransactionAO.collectionNotice(ctqEthTransaction);
-                    hashList.add(ctqEthTransaction.getHash());
+                    btcUtxoAO.collectionNotice(ctqBtcUtxo);
+                    hashList.add(ctqBtcUtxo.getHash());
                 } else if (EAddressType.M == toType) {
                     // toAddress=M 每日定存
-                    ethTransactionAO.depositNotice(ctqEthTransaction);
-                    hashList.add(ctqEthTransaction.getHash());
+                    btcUtxoAO.depositNotice(ctqBtcUtxo);
+                    hashList.add(ctqBtcUtxo.getHash());
                 } else if (EAddressType.W == fromType) {
                     // fromAddress=W 每日转移
-                    hashList.add(ctqEthTransaction.getHash());
+                    hashList.add(ctqBtcUtxo.getHash());
                 }
 
-                logger.info("处理交易：" + ctqEthTransaction.getHash());
+                logger.info("处理交易：" + ctqBtcUtxo.getHash());
             }
             logger.info("*****业务处理完成*****");
         } catch (Exception e) {

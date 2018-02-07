@@ -8,7 +8,7 @@
  */
 package com.cdkj.coin.wallet.api.impl;
 
-import com.cdkj.coin.wallet.ao.IEthCollectionAO;
+import com.cdkj.coin.wallet.ao.ICollectionAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
@@ -25,8 +25,8 @@ import com.cdkj.coin.wallet.spring.SpringContextHolder;
  */
 public class XN802116 extends AProcessor {
 
-    private IEthCollectionAO ethCollectionAO = SpringContextHolder
-        .getBean(IEthCollectionAO.class);
+    private ICollectionAO collectionAO = SpringContextHolder
+        .getBean(ICollectionAO.class);
 
     private XN802116Req req = null;
 
@@ -35,14 +35,15 @@ public class XN802116 extends AProcessor {
      */
     @Override
     public Object doBusiness() throws BizException {
-        return ethCollectionAO.getEthCollection(req.getCode());
+        return collectionAO.getCollection(req.getCode());
     }
 
     /** 
      * @see com.cdkj.coin.wallet.api.IProcessor#doCheck(java.lang.String)
      */
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
         req = JsonUtil.json2Bean(inputparams, XN802116Req.class);
         ObjValidater.validateReq(req);
     }

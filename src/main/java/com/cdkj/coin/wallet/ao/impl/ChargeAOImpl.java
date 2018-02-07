@@ -10,13 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cdkj.coin.wallet.ao.IChargeAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IChargeBO;
-import com.cdkj.coin.wallet.bo.IEthCollectionBO;
+import com.cdkj.coin.wallet.bo.ICollectionBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
+import com.cdkj.coin.wallet.domain.Collection;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.dto.res.XN802707Res;
 import com.cdkj.coin.wallet.enums.EBoolean;
@@ -28,7 +29,6 @@ import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.ESystemCode;
-import com.cdkj.coin.wallet.ethereum.EthCollection;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.siacoin.ScTransaction;
@@ -51,7 +51,7 @@ public class ChargeAOImpl implements IChargeAO {
     private IScTransactionBO scTransactionBO;
 
     @Autowired
-    private IEthCollectionBO ethCollectionBO;
+    private ICollectionBO collectionBO;
 
     @Override
     public String applyOrder(String accountNumber, BigDecimal amount,
@@ -158,20 +158,20 @@ public class ChargeAOImpl implements IChargeAO {
             List<EthTransaction> resultList1 = ethTransactionBO
                 .queryEthTransactionList(ethTransaction);
 
-            EthCollection ethCollection = ethCollectionBO
-                .getEthCollectionByRefNo(charge.getCode());
+            Collection collection = collectionBO.getCollectionByRefNo(charge
+                .getCode());
             // 如果有归集
-            if (ethCollection != null) {
+            if (collection != null) {
                 // 归集对应流水
-                jour.setRefNo(ethCollection.getCode());
+                jour.setRefNo(collection.getCode());
                 List<Jour> jourList2 = jourBO.queryJourList(jour);
                 jourList1.addAll(jourList2);
                 // 归集对应广播记录
-                ethTransaction.setRefNo(ethCollection.getCode());
+                ethTransaction.setRefNo(collection.getCode());
                 List<EthTransaction> resultList2 = ethTransactionBO
                     .queryEthTransactionList(ethTransaction);
                 resultList1.addAll(resultList2);
-                res.setEthCollection(ethCollection);
+                res.setCollection(collection);
                 res.setEthTransList(resultList1);
             }
         } else if (ECoin.SC.getCode().equals(charge.getCurrency())) {

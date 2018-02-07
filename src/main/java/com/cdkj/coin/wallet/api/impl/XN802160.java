@@ -10,13 +10,14 @@ package com.cdkj.coin.wallet.api.impl;
 
 import java.math.BigDecimal;
 
-import com.cdkj.coin.wallet.ao.IScCollectionAO;
+import com.cdkj.coin.wallet.ao.ICollectionAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
 import com.cdkj.coin.wallet.core.StringValidater;
 import com.cdkj.coin.wallet.dto.req.XN802160Req;
 import com.cdkj.coin.wallet.dto.res.BooleanRes;
+import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
@@ -30,8 +31,8 @@ import com.cdkj.coin.wallet.spring.SpringContextHolder;
  */
 public class XN802160 extends AProcessor {
 
-    private IScCollectionAO scCollectionAO = SpringContextHolder
-        .getBean(IScCollectionAO.class);
+    private ICollectionAO collectionAO = SpringContextHolder
+        .getBean(ICollectionAO.class);
 
     private XN802160Req req = null;
 
@@ -42,7 +43,7 @@ public class XN802160 extends AProcessor {
     public Object doBusiness() throws BizException {
         BigDecimal balanceStart = SiadClient.toHasting(StringValidater
             .toBigDecimal(req.getBalanceStart()));
-        scCollectionAO.collectionManual(balanceStart);
+        collectionAO.collectionManual(balanceStart, ECoin.SC.getCode());
         return new BooleanRes(true);
     }
 

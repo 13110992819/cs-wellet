@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cdkj.coin.wallet.ao.IScAddressAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
+import com.cdkj.coin.wallet.bo.ICollectionBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IScAddressBO;
-import com.cdkj.coin.wallet.bo.IScCollectionBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
@@ -51,7 +51,7 @@ public class ScAddressAOImpl implements IScAddressAO {
     private IScAddressBO scAddressBO;
 
     @Autowired
-    private IScCollectionBO scCollectionBO;
+    private ICollectionBO collectionBO;
 
     @Autowired
     private IWithdrawBO withdrawBO;
@@ -135,7 +135,7 @@ public class ScAddressAOImpl implements IScAddressAO {
         for (ScAddress scAddress : results.getList()) {
             // 归集地址统计
             if (EAddressType.W.getCode().equals(scAddress.getType())) {
-                ScAddress xAddress = scCollectionBO.getAddressUseInfo(scAddress
+                EthAddress xAddress = collectionBO.getAddressUseInfo(scAddress
                     .getAddress());
                 scAddress.setUseCount(xAddress.getUseCount());
                 scAddress.setUseAmount(xAddress.getUseAmount());

@@ -20,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.cdkj.coin.wallet.ao.IScTransactionAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IChargeBO;
+import com.cdkj.coin.wallet.bo.ICollectionBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IScAddressBO;
-import com.cdkj.coin.wallet.bo.IScCollectionBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
@@ -31,20 +31,20 @@ import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Charge;
+import com.cdkj.coin.wallet.domain.Collection;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
+import com.cdkj.coin.wallet.enums.ECollectionStatus;
 import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
 import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
-import com.cdkj.coin.wallet.enums.EScCollectionStatus;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.siacoin.CtqScTransaction;
 import com.cdkj.coin.wallet.siacoin.ScAddress;
-import com.cdkj.coin.wallet.siacoin.ScCollection;
 import com.cdkj.coin.wallet.siacoin.ScTransaction;
 import com.cdkj.coin.wallet.siacoin.SiadClient;
 
@@ -75,7 +75,7 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     private IScTransactionBO scTransactionBO;
 
     @Autowired
-    private IScCollectionBO scCollectionBO;
+    private ICollectionBO collectionBO;
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
@@ -211,7 +211,8 @@ public class ScTransactionAOImpl implements IScTransactionAO {
             throw new BizException("xn625000", "归集—交易广播失败");
         }
         // 归集记录落地
-        scCollectionBO.saveScCollection(toAddress, value, txHash, chargeCode);
+        collectionBO.saveCollection(ECoin.SC, null, toAddress, value, txHash,
+            chargeCode);
 
     }
 
@@ -219,15 +220,15 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     @Transactional
     public void collectionNotice(CtqScTransaction ctqScTransaction) {
         // 根据交易hash查询归集记录
-        ScCollection collection = scCollectionBO
-            .getScCollectionByTxHash(ctqScTransaction.getTransactionid());
-        if (!EScCollectionStatus.Broadcast.getCode().equals(
+        Collection collection = collectionBO
+            .getCollectionByTxHash(ctqScTransaction.getTransactionid());
+        if (!ECollectionStatus.Broadcast.getCode().equals(
             collection.getStatus())) {
             throw new BizException("xn625000", "交易已处理，请勿重复处理");
         }
         // 归集订单状态更新
         BigDecimal txFee = new BigDecimal(ctqScTransaction.getMinerfee());
-        scCollectionBO.colectionNotice(collection, ctqScTransaction.getFrom(),
+        collectionBO.colectionNoticeSC(collection, ctqScTransaction.getFrom(),
             txFee, DateUtil.TimeStamp2Date(ctqScTransaction
                 .getConfirmationtimestamp().toString(),
                 DateUtil.DATA_TIME_PATTERN_1));

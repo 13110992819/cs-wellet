@@ -11,8 +11,8 @@ package com.cdkj.coin.wallet.api.impl;
 import java.math.BigDecimal;
 
 import com.cdkj.coin.wallet.ao.IAccountAO;
+import com.cdkj.coin.wallet.ao.ICollectionAO;
 import com.cdkj.coin.wallet.ao.IEthAddressAO;
-import com.cdkj.coin.wallet.ao.IEthCollectionAO;
 import com.cdkj.coin.wallet.ao.IWithdrawAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.dto.res.XN802900Res;
@@ -32,8 +32,8 @@ public class XN802900 extends AProcessor {
     private IEthAddressAO ethAddressAO = SpringContextHolder
         .getBean(IEthAddressAO.class);
 
-    private IEthCollectionAO ethCollectionAO = SpringContextHolder
-        .getBean(IEthCollectionAO.class);
+    private ICollectionAO collectionAO = SpringContextHolder
+        .getBean(ICollectionAO.class);
 
     private IWithdrawAO withdrawAO = SpringContextHolder
         .getBean(IWithdrawAO.class);
@@ -54,7 +54,7 @@ public class XN802900 extends AProcessor {
         BigDecimal toCollectCount = ethAddressAO
             .getTotalBalance(EAddressType.X);
         // 历史总归集
-        BigDecimal totolCollectCount = ethCollectionAO.getTotalCollect();
+        BigDecimal totolCollectCount = collectionAO.getTotalCollect();
         // 历史总取现
         BigDecimal totolWithdrawCount = withdrawAO.getTotalWithdraw();
         // 冷钱包余额

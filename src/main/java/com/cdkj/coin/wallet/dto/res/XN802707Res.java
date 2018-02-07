@@ -11,23 +11,18 @@ package com.cdkj.coin.wallet.dto.res;
 import java.util.List;
 
 import com.cdkj.coin.wallet.domain.Charge;
+import com.cdkj.coin.wallet.domain.Collection;
 import com.cdkj.coin.wallet.domain.Jour;
-import com.cdkj.coin.wallet.ethereum.EthCollection;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
 import com.cdkj.coin.wallet.siacoin.ScTransaction;
 
-/** 
- * @author: haiqingzheng 
- * @since: 2017年11月23日 下午2:47:23 
- * @history:
- */
 public class XN802707Res {
 
     // 充值订单详情
     private Charge charge;
 
     // 充值关联归集订单详情
-    private EthCollection ethCollection;
+    private Collection collection;
 
     // 充值订单相关流水
     private List<Jour> jourList;
@@ -38,12 +33,12 @@ public class XN802707Res {
     // SC充值相关广播记录
     private List<ScTransaction> scTransList;
 
-    public EthCollection getEthCollection() {
-        return ethCollection;
+    public Collection getCollection() {
+        return collection;
     }
 
-    public void setEthCollection(EthCollection ethCollection) {
-        this.ethCollection = ethCollection;
+    public void setCollection(Collection collection) {
+        this.collection = collection;
     }
 
     public Charge getCharge() {

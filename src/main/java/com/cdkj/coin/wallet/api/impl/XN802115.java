@@ -8,13 +8,13 @@
  */
 package com.cdkj.coin.wallet.api.impl;
 
-import com.cdkj.coin.wallet.ao.IEthCollectionAO;
+import com.cdkj.coin.wallet.ao.ICollectionAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.ObjValidater;
 import com.cdkj.coin.wallet.core.StringValidater;
+import com.cdkj.coin.wallet.domain.Collection;
 import com.cdkj.coin.wallet.dto.req.XN802115Req;
-import com.cdkj.coin.wallet.ethereum.EthCollection;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
 import com.cdkj.coin.wallet.spring.SpringContextHolder;
@@ -27,8 +27,8 @@ import com.cdkj.coin.wallet.spring.SpringContextHolder;
  */
 public class XN802115 extends AProcessor {
 
-    private IEthCollectionAO ethCollectionAO = SpringContextHolder
-        .getBean(IEthCollectionAO.class);
+    private ICollectionAO collectionAO = SpringContextHolder
+        .getBean(ICollectionAO.class);
 
     private XN802115Req req = null;
 
@@ -37,7 +37,8 @@ public class XN802115 extends AProcessor {
      */
     @Override
     public Object doBusiness() throws BizException {
-        EthCollection condition = new EthCollection();
+        Collection condition = new Collection();
+        condition.setCurrency(req.getCurrency());
         condition.setCodeForQuery(req.getCode());
         condition.setFromAddress(req.getFromAddress());
         condition.setToAddress(req.getToAddress());
@@ -45,14 +46,15 @@ public class XN802115 extends AProcessor {
         condition.setTxHash(req.getTxHash());
         int start = StringValidater.toInteger(req.getStart());
         int limit = StringValidater.toInteger(req.getLimit());
-        return ethCollectionAO.queryEthCollectionPage(start, limit, condition);
+        return collectionAO.queryCollectionPage(start, limit, condition);
     }
 
     /** 
      * @see com.cdkj.coin.wallet.api.IProcessor#doCheck(java.lang.String)
      */
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
         req = JsonUtil.json2Bean(inputparams, XN802115Req.class);
         ObjValidater.validateReq(req);
     }

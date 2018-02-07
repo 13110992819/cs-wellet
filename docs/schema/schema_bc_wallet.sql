@@ -26,29 +26,6 @@ CREATE TABLE `tcoin_eth_address` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `tcoin_eth_collection`
---
-
-DROP TABLE IF EXISTS `tcoin_eth_collection`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tcoin_eth_collection` (
-  `code` varchar(32) NOT NULL COMMENT '编号',
-  `from_address` varchar(255) DEFAULT NULL COMMENT '被归集地址',
-  `to_address` varchar(255) DEFAULT NULL COMMENT '归集地址',
-  `amount` decimal(64,0) DEFAULT NULL COMMENT '归集数量',
-  `tx_hash` varchar(255) DEFAULT NULL COMMENT '交易hash',
-  `tx_fee` decimal(64,0) DEFAULT NULL COMMENT '矿工费',
-  `status` varchar(32) DEFAULT NULL COMMENT '状态',
-  `create_datetime` datetime DEFAULT NULL COMMENT '发起时间',
-  `eth_datetime` datetime DEFAULT NULL COMMENT '网络记账时间',
-  `update_datetime` datetime DEFAULT NULL COMMENT '完成时间',
-  `ref_no` varchar(32) DEFAULT NULL COMMENT '关联订单号',
-  PRIMARY KEY (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `tcoin_eth_transaction`
 --
 
@@ -141,47 +118,6 @@ CREATE TABLE `tcoin_btc_utxo` (
   KEY `address` (`address`),
   KEY `status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `tcoin_btc_collection`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tcoin_btc_collection` (
-  `code` varchar(32) NOT NULL COMMENT '编号',
-  `from_address` varchar(255) DEFAULT NULL COMMENT '被归集地址(json)',
-  `to_address` varchar(255) DEFAULT NULL COMMENT '归集地址(json)',
-  `amount` decimal(64,0) DEFAULT NULL COMMENT '归集数量',
-  `tx_hash` varchar(255) DEFAULT NULL COMMENT '交易hash',
-  `tx_fee` decimal(64,0) DEFAULT NULL COMMENT '矿工费',
-  `status` varchar(32) DEFAULT NULL COMMENT '状态(1 广播中 2 广播成功 3 广播失败)',
-  `create_datetime` datetime DEFAULT NULL COMMENT '发起时间',
-  `btc_datetime` datetime DEFAULT NULL COMMENT '网络记账时间',
-  `update_datetime` datetime DEFAULT NULL COMMENT '完成时间',
-  `ref_no` varchar(32) DEFAULT NULL COMMENT '关联订单号',
-  PRIMARY KEY (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Table structure for table `tcoin_sc_collection`
---
-
-DROP TABLE IF EXISTS `tcoin_sc_collection`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tcoin_sc_collection` (
-  `code` varchar(32) NOT NULL COMMENT '编号',
-  `from_address` varchar(255) DEFAULT NULL COMMENT '被归集地址',
-  `to_address` varchar(255) DEFAULT NULL COMMENT '归集地址',
-  `amount` decimal(64,0) DEFAULT NULL COMMENT '归集数量',
-  `tx_hash` varchar(255) DEFAULT NULL COMMENT '交易Id',
-  `tx_fee` decimal(64,0) DEFAULT NULL COMMENT '矿工费',
-  `status` varchar(32) DEFAULT NULL COMMENT '状态',
-  `create_datetime` datetime DEFAULT NULL COMMENT '发起时间',
-  `sc_datetime` datetime DEFAULT NULL COMMENT '网络记账时间',
-  `update_datetime` datetime DEFAULT NULL COMMENT '完成时间',
-  `ref_no` varchar(32) DEFAULT NULL COMMENT '关联订单号',
-  PRIMARY KEY (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `tcoin_sc_transaction`
@@ -461,6 +397,30 @@ CREATE TABLE `tstd_withdraw` (
   `system_code` varchar(32) DEFAULT NULL COMMENT '系统编号',
   `company_code` varchar(32) DEFAULT NULL COMMENT '公司编号',
   PRIMARY KEY (`code`) COMMENT '取现订单'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `tstd_collection`
+--
+
+DROP TABLE IF EXISTS `tstd_collection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tstd_collection` (
+  `code` varchar(32) NOT NULL COMMENT '编号',
+  `currency` varchar(32) DEFAULT NULL COMMENT '币种',
+  `from_address` TEXT DEFAULT NULL COMMENT '被归集地址',
+  `to_address` TEXT DEFAULT NULL COMMENT '归集地址',
+  `amount` decimal(64,0) DEFAULT NULL COMMENT '归集数量',
+  `tx_hash` varchar(255) DEFAULT NULL COMMENT '交易hash',
+  `tx_fee` decimal(64,0) DEFAULT NULL COMMENT '矿工费',
+  `status` varchar(32) DEFAULT NULL COMMENT '状态',
+  `create_datetime` datetime DEFAULT NULL COMMENT '发起时间',
+  `confirm_datetime` datetime DEFAULT NULL COMMENT '网络记账时间',
+  `update_datetime` datetime DEFAULT NULL COMMENT '完成时间',
+  `ref_no` varchar(32) DEFAULT NULL COMMENT '关联订单号',
+  PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

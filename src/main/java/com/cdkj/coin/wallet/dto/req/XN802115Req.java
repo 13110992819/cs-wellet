@@ -20,6 +20,9 @@ public class XN802115Req extends APageReq {
     // 订单编号模糊查询
     private String code;
 
+    // 币种
+    private String currency;
+
     // 被归集地址
     private String fromAddress;
 
@@ -38,6 +41,14 @@ public class XN802115Req extends APageReq {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public String getFromAddress() {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cdkj.coin.wallet.dao.IEthCollectionDAO">
-	<resultMap id="ethCollection_DB_Result" type="ethCollection">
+<mapper namespace="com.cdkj.coin.wallet.dao.ICollectionDAO">
+	<resultMap id="collection_DB_Result" type="collection">
 		<result column="code" property="code" />
+		<result column="currency" property="currency" />
 		<result column="from_address" property="fromAddress" />
 		<result column="to_address" property="toAddress" />
 		<result column="amount" property="amount" />
@@ -11,7 +12,7 @@
 		<result column="tx_fee" property="txFee" />
 		<result column="status" property="status" />
 		<result column="create_datetime" property="createDatetime" />
-		<result column="eth_datetime" property="ethDatetime" />
+		<result column="confirm_datetime" property="confirmDatetime" />
 		<result column="update_datetime" property="updateDatetime" />
 		<result column="ref_no" property="refNo" />
 	</resultMap>
@@ -25,6 +26,9 @@
 		<trim prefix="WHERE" prefixOverrides="AND | OR">
 			<if test="code != null and code != '' ">
 				AND t.code = #{code}
+			</if>
+			<if test="currency != null and currency != '' ">
+				AND t.currency = #{currency}
 			</if>
 			<if test="codeForQuery != null and codeForQuery != '' ">
 				AND t.code like "%"#{codeForQuery}"%"
@@ -46,9 +50,10 @@
 			</if>
 		</trim>
 	</sql>
-	<select id="select_ethCollection" parameterType="ethCollection" resultMap="ethCollection_DB_Result">
+	<select id="select_collection" parameterType="collection" resultMap="collection_DB_Result">
 		SELECT
 		t.code
+		,t.currency
 		,t.from_address
 		,t.to_address
 		,t.amount
@@ -56,11 +61,11 @@
 		,t.tx_fee
 		,t.status
 		,t.create_datetime
-		,t.eth_datetime
+		,t.confirm_datetime
 		,t.update_datetime
 		,t.ref_no
 		FROM
-		tcoin_eth_collection t
+		tstd_collection t
 		<include refid="where_condition" />
 		<trim prefix="ORDER BY ">
 			<if test="order != null and order != '' ">
@@ -69,16 +74,17 @@
 		</trim>
 	</select>
 
-	<select id="select_ethCollection_count" parameterType="ethCollection"
+	<select id="select_collection_count" parameterType="collection"
 		resultType="java.lang.Long">
-		SELECT count(1) FROM tcoin_eth_collection t
+		SELECT count(1) FROM tstd_collection t
 		<include refid="where_condition" />
 	</select>
 
-	<insert id="insert_ethCollection" parameterType="ethCollection">
+	<insert id="insert_collection" parameterType="collection">
 		INSERT INTO
-		tcoin_eth_collection(
+		tstd_collection(
 		code
+		,currency
 		,from_address
 		,to_address
 		,amount
@@ -86,12 +92,13 @@
 		,tx_fee
 		,status
 		,create_datetime
-		,eth_datetime
+		,confirm_datetime
 		,update_datetime
 		,ref_no
 		)
 		VALUES(
 		#{code}
+		,#{currency}
 		,#{fromAddress}
 		,#{toAddress}
 		,#{amount}
@@ -99,35 +106,48 @@
 		,#{txFee}
 		,#{status}
 		,#{createDatetime}
-		,#{ethDatetime}
+		,#{confirmDatetime}
 		,#{updateDatetime}
 		,#{refNo}
 		)
 	</insert>
 
-	<update id="update_notice" parameterType="ethCollection">
+	<update id="update_notice_eth" parameterType="collection">
 		UPDATE
-		tcoin_eth_collection
+		tstd_collection
 		SET
 		tx_fee = #{txFee}
 		,status = #{status}
-		,eth_datetime = #{ethDatetime}
+		,confirm_datetime = #{confirmDatetime}
+		,update_datetime = #{updateDatetime}
+		WHERE code = #{code}
+	</update>
+	
+	<update id="update_notice_sc" parameterType="collection">
+		UPDATE
+		tstd_collection
+		SET
+		tx_fee = #{txFee}
+		,from_address = #{fromAddress}
+		,status = #{status}
+		,confirm_datetime = #{confirmDatetime}
 		,update_datetime = #{updateDatetime}
 		WHERE code = #{code}
 	</update>
 
-	<select id="select_addressUseInfo" parameterType="ethCollection"
+	<select id="select_addressUseInfo" parameterType="collection"
 		resultMap="addressUseInfo_DB_Result">
 		SELECT 
 		COUNT(*) as use_count, 
 		COALESCE(SUM(amount),0) as use_amount
-		FROM tcoin_eth_collection t
+		FROM tstd_collection t
 		<include refid="where_condition" />
 	</select>
 	
-	<select id="select_totalCollect" parameterType="ethCollection"
+	<select id="select_totalCollect" parameterType="collection"
 		resultType="java.math.BigDecimal">
-		SELECT COALESCE(SUM(amount),0) FROM tcoin_eth_collection t where status = '1'
+		SELECT COALESCE(SUM(amount),0) FROM tstd_collection t
+		<include refid="where_condition" />
 	</select>
 
 </mapper>

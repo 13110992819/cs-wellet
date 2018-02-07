@@ -13,9 +13,9 @@ import com.cdkj.coin.wallet.ao.IBtcAddressAO;
 import com.cdkj.coin.wallet.bitcoin.BtcAddress;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IBtcAddressBO;
+import com.cdkj.coin.wallet.bo.ICollectionBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
-import com.cdkj.coin.wallet.bo.IScCollectionBO;
 import com.cdkj.coin.wallet.bo.IScTransactionBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
@@ -43,7 +43,7 @@ public class BtcAddressAOImpl implements IBtcAddressAO {
     private IBtcAddressBO btcAddressBO;
 
     @Autowired
-    private IScCollectionBO scCollectionBO;
+    private ICollectionBO collectionBO;
 
     @Autowired
     private IWithdrawBO withdrawBO;
@@ -127,10 +127,10 @@ public class BtcAddressAOImpl implements IBtcAddressAO {
         for (BtcAddress btcAddress : results.getList()) {
             // 归集地址统计
             if (EAddressType.W.getCode().equals(btcAddress.getType())) {
-                // BtcAddress xAddress = scCollectionBO
-                // .getAddressUseInfo(scAddress.getAddress());
-                // scAddress.setUseCount(xAddress.getUseCount());
-                // scAddress.setUseAmount(xAddress.getUseAmount());
+                EthAddress xAddress = collectionBO.getAddressUseInfo(btcAddress
+                    .getAddress());
+                btcAddress.setUseCount(xAddress.getUseCount());
+                btcAddress.setUseAmount(xAddress.getUseAmount());
             }
             // 散取地址统计
             if (EAddressType.M.getCode().equals(btcAddress.getType())) {

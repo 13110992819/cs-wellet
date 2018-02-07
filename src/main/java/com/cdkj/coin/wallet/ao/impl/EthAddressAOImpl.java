@@ -22,9 +22,9 @@ import org.web3j.crypto.WalletUtils;
 
 import com.cdkj.coin.wallet.ao.IEthAddressAO;
 import com.cdkj.coin.wallet.bo.IAccountBO;
+import com.cdkj.coin.wallet.bo.ICollectionBO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
-import com.cdkj.coin.wallet.bo.IEthCollectionBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
@@ -53,7 +53,7 @@ public class EthAddressAOImpl implements IEthAddressAO {
     private IEthAddressBO ethAddressBO;
 
     @Autowired
-    private IEthCollectionBO ethCollectionBO;
+    private ICollectionBO collectionBO;
 
     @Autowired
     private IWithdrawBO withdrawBO;
@@ -165,8 +165,8 @@ public class EthAddressAOImpl implements IEthAddressAO {
         for (EthAddress ethAddress : results.getList()) {
             // 归集地址统计
             if (EAddressType.W.getCode().equals(ethAddress.getType())) {
-                EthAddress xAddress = ethCollectionBO
-                    .getAddressUseInfo(ethAddress.getAddress());
+                EthAddress xAddress = collectionBO.getAddressUseInfo(ethAddress
+                    .getAddress());
                 ethAddress.setUseCount(xAddress.getUseCount());
                 ethAddress.setUseAmount(xAddress.getUseAmount());
             }

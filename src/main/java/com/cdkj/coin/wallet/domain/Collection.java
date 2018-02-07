@@ -1,4 +1,4 @@
-package com.cdkj.coin.wallet.ethereum;
+package com.cdkj.coin.wallet.domain;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -11,12 +11,15 @@ import com.cdkj.coin.wallet.dao.base.ABaseDO;
 * @since: 2017年11月09日 14:26:36
 * @history:
 */
-public class EthCollection extends ABaseDO {
+public class Collection extends ABaseDO {
 
     private static final long serialVersionUID = 1L;
 
     // 编号
     private String code;
+
+    // 币种
+    private String currency;
 
     // 被归集地址
     private String fromAddress;
@@ -44,7 +47,7 @@ public class EthCollection extends ABaseDO {
     private Date createDatetime;
 
     // 网络记账时间
-    private Date ethDatetime;
+    private Date confirmDatetime;
 
     // 完成时间
     private Date updateDatetime;
@@ -69,6 +72,14 @@ public class EthCollection extends ABaseDO {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public String getFromAddress() {
@@ -129,12 +140,12 @@ public class EthCollection extends ABaseDO {
         this.createDatetime = createDatetime;
     }
 
-    public Date getEthDatetime() {
-        return ethDatetime;
+    public Date getConfirmDatetime() {
+        return confirmDatetime;
     }
 
-    public void setEthDatetime(Date ethDatetime) {
-        this.ethDatetime = ethDatetime;
+    public void setConfirmDatetime(Date confirmDatetime) {
+        this.confirmDatetime = confirmDatetime;
     }
 
     public Date getUpdateDatetime() {
