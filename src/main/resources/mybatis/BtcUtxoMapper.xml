@@ -116,12 +116,19 @@
 		)
 	</insert>
 
-	<update id="update_status" parameterType="btcUtxo">
+	<update id="update_broadcast" parameterType="btcUtxo">
 		UPDATE tcoin_btc_utxo
 		SET
 		status = #{status}
 		,ref_type = #{refType}
 		,ref_no = #{refNo}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="update_status" parameterType="btcUtxo">
+		UPDATE tcoin_btc_utxo
+		SET
+		status = #{status}
 		WHERE id = #{id}
 	</update>
 

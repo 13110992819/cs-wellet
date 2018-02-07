@@ -16,8 +16,10 @@ public interface IBtcUtxoBO extends IPaginableBO<BtcUtxo> {
 
     public int saveBtcUtxo(CtqBtcUtxo ctqBtcUtxo, EAddressType addressType);
 
-    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status,
+    public int refreshBroadcast(BtcUtxo data, EBtcUtxoStatus status,
             EBtcUtxoRefType refType, String refNo);
+
+    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status);
 
     public List<BtcUtxo> queryBtcUtxoList(BtcUtxo condition);
 

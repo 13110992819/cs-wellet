@@ -61,13 +61,23 @@ public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
     }
 
     @Override
-    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status,
+    public int refreshBroadcast(BtcUtxo data, EBtcUtxoStatus status,
             EBtcUtxoRefType refType, String refNo) {
         int count = 0;
         if (data != null) {
             data.setStatus(status.getCode());
             data.setRefType(refType.getCode());
             data.setRefNo(refNo);
+            count = btcUtxoDAO.updateBroadcast(data);
+        }
+        return count;
+    }
+
+    @Override
+    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status) {
+        int count = 0;
+        if (data != null) {
+            data.setStatus(status.getCode());
             count = btcUtxoDAO.updateStatus(data);
         }
         return count;

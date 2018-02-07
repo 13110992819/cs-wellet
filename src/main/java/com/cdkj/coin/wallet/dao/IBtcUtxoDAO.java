@@ -11,4 +11,6 @@ public interface IBtcUtxoDAO extends IBaseDAO<BtcUtxo> {
     public int updateStatus(BtcUtxo data);
 
     public BigDecimal selectTotalUTXOCount(BtcUtxo data);
+
+    public int updateBroadcast(BtcUtxo data);
 }

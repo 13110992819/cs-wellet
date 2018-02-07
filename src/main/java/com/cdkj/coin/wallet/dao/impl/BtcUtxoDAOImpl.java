@@ -57,4 +57,9 @@ public class BtcUtxoDAOImpl extends AMybatisTemplate implements IBtcUtxoDAO {
             BigDecimal.class);
     }
 
+    @Override
+    public int updateBroadcast(BtcUtxo data) {
+        return super.update(NAMESPACE.concat("update_broadcast"), data);
+    }
+
 }

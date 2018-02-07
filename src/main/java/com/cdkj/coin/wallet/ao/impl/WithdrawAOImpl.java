@@ -45,7 +45,6 @@ import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.enums.EMAddressStatus;
-import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.ethereum.EthTransaction;
@@ -166,7 +165,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
     @Transactional
     public void approveOrder(String code, String approveUser,
             String approveResult, String approveNote, String systemCode) {
-        Withdraw data = withdrawBO.getWithdraw(code, systemCode);
+        Withdraw data = withdrawBO.getWithdraw(code);
         if (!EWithdrawStatus.toApprove.getCode().equals(data.getStatus())) {
             throw new BizException("xn000000", "申请记录状态不是待审批状态，无法审批");
         }
@@ -181,8 +180,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
     @Transactional
     public void broadcast(String code, String mAddressCode, String approveUser) {
         // 获取取现订单详情
-        Withdraw withdraw = withdrawBO.getWithdraw(code,
-            ESystemCode.COIN.getCode());
+        Withdraw withdraw = withdrawBO.getWithdraw(code);
         Account account = accountBO.getAccount(withdraw.getAccountNumber());
         if (ECoin.ETH.getCode().equals(account.getCurrency())) {
             if (StringUtils.isBlank(mAddressCode)) {
@@ -274,7 +272,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
             if (trueTxid != null) {
                 if (CollectionUtils.isNotEmpty(inputBtcUtxoList)) {
                     for (BtcUtxo data : inputBtcUtxoList) {
-                        btcUtxoBO.refreshStatus(data, EBtcUtxoStatus.USING,
+                        btcUtxoBO.refreshBroadcast(data, EBtcUtxoStatus.USING,
                             EBtcUtxoRefType.WITHDRAW, withdraw.getCode());
                     }
                 }
@@ -377,7 +375,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
     @Transactional
     public void payOrder(String code, String payUser, String payResult,
             String payNote, String channelOrder, String systemCode) {
-        Withdraw data = withdrawBO.getWithdraw(code, systemCode);
+        Withdraw data = withdrawBO.getWithdraw(code);
         if (!EWithdrawStatus.Approved_YES.getCode().equals(data.getStatus())) {
             throw new BizException("xn000000", "申请记录状态不是待支付状态，无法支付");
         }
@@ -456,7 +454,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Override
     public Withdraw getWithdraw(String code, String systemCode) {
-        Withdraw withdraw = withdrawBO.getWithdraw(code, systemCode);
+        Withdraw withdraw = withdrawBO.getWithdraw(code);
         return withdraw;
     }
 
@@ -504,8 +502,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
         XN802758Res res = new XN802758Res();
 
         // 取现订单详情
-        Withdraw withdraw = withdrawBO.getWithdraw(code,
-            ESystemCode.COIN.getCode());
+        Withdraw withdraw = withdrawBO.getWithdraw(code);
         Account account = accountBO.getAccount(withdraw.getAccountNumber());
 
         // 取现对应流水记录
