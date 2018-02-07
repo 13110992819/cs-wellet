@@ -111,7 +111,7 @@ CREATE TABLE `tcoin_btc_address` (
   `code` varchar(32) NOT NULL DEFAULT '' COMMENT '编号',
   `type` varchar(32) DEFAULT NULL COMMENT '地址类型',
   `address` varchar(255) DEFAULT NULL COMMENT '比特币地址',
-  `private_key` varchar(255) DEFAULT NULL COMMENT '私钥',
+  `privatekey` varchar(255) DEFAULT NULL COMMENT '私钥',
   `user_id` varchar(32) DEFAULT NULL COMMENT '用户编号',
   `account_number` varchar(32) DEFAULT NULL COMMENT '账户编号',
   `status` varchar(32) DEFAULT NULL COMMENT '状态',
