@@ -7,6 +7,7 @@ import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.base.IPaginableBO;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.EBtcUtxoRefType;
 import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
 
 public interface IBtcUtxoBO extends IPaginableBO<BtcUtxo> {
@@ -15,7 +16,8 @@ public interface IBtcUtxoBO extends IPaginableBO<BtcUtxo> {
 
     public int saveBtcUtxo(CtqBtcUtxo ctqBtcUtxo, EAddressType addressType);
 
-    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status);
+    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status,
+            EBtcUtxoRefType refType, String refNo);
 
     public List<BtcUtxo> queryBtcUtxoList(BtcUtxo condition);
 
