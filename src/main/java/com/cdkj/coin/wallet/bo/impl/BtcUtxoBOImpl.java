@@ -7,8 +7,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
 import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
+import com.cdkj.coin.wallet.bo.base.PaginableBOImpl;
 import com.cdkj.coin.wallet.dao.IBtcUtxoDAO;
+import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
+import com.cdkj.coin.wallet.exception.BizException;
 
 @Component
 public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
@@ -38,7 +42,7 @@ public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
     }
 
     @Override
-    public int refreshStatus(BtcUtxo data, EBTCUtxoStatus status) {
+    public int refreshStatus(BtcUtxo data, EBtcUtxoStatus status) {
         int count = 0;
         if (data != null) {
             data.setStatus(status.getCode());
@@ -70,8 +74,6 @@ public class BtcUtxoBOImpl extends PaginableBOImpl<BtcUtxo> implements
     @Override
     public List<BtcUtxo> selectUnPush() {
         List<String> statusList = new ArrayList<String>();
-        statusList.add(EBTCUtxoStatus.IN_UN_PUSH.getCode());
-        statusList.add(EBTCUtxoStatus.OUT_UN_PUSH.getCode());
         BtcUtxo condition = new BtcUtxo();
         condition.setStatusList(statusList);
         return btcUtxoDAO.selectList(condition);
