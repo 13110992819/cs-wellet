@@ -47,17 +47,21 @@ public class CallbackConrollerBTC {
     @RequestMapping("/btc/tx/notice")
     public synchronized void doEthCallback(HttpServletRequest request,
             HttpServletResponse response) {
-        List<Long> hashList = new ArrayList<Long>();
+        List<CtqBtcUtxo> utxoList = new ArrayList<CtqBtcUtxo>();
         try {
+
             logger.info("*****比特币交易通知开始*****");
-            logger.info(request.getParameter("btcUtxoList"));
-            String txJson = request.getParameter("btcUtxoList");
+            logger.info(request.getParameter("btcUtxolist"));
+
+            String txJson = request.getParameter("btcUtxolist");
             Gson gson = new Gson();
             List<CtqBtcUtxo> list = gson.fromJson(txJson,
                 new TypeToken<List<CtqBtcUtxo>>() {
                 }.getType());
 
             for (CtqBtcUtxo ctqBtcUtxo : list) {
+
+                logger.info("处理交易：" + ctqBtcUtxo.getRefNo());
 
                 // UTXO关联的地址
                 String address = ctqBtcUtxo.getAddress();
@@ -68,49 +72,47 @@ public class CallbackConrollerBTC {
                 // 橙提取UTXO的状态
                 String ctqBtcUtxoStatus = ctqBtcUtxo.getStatus();
 
-                // addressType=X
-                // 1、ctqBtcUtxoStatus为输出未推送 本地UTXO未落地 则说明是分发地址充值
-                // 2、ctqBtcUtxoStatus为输入未推送 本地UTXO已落地 则说明是归集
-
-                // addressType=M
-                // 1、ctqBtcUtxoStatus为输出未推送 本地UTXO未落地 则说明是散取地址取现定存
-                // 2、ctqBtcUtxoStatus为输入未推送 本地UTXO已落地 则说明是取现
-
+                // addressType=X 关联地址是分发地址
                 if (EAddressType.X == addressType) {
+                    // 1、ctqBtcUtxoStatus为输出未推送 则说明是分发地址充值通知
                     if (ECtqBtcUtxoStatus.OUT_UN_PUSH.getCode().equals(
-                        ctqBtcUtxo)) {
+                        ctqBtcUtxoStatus)) {
                         String code = btcUtxoAO.chargeNotice(ctqBtcUtxo);
                         if (StringUtils.isNotBlank(code)) {
                             btcUtxoAO.collection(code);
                         }
-                        hashList.add(ctqBtcUtxo.getHash());
+                        utxoList.add(ctqBtcUtxo);
+                    } else
+                    // 2、ctqBtcUtxoStatus为输入未推送 则说明是归集通知
+                    if (ECtqBtcUtxoStatus.IN_UN_PUSH.getCode().equals(
+                        ctqBtcUtxoStatus)) {
+                        btcUtxoAO.collectionNotice(ctqBtcUtxo);
+                        utxoList.add(ctqBtcUtxo);
                     }
-                } else if (EAddressType.M == addressType) {
-                    btcUtxoAO.withdrawNotice(ctqBtcUtxo);
-                    hashList.add(ctqBtcUtxo.getId());
-                } else if (EAddressType.X == fromType
-                        && EAddressType.W == toType) {
-                    // fromAddress=X toAddress=W 归集
-                    btcUtxoAO.collectionNotice(ctqBtcUtxo);
-                    hashList.add(ctqBtcUtxo.getHash());
-                } else if (EAddressType.M == toType) {
-                    // toAddress=M 每日定存
-                    btcUtxoAO.depositNotice(ctqBtcUtxo);
-                    hashList.add(ctqBtcUtxo.getHash());
-                } else if (EAddressType.W == fromType) {
-                    // fromAddress=W 每日转移
-                    hashList.add(ctqBtcUtxo.getHash());
+                } else
+                // addressType=M 关联地址是散取地址
+                if (EAddressType.M == addressType) {
+                    // 1、ctqBtcUtxoStatus为输出未推送 则说明是散取地址取现定存通知
+                    if (ECtqBtcUtxoStatus.OUT_UN_PUSH.getCode().equals(
+                        ctqBtcUtxoStatus)) {
+                        btcUtxoAO.depositNotice(ctqBtcUtxo);
+                        utxoList.add(ctqBtcUtxo);
+                    } else
+                    // 2、ctqBtcUtxoStatus为输入未推送 则说明是取现通知
+                    if (ECtqBtcUtxoStatus.IN_UN_PUSH.getCode().equals(
+                        ctqBtcUtxoStatus)) {
+                        btcUtxoAO.withdrawNotice(ctqBtcUtxo);
+                        utxoList.add(ctqBtcUtxo);
+                    }
                 }
-
-                logger.info("处理交易：" + ctqBtcUtxo.getHash());
             }
             logger.info("*****业务处理完成*****");
         } catch (Exception e) {
             logger.info("交易通知异常,原因：" + e.getMessage());
         } finally {
-            logger.info("*****橙提取交易确认,交易个数为" + hashList.size() + "*****");
-            if (CollectionUtils.isNotEmpty(hashList)) {
-                ctqBO.confirmEth(hashList);
+            logger.info("*****橙提取交易处理,交易个数为" + utxoList.size() + "*****");
+            if (CollectionUtils.isNotEmpty(utxoList)) {
+                ctqBO.confirmBTC(utxoList);
             }
             logger.info("*****complete*****");
         }

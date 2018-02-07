@@ -104,12 +104,11 @@ public class WithdrawBOImpl extends PaginableBOImpl<Withdraw> implements
     }
 
     @Override
-    public Withdraw getWithdraw(String code, String systemCode) {
+    public Withdraw getWithdraw(String code) {
         Withdraw order = null;
         if (StringUtils.isNotBlank(code)) {
             Withdraw condition = new Withdraw();
             condition.setCode(code);
-            condition.setSystemCode(systemCode);
             order = withdrawDAO.select(condition);
         }
         return order;
@@ -146,7 +145,7 @@ public class WithdrawBOImpl extends PaginableBOImpl<Withdraw> implements
     }
 
     @Override
-    public Withdraw getWithdraw(String hash) {
+    public Withdraw getWithdrawByChannelOrder(String hash) {
         Withdraw withdraw = null;
         Withdraw condition = new Withdraw();
         condition.setChannelOrder(hash);

@@ -35,6 +35,8 @@ import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.EBtcUtxoRefType;
+import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
@@ -119,79 +121,91 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     @Override
     @Transactional
     public void withdrawNotice(CtqBtcUtxo ctqBtcUtxo) {
-        // 根据交易hash查询取现订单
-        Withdraw withdraw = withdrawBO.getWithdraw(ctqBtcUtxo.getHash());
-        if (withdraw == null) {
-            return;
-        }
-        // 计算矿工费
-        BigDecimal gasPrice = new BigDecimal(ctqBtcUtxo.getGasPrice());
-        BigDecimal gasUse = new BigDecimal(ctqBtcUtxo.getGas().toString());
-        BigDecimal txFee = gasPrice.multiply(gasUse);
-        // 取现订单更新
-        withdrawBO.payOrder(withdraw, EWithdrawStatus.Pay_YES,
-            ctqBtcUtxo.getFrom(), "广播成功", ctqBtcUtxo.getHash(),
-            ctqBtcUtxo.getHash(), txFee);
-        Account userAccount = accountBO.getAccount(withdraw.getAccountNumber());
-        // 取现金额解冻
-        userAccount = accountBO.unfrozenAmount(userAccount,
-            withdraw.getAmount(),
-            EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getCode(),
-            EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getValue(),
-            withdraw.getCode());
-        // 取现金额扣减
-        userAccount = accountBO.changeAmount(
-            userAccount,
-            withdraw.getAmount().subtract(withdraw.getFee()).negate(),
-            EChannelType.BTC,
-            ctqBtcUtxo.getHash(),
-            "BTC",
-            withdraw.getCode(),
-            EJourBizTypeUser.AJ_WITHDRAW.getCode(),
-            EJourBizTypeUser.AJ_WITHDRAW.getValue() + "-外部地址："
-                    + withdraw.getPayCardNo());
-        if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
-            // 取现手续费扣减
-            userAccount = accountBO.changeAmount(userAccount, withdraw.getFee()
-                .negate(), EChannelType.BTC, ctqBtcUtxo.getHash(), "BTC",
-                withdraw.getCode(), EJourBizTypeUser.AJ_WITHDRAWFEE.getCode(),
-                EJourBizTypeUser.AJ_WITHDRAWFEE.getValue());
-        }
 
-        // 平台盈亏账户记入取现手续费
-        Account sysAccount = accountBO.getAccount(ESystemAccount.SYS_ACOUNT_BTC
-            .getCode());
-        if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
-            sysAccount = accountBO.changeAmount(sysAccount, withdraw.getFee(),
-                EChannelType.BTC, ctqBtcUtxo.getHash(), "BTC",
-                withdraw.getCode(), EJourBizTypePlat.AJ_WITHDRAWFEE.getCode(),
-                EJourBizTypePlat.AJ_WITHDRAWFEE.getValue() + "-外部地址："
+        // 取到UTXO
+        BtcUtxo btcUtxo = btcUtxoBO.getBtcUtxo(ctqBtcUtxo.getTxid(),
+            ctqBtcUtxo.getVout());
+
+        // 判断是否是正在取现广播中的UTXO
+        if (EBtcUtxoStatus.USING.getCode().equals(btcUtxo.getStatus())
+                && EBtcUtxoRefType.WITHDRAW.getCode()
+                    .equals(btcUtxo.getRefNo())
+                && StringUtils.isNotBlank(btcUtxo.getRefNo())) {
+            // 查询取现订单
+            Withdraw withdraw = withdrawBO.getWithdraw(btcUtxo.getRefNo());
+            if (withdraw == null) {
+                return;
+            }
+            // 取现订单更新
+            withdrawBO.payOrder(withdraw, EWithdrawStatus.Pay_YES,
+                withdraw.getPayUser(), "广播成功", withdraw.getChannelOrder(),
+                withdraw.getChannelOrder(), withdraw.getPayFee());
+
+            Account userAccount = accountBO.getAccount(withdraw
+                .getAccountNumber());
+            // 取现金额解冻
+            userAccount = accountBO.unfrozenAmount(userAccount,
+                withdraw.getAmount(),
+                EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getCode(),
+                EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getValue(),
+                withdraw.getCode());
+            // 取现金额扣减
+            userAccount = accountBO.changeAmount(
+                userAccount,
+                withdraw.getAmount().subtract(withdraw.getFee()).negate(),
+                EChannelType.BTC,
+                withdraw.getChannelOrder(),
+                "BTC",
+                withdraw.getCode(),
+                EJourBizTypeUser.AJ_WITHDRAW.getCode(),
+                EJourBizTypeUser.AJ_WITHDRAW.getValue() + "-外部地址："
                         + withdraw.getPayCardNo());
+            if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
+                // 取现手续费扣减
+                userAccount = accountBO.changeAmount(userAccount, withdraw
+                    .getFee().negate(), EChannelType.BTC, withdraw
+                    .getChannelOrder(), "BTC", withdraw.getCode(),
+                    EJourBizTypeUser.AJ_WITHDRAWFEE.getCode(),
+                    EJourBizTypeUser.AJ_WITHDRAWFEE.getValue());
+            }
+
+            // 平台盈亏账户记入取现手续费
+            Account sysAccount = accountBO
+                .getAccount(ESystemAccount.SYS_ACOUNT_BTC.getCode());
+            if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
+                sysAccount = accountBO.changeAmount(sysAccount,
+                    withdraw.getFee(), EChannelType.BTC,
+                    withdraw.getChannelOrder(), "BTC", withdraw.getCode(),
+                    EJourBizTypePlat.AJ_WITHDRAWFEE.getCode(),
+                    EJourBizTypePlat.AJ_WITHDRAWFEE.getValue() + "-外部地址："
+                            + withdraw.getPayCardNo());
+            }
+            // 平台盈亏账户记入取现矿工费
+            sysAccount = accountBO.changeAmount(
+                sysAccount,
+                txFee.negate(),
+                EChannelType.BTC,
+                ctqBtcUtxo.getHash(),
+                "BTC",
+                withdraw.getCode(),
+                EJourBizTypePlat.AJ_WFEE.getCode(),
+                EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
+                        + withdraw.getPayCardNo());
+            // 落地交易记录
+            btcTransactionBO.saveBtcUtxo(ctqBtcUtxo, withdraw.getCode());
+
+            // 更新地址余额
+            BtcAddress from = btcAddressBO.getBtcAddress(EAddressType.M,
+                ctqBtcUtxo.getFrom());
+            BtcAddress to = btcAddressBO.getBtcAddress(EAddressType.W,
+                ctqBtcUtxo.getTo());
+            btcAddressBO.refreshBalance(from);
+            btcAddressBO.refreshBalance(to);
+
+            // 修改散取地址状态为可使用
+            btcAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
         }
-        // 平台盈亏账户记入取现矿工费
-        sysAccount = accountBO.changeAmount(
-            sysAccount,
-            txFee.negate(),
-            EChannelType.BTC,
-            ctqBtcUtxo.getHash(),
-            "BTC",
-            withdraw.getCode(),
-            EJourBizTypePlat.AJ_WFEE.getCode(),
-            EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
-                    + withdraw.getPayCardNo());
-        // 落地交易记录
-        btcTransactionBO.saveBtcUtxo(ctqBtcUtxo, withdraw.getCode());
 
-        // 更新地址余额
-        BtcAddress from = btcAddressBO.getBtcAddress(EAddressType.M,
-            ctqBtcUtxo.getFrom());
-        BtcAddress to = btcAddressBO.getBtcAddress(EAddressType.W,
-            ctqBtcUtxo.getTo());
-        btcAddressBO.refreshBalance(from);
-        btcAddressBO.refreshBalance(to);
-
-        // 修改散取地址状态为可使用
-        btcAddressBO.refreshStatus(from, EMAddressStatus.NORMAL.getCode());
     }
 
     @Override
@@ -277,24 +291,20 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     @Override
     public Paginable<BtcUtxo> queryBtcUtxoPage(int start, int limit,
             BtcUtxo condition) {
-        return btcTransactionBO.getPaginable(start, limit, condition);
+        return btcUtxoBO.getPaginable(start, limit, condition);
     }
 
     @Override
     public void depositNotice(CtqBtcUtxo ctqBtcUtxo) {
         // 平台冷钱包减钱
-        BigDecimal amount = new BigDecimal(ctqBtcUtxo.getValue());
+        BigDecimal amount = ctqBtcUtxo.getCount();
         Account coldAccount = accountBO
             .getAccount(ESystemAccount.SYS_ACOUNT_BTC_COLD.getCode());
         coldAccount = accountBO.changeAmount(coldAccount, amount.negate(),
-            EChannelType.BTC, ctqBtcUtxo.getHash(), "BTC",
-            ctqBtcUtxo.getHash(), EJourBizTypeCold.AJ_PAY.getCode(),
-            "BTC定存至取现地址(M):" + ctqBtcUtxo.getTo());
-        // 更新散取地址余额
-        BtcAddress to = btcAddressBO.getBtcAddress(EAddressType.M,
-            ctqBtcUtxo.getTo());
-        btcAddressBO.refreshBalance(to);
-
+            EChannelType.BTC, ctqBtcUtxo.getRefNo(),
+            EChannelType.BTC.getCode(), ctqBtcUtxo.getRefNo(),
+            EJourBizTypeCold.AJ_PAY.getCode(), EChannelType.BTC.getCode()
+                    + "定存至取现地址(M):" + ctqBtcUtxo.getAddress());
     }
 
 }

@@ -8,6 +8,7 @@
  */
 package com.cdkj.coin.wallet.ao;
 
+import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 
@@ -30,9 +31,9 @@ public interface IBtcUtxoAO {
     // 归集交易通知处理
     public void collectionNotice(CtqBtcUtxo ctqBtcUtxo);
 
-    // 分页查询广播记录
-    public Paginable<CtqBtcUtxo> queryEthTransactionPage(int start, int limit,
-            CtqBtcUtxo condition);
+    // 分页查询UTXO
+    public Paginable<BtcUtxo> queryBtcUtxoPage(int start, int limit,
+            BtcUtxo condition);
 
     // 每日定存
     public void depositNotice(CtqBtcUtxo ctqBtcUtxo);

@@ -119,12 +119,12 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     @Transactional
     public void withdrawNotice(CtqScTransaction ctqScTransaction) {
         // 根据交易hash查询取现订单
-        Withdraw withdraw = withdrawBO.getWithdraw(ctqScTransaction
-            .getTransactionid());
+        Withdraw withdraw = withdrawBO
+            .getWithdrawByChannelOrder(ctqScTransaction.getTransactionid());
         if (withdraw == null) {
             return;
         }
-        // 计算矿工费
+        // 获取矿工费
         BigDecimal txFee = new BigDecimal(ctqScTransaction.getMinerfee());
         String txId = ctqScTransaction.getTransactionid();
         // 取现订单更新

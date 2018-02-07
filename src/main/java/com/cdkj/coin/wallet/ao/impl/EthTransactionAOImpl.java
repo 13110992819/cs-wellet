@@ -119,7 +119,8 @@ public class EthTransactionAOImpl implements IEthTransactionAO {
     @Transactional
     public void withdrawNotice(CtqEthTransaction ctqEthTransaction) {
         // 根据交易hash查询取现订单
-        Withdraw withdraw = withdrawBO.getWithdraw(ctqEthTransaction.getHash());
+        Withdraw withdraw = withdrawBO
+            .getWithdrawByChannelOrder(ctqEthTransaction.getHash());
         if (withdraw == null) {
             return;
         }

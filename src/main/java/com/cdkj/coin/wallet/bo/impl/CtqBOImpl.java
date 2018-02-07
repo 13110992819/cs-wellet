@@ -13,15 +13,17 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.domain.SYSConfig;
 import com.cdkj.coin.wallet.dto.req.XN616000Req;
 import com.cdkj.coin.wallet.dto.req.XN616020Req;
-import com.cdkj.coin.wallet.dto.req.XN616040Req;
-import com.cdkj.coin.wallet.dto.req.XN616060Req;
-import com.cdkj.coin.wallet.dto.req.XN626080Req;
 import com.cdkj.coin.wallet.dto.req.XN625917Req;
+import com.cdkj.coin.wallet.dto.req.XN626040Req;
+import com.cdkj.coin.wallet.dto.req.XN626060Req;
+import com.cdkj.coin.wallet.dto.req.XN626080Req;
+import com.cdkj.coin.wallet.dto.req.XN626100Req;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.http.BizConnecter;
 
@@ -68,7 +70,7 @@ public class CtqBOImpl implements ICtqBO {
 
     @Override
     public void uploadScAddress(String address, String type) {
-        XN616040Req req = new XN616040Req();
+        XN626040Req req = new XN626040Req();
         req.setAddress(address);
         req.setType(type);
         BizConnecter.getBizData("626040", JsonUtil.Object2Json(req));
@@ -76,7 +78,7 @@ public class CtqBOImpl implements ICtqBO {
 
     @Override
     public void confirmSc(List<String> hashList) {
-        XN616060Req req = new XN616060Req();
+        XN626060Req req = new XN626060Req();
         req.setHashList(hashList);
         BizConnecter.getBizData("626060", JsonUtil.Object2Json(req));
     }
@@ -86,5 +88,12 @@ public class CtqBOImpl implements ICtqBO {
         XN626080Req req = new XN626080Req();
         req.setAddress(address);
         BizConnecter.getBizData("626080", JsonUtil.Object2Json(req));
+    }
+
+    @Override
+    public void confirmBTC(List<CtqBtcUtxo> utxoList) {
+        XN626100Req req = new XN626100Req();
+        req.setUtxoList(utxoList);
+        BizConnecter.getBizData("626100", JsonUtil.Object2Json(req));
     }
 }

@@ -10,20 +10,26 @@ package com.cdkj.coin.wallet.dto.req;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
+import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
+
 /** 
  * @author: haiqingzheng 
  * @since: 2017年11月7日 下午9:38:09 
  * @history:
  */
-public class XN616060Req {
+public class XN626100Req {
 
-    public List<String> hashList;
+    @NotNull
+    List<CtqBtcUtxo> utxoList;
 
-    public List<String> getHashList() {
-        return hashList;
+    public List<CtqBtcUtxo> getUtxoList() {
+        return utxoList;
     }
 
-    public void setHashList(List<String> hashList) {
-        this.hashList = hashList;
+    public void setUtxoList(List<CtqBtcUtxo> utxoList) {
+        this.utxoList = utxoList;
     }
+
 }

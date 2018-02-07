@@ -28,9 +28,9 @@ public interface IWithdrawBO extends IPaginableBO<Withdraw> {
 
     List<Withdraw> queryWithdrawList(Withdraw condition);
 
-    Withdraw getWithdraw(String code, String systemCode);
+    Withdraw getWithdraw(String code);
 
-    public Withdraw getWithdraw(String hash);
+    public Withdraw getWithdrawByChannelOrder(String hash);
 
     public EthAddress getAddressUseInfo(String fromAddress);
 

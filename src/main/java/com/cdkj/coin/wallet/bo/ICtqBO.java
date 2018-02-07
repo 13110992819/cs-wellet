@@ -11,6 +11,8 @@ package com.cdkj.coin.wallet.bo;
 import java.math.BigInteger;
 import java.util.List;
 
+import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
+
 /** 
  * @author: haiqingzheng 
  * @since: 2017年11月7日 下午1:54:35 
@@ -34,4 +36,7 @@ public interface ICtqBO {
 
     // 上传Btc地址
     public void uploadBtcAddress(String address);
+
+    // BTC交易确认
+    public void confirmBTC(List<CtqBtcUtxo> utxoList);
 }
