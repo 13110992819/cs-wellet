@@ -1,6 +1,5 @@
 package com.cdkj.coin.wallet.bitcoin;
 
-import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.params.MainNetParams;
@@ -16,9 +15,8 @@ public class BtcClient {
     public static BtcAddressRes getSingleAddress() {
         NetworkParameters params = MainNetParams.get();
         ECKey key = new ECKey();
-        Address addressFromKey = key.toAddress(params);
-        String address = String.valueOf(addressFromKey);
-        String privatekey = key.getPrivateKeyEncoded(params).toString();
+        String address = key.toAddress(params).toString();
+        String privatekey = key.getPrivateKeyAsWiF(params);
         return new BtcAddressRes(address, privatekey);
     }
 
