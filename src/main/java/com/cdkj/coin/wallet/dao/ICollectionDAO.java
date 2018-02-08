@@ -16,4 +16,6 @@ public interface ICollectionDAO extends IBaseDAO<Collection> {
     public BigDecimal selectTotalCollect();
 
     public int updateNoticeSC(Collection data);
+
+    public int updateNoticeBTC(Collection data);
 }

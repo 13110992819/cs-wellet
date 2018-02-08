@@ -60,6 +60,11 @@ public class CollectionDAOImpl extends AMybatisTemplate implements
     }
 
     @Override
+    public int updateNoticeBTC(Collection data) {
+        return super.update(NAMESPACE.concat("update_notice_btc"), data);
+    }
+
+    @Override
     public EthAddress selectAddressUseInfo(Collection data) {
         return super.select(NAMESPACE.concat("select_addressUseInfo"), data,
             EthAddress.class);

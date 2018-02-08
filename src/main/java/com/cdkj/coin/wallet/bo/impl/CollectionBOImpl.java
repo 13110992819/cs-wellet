@@ -101,6 +101,18 @@ public class CollectionBOImpl extends PaginableBOImpl<Collection> implements
     }
 
     @Override
+    public int colectionNoticeBTC(Collection data, BigDecimal txfee,
+            Date confirmDatetime) {
+        int count = 0;
+        data.setTxFee(txfee);
+        data.setStatus(ECollectionStatus.Broadcast_YES.getCode());
+        data.setConfirmDatetime(confirmDatetime);
+        data.setUpdateDatetime(new Date());
+        collectionDAO.updateNoticeBTC(data);
+        return count;
+    }
+
+    @Override
     public int colectionNoticeSC(Collection data, String fromAddress,
             BigDecimal txfee, Date ethDatetime) {
         int count = 0;

@@ -9,44 +9,55 @@
 package com.cdkj.coin.wallet.ao.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.web3j.utils.Convert;
-import org.web3j.utils.Convert.Unit;
 
 import com.cdkj.coin.wallet.ao.IBtcUtxoAO;
+import com.cdkj.coin.wallet.bitcoin.BitcoinOfflineRawTxBuilder;
 import com.cdkj.coin.wallet.bitcoin.BtcAddress;
 import com.cdkj.coin.wallet.bitcoin.BtcUtxo;
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
+import com.cdkj.coin.wallet.bitcoin.OfflineTxInput;
+import com.cdkj.coin.wallet.bitcoin.OfflineTxOutput;
 import com.cdkj.coin.wallet.bitcoin.original.BTCOriginalTx;
 import com.cdkj.coin.wallet.bitcoin.util.BtcBlockExplorer;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IBtcAddressBO;
 import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
 import com.cdkj.coin.wallet.bo.IChargeBO;
+import com.cdkj.coin.wallet.bo.ICollectionBO;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
 import com.cdkj.coin.wallet.bo.IWithdrawBO;
 import com.cdkj.coin.wallet.bo.base.Paginable;
+import com.cdkj.coin.wallet.common.AmountUtil;
+import com.cdkj.coin.wallet.common.DateUtil;
+import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.core.OrderNoGenerater;
 import com.cdkj.coin.wallet.domain.Account;
+import com.cdkj.coin.wallet.domain.Collection;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.enums.EAddressType;
 import com.cdkj.coin.wallet.enums.EBtcUtxoRefType;
 import com.cdkj.coin.wallet.enums.EBtcUtxoStatus;
 import com.cdkj.coin.wallet.enums.EChannelType;
 import com.cdkj.coin.wallet.enums.ECoin;
+import com.cdkj.coin.wallet.enums.ECollectionStatus;
 import com.cdkj.coin.wallet.enums.EJourBizTypeCold;
 import com.cdkj.coin.wallet.enums.EJourBizTypePlat;
 import com.cdkj.coin.wallet.enums.EJourBizTypeUser;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.enums.EWithdrawStatus;
 import com.cdkj.coin.wallet.exception.BizException;
+import com.cdkj.coin.wallet.exception.EBizErrorCode;
 
 /** 
  * @author: haiqingzheng 
@@ -74,8 +85,8 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     @Autowired
     private IBtcUtxoBO btcUtxoBO;
 
-    // @Autowired
-    // private IBtcCollectionBO btcCollectionBO;
+    @Autowired
+    private ICollectionBO collectionBO;
 
     @Autowired
     private ISYSConfigBO sysConfigBO;
@@ -132,8 +143,8 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
 
         // 判断是否是正在取现广播中的UTXO
         if (EBtcUtxoStatus.USING.getCode().equals(btcUtxo.getStatus())
-                && EBtcUtxoRefType.WITHDRAW.getCode()
-                    .equals(btcUtxo.getRefNo())
+                && EBtcUtxoRefType.WITHDRAW.getCode().equals(
+                    btcUtxo.getRefType())
                 && StringUtils.isNotBlank(btcUtxo.getRefNo())) {
 
             // 修改UTXO状态
@@ -221,80 +232,160 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     @Transactional
     public void collection(String chargeCode) {
 
+        // 归集阀值，UTXO大于这个值进行归集
         BigDecimal limit = sysConfigBO
             .getBigDecimalValue(SysConstants.COLLECTION_LIMIT_BTC);
-        BigDecimal balance = btcAddressBO.getBtcBalance(address);
-        // 余额大于配置值时，进行归集
-        if (balance.compareTo(Convert.toWei(limit, Unit.BTCER)) < 0) {
-            throw new BizException("xn625000", "余额太少，无需归集");
+        limit = AmountUtil.toBtc(limit);
+
+        // 获取分发地址的UTXO总额，判断是否满足归集条件
+        BigDecimal enableCount = btcUtxoBO
+            .getTotalEnableUTXOCount(EAddressType.X);
+        if (enableCount.compareTo(limit) < 0) {
+            throw new BizException("xn0000", "充值订单" + chargeCode
+                    + "触发归集，但UTXO总量未达到归集阀值，无需归集");
         }
+
         // 获取今日归集地址
-        BtcAddress wBtcAddress = btcAddressBO.getWBtcAddressToday();
-        String toAddress = wBtcAddress.getAddress();
-        // 预估矿工费用
-        BigDecimal gasPrice = btcTransactionBO.getGasPrice();
-        BigDecimal gasUse = new BigDecimal(21000);
-        BigDecimal txFee = gasPrice.multiply(gasUse);
-        BigDecimal value = balance.subtract(txFee);
-        logger.info("地址余额=" + balance + "，以太坊平均价格=" + gasPrice + "，预计矿工费="
-                + txFee + "，预计到账金额=" + value);
-        if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BizException("xn625000", "余额不足以支付矿工费，不能归集");
+        String toAddress = btcAddressBO.getWBtcAddressToday().getAddress();
+
+        // 降序遍历可使用的M类地址UTXO，组装Input
+        BitcoinOfflineRawTxBuilder rawTxBuilder = new BitcoinOfflineRawTxBuilder();
+        BigDecimal shouldCollectCount = BigDecimal.ZERO;
+        List<BtcUtxo> inputBtcUtxoList = new ArrayList<BtcUtxo>();
+        int pageNum = 0;
+        while (true) {
+            BtcUtxo condition = new BtcUtxo();
+            condition.setAddressType(EAddressType.X.getCode());
+            condition.setStatus(EBtcUtxoStatus.ENABLE.getCode());
+            condition.setOrder("count", "decs");
+            Paginable<BtcUtxo> pageBtcUtxo = btcUtxoBO.getPaginable(pageNum,
+                20, condition);// 默认每次20条
+            List<BtcUtxo> list = pageBtcUtxo.getList();
+            if (CollectionUtils.isNotEmpty(list)) {
+                for (BtcUtxo utxo : list) {
+                    String txid = utxo.getTxid();
+                    Integer vout = utxo.getVout();
+                    // 应取现总额
+                    shouldCollectCount = shouldCollectCount
+                        .add(utxo.getCount());
+                    BtcAddress btcAddress = btcAddressBO.getBtcAddress(
+                        EAddressType.X, utxo.getAddress());
+                    // 构造签名交易，输入
+                    OfflineTxInput offlineTxInput = new OfflineTxInput(txid,
+                        vout, utxo.getScriptPubKey(),
+                        btcAddress.getPrivatekey());
+                    rawTxBuilder.in(offlineTxInput);
+                    inputBtcUtxoList.add(utxo);
+                }
+            } else {
+                break;
+            }
+            pageNum++;// 不够再遍历
         }
+        // 组装Output，设置找零账户
+        // 如何估算手续费，先预先给一个size,然后拿这个size进行签名
+        // 对签名的数据进行解码，拿到真实大小，然后进行矿工费的修正
+        int preSize = BitcoinOfflineRawTxBuilder.calculateSize(rawTxBuilder
+            .getSize().intValue(), 1);
+        int feePerByte = btcBlockExplorer.getFee();
+        // 计算出手续费
+        int preFee = preSize * feePerByte;
+
+        // 构造输出，归集无需找零，只要算出矿工费，其余到转到归集地址
+        BigDecimal realAmount = shouldCollectCount.subtract(BigDecimal
+            .valueOf(preFee));
+        OfflineTxOutput offlineTxOutput = new OfflineTxOutput(toAddress,
+            AmountUtil.fromBtc(realAmount));
+        rawTxBuilder.out(offlineTxOutput);
+
+        logger.info("OTXO总额=" + shouldCollectCount + "，比特币平均费率=" + feePerByte
+                + "，预计矿工费=" + preFee + "，预计到账金额=" + realAmount);
+
         // 归集广播
-        BtcAddress secret = btcAddressBO.getBtcAddressSecret(xBtcAddress
-            .getCode());
-        String txHash = btcTransactionBO.broadcast(address, secret, toAddress,
-            value);
-        if (StringUtils.isBlank(txHash)) {
-            throw new BizException("xn625000", "归集—交易广播失败");
+        try {
+            String signResult = rawTxBuilder.offlineSign();
+            // 广播
+            String trueTxid = btcBlockExplorer.broadcastRawTx(signResult);
+            if (trueTxid != null) {
+
+                // 归集记录落地
+                String collectionCode = collectionBO.saveCollection(ECoin.BTC,
+                    JsonUtil.Object2Json(inputBtcUtxoList), toAddress,
+                    realAmount, trueTxid, chargeCode);
+                if (CollectionUtils.isNotEmpty(inputBtcUtxoList)) {
+                    for (BtcUtxo data : inputBtcUtxoList) {
+                        btcUtxoBO.refreshBroadcast(data, EBtcUtxoStatus.USING,
+                            EBtcUtxoRefType.COLLECTION, collectionCode);
+                    }
+                }
+
+            } else {
+                throw new BizException(EBizErrorCode.UTXO_COLLECTION_ERROR);
+            }
+        } catch (Exception e) {
+            throw new BizException("-100", e.getMessage());
         }
-        // 归集记录落地
-        btcCollectionBO.saveBtcCollection(address, toAddress, value, txHash,
-            chargeCode);
 
     }
 
     @Override
     @Transactional
     public void collectionNotice(CtqBtcUtxo ctqBtcUtxo) {
-        // 根据交易hash查询归集记录
-        BtcCollection collection = btcCollectionBO
-            .getBtcCollectionByTxHash(ctqBtcUtxo.getHash());
-        if (!EBtcCollectionStatus.Broadcast.getCode().equals(
-            collection.getStatus())) {
-            throw new BizException("xn625000", "交易已处理，请勿重复处理");
+
+        // 取到UTXO
+        BtcUtxo btcUtxo = btcUtxoBO.getBtcUtxo(ctqBtcUtxo.getTxid(),
+            ctqBtcUtxo.getVout());
+
+        // 判断是否是正在归集广播中的UTXO
+        if (EBtcUtxoStatus.USING.getCode().equals(btcUtxo.getStatus())
+                && EBtcUtxoRefType.COLLECTION.getCode().equals(
+                    btcUtxo.getRefType())
+                && StringUtils.isNotBlank(btcUtxo.getRefNo())) {
+
+            // 修改UTXO状态
+            btcUtxoBO.refreshStatus(btcUtxo, EBtcUtxoStatus.USED);
+
+            // 根据交易hash查询归集记录
+            Collection collection = collectionBO.getCollection(btcUtxo
+                .getRefNo());
+
+            if (!ECollectionStatus.Broadcast.getCode().equals(
+                collection.getStatus())) {
+                throw new BizException("xn625000", "交易已处理，请勿重复处理");
+            }
+
+            // 查询交易详情
+            BTCOriginalTx btcOriginalTx = btcBlockExplorer
+                .queryTxHash(collection.getTxHash());
+            if (btcOriginalTx == null) {
+                return;
+            }
+
+            // 归集订单状态更新
+            collectionBO.colectionNoticeBTC(collection,
+                btcOriginalTx.getFees(), DateUtil.TimeStamp2Date(btcOriginalTx
+                    .getBlocktime().toString(), DateUtil.DATA_TIME_PATTERN_1));
+
+            // 平台冷钱包加钱
+            Account coldAccount = accountBO
+                .getAccount(ESystemAccount.SYS_ACOUNT_BTC_COLD.getCode());
+            BigDecimal amount = collection.getAmount();
+            accountBO.changeAmount(coldAccount, amount, EChannelType.BTC,
+                btcOriginalTx.getTxid(), EChannelType.BTC.getCode(),
+                collection.getCode(), EJourBizTypeCold.AJ_INCOME.getCode(),
+                "归集-交易ID：" + btcOriginalTx.getTxid());
+
+            // 平台盈亏账户记入矿工费
+            Account sysAccount = accountBO
+                .getAccount(ESystemAccount.SYS_ACOUNT_BTC.getCode());
+            accountBO.changeAmount(sysAccount,
+                btcOriginalTx.getFees().negate(), EChannelType.BTC,
+                btcOriginalTx.getTxid(), EChannelType.BTC.getCode(),
+                collection.getCode(), EJourBizTypePlat.AJ_MFEE.getCode(),
+                "归集-交易ID：" + btcOriginalTx.getTxid());
+
         }
-        // 归集订单状态更新
-        BigDecimal gasPrice = new BigDecimal(ctqBtcUtxo.getGasPrice());
-        BigDecimal gasUse = new BigDecimal(ctqBtcUtxo.getGas().toString());
-        BigDecimal txFee = gasPrice.multiply(gasUse);
-        btcCollectionBO.colectionNotice(collection, txFee,
-            ctqBtcUtxo.getBlockCreateDatetime());
-        // 平台冷钱包加钱
-        Account coldAccount = accountBO
-            .getAccount(ESystemAccount.SYS_ACOUNT_BTC_COLD.getCode());
-        BigDecimal amount = new BigDecimal(ctqBtcUtxo.getValue());
-        accountBO.changeAmount(coldAccount, amount, EChannelType.BTC,
-            ctqBtcUtxo.getHash(), "BTC", collection.getCode(),
-            EJourBizTypeCold.AJ_INCOME.getCode(),
-            "归集-来自地址：" + collection.getFromAddress());
-        // 平台盈亏账户记入矿工费
-        Account sysAccount = accountBO.getAccount(ESystemAccount.SYS_ACOUNT_BTC
-            .getCode());
-        accountBO.changeAmount(sysAccount, txFee.negate(), EChannelType.BTC,
-            ctqBtcUtxo.getHash(), "BTC", collection.getCode(),
-            EJourBizTypePlat.AJ_MFEE.getCode(),
-            "归集地址：" + collection.getFromAddress());
-        // 落地交易记录
-        btcTransactionBO.saveBtcUtxo(ctqBtcUtxo, collection.getCode());
-        // 更新地址余额
-        BtcAddress from = btcAddressBO.getBtcAddress(EAddressType.X,
-            collection.getFromAddress());
-        BtcAddress to = btcAddressBO.getBtcAddress(EAddressType.W,
-            collection.getToAddress());
-        btcAddressBO.refreshBalance(from);
-        btcAddressBO.refreshBalance(to);
+
     }
 
     @Override
@@ -304,6 +395,7 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
     }
 
     @Override
+    @Transactional
     public void depositNotice(CtqBtcUtxo ctqBtcUtxo) {
         // 平台冷钱包减钱
         BigDecimal amount = ctqBtcUtxo.getCount();
@@ -314,6 +406,8 @@ public class BtcUtxoAOImpl implements IBtcUtxoAO {
             EChannelType.BTC.getCode(), ctqBtcUtxo.getRefNo(),
             EJourBizTypeCold.AJ_PAY.getCode(), EChannelType.BTC.getCode()
                     + "定存至取现地址(M):" + ctqBtcUtxo.getAddress());
+        // 落地UTXO
+        btcUtxoBO.saveBtcUtxo(ctqBtcUtxo, EAddressType.M);
     }
 
 }

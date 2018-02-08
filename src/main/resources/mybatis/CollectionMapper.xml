@@ -123,6 +123,17 @@
 		WHERE code = #{code}
 	</update>
 	
+	<update id="update_notice_btc" parameterType="collection">
+		UPDATE
+		tstd_collection
+		SET
+		tx_fee = #{txFee}
+		,status = #{status}
+		,confirm_datetime = #{confirmDatetime}
+		,update_datetime = #{updateDatetime}
+		WHERE code = #{code}
+	</update>
+	
 	<update id="update_notice_sc" parameterType="collection">
 		UPDATE
 		tstd_collection

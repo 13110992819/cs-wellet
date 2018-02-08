@@ -11,6 +11,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
@@ -18,15 +19,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.cdkj.coin.wallet.bitcoin.original.BTCFee;
 import com.cdkj.coin.wallet.bitcoin.original.BTCOriginalTx;
 import com.cdkj.coin.wallet.bitcoin.original.BTCTXs;
+import com.cdkj.coin.wallet.bo.ISYSConfigBO;
+import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 
 @Service
 public class BtcBlockExplorer {
 
+    @Autowired
+    private ISYSConfigBO sysConfigBO;
+
     private static OkHttpClient okHttpClient = new OkHttpClient();
 
-    private Integer maxFeePerByteCanAccept = 300;// 平台可接受最大交易手续费
+    private Integer maxFeePerByteCanAccept = sysConfigBO
+        .getIntegerValue(SysConstants.MAX_MINER_FEE_RATE);// 平台可接受最大交易手续费
 
     @Nullable
     public BTCOriginalTx queryTxHash(String txid) {
@@ -59,7 +66,7 @@ public class BtcBlockExplorer {
         try {
 
             BTCFee fee = JSON.parseObject(jsonStr, BTCFee.class);
-            // 应该读取一个配置值，获取手续费如果大于这个值，就取这个是
+            // 应该读取一个配置值，获取手续费如果大于这个值，就取这个值
             Integer maxFeePerByte = maxFeePerByteCanAccept;
             Integer fastFee = fee.getHalfHourFee();
 

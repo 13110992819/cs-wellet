@@ -25,6 +25,9 @@ public interface ICollectionBO extends IPaginableBO<Collection> {
     public int colectionNoticeETH(Collection data, BigDecimal txfee,
             Date ethDatetime);
 
+    public int colectionNoticeBTC(Collection data, BigDecimal txfee,
+            Date btcDatetime);
+
     public int colectionNoticeSC(Collection data, String fromAddress,
             BigDecimal txfee, Date ethDatetime);
 

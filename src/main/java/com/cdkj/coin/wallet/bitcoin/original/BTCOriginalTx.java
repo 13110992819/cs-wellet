@@ -17,6 +17,8 @@ public class BTCOriginalTx {
 
     private Long confirmations;
 
+    private Long blocktime;
+
     private BigDecimal valueIn;
 
     private BigDecimal valueOut;
@@ -123,5 +125,13 @@ public class BTCOriginalTx {
 
     public void setFees(BigDecimal fees) {
         this.fees = fees;
+    }
+
+    public Long getBlocktime() {
+        return blocktime;
+    }
+
+    public void setBlocktime(Long blocktime) {
+        this.blocktime = blocktime;
     }
 }

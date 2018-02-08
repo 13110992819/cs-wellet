@@ -10,6 +10,8 @@ public class SysConstants {
 
     public static final String COLLECTION_LIMIT_BTC = "collection_limit_btc"; // UTXO总额大于等于该值时，进行归集
 
+    public static final String MAX_MINER_FEE_RATE = "max_miner_fee_rate"; // 设置一个最大的矿工费率上限，防止矿工费过高
+
     public static final String MIN_MINER_FEE_BTC = "min_miner_fee_btc"; // BTC单笔广播，平台最多愿意承担的最大矿工费，大于这个矿工费
 
     public static final String MAX_MINER_FEE_BTC = "max_miner_fee_btc"; // BTC单笔广播，平台最多愿意承担的最大矿工费，大于这个矿工费
