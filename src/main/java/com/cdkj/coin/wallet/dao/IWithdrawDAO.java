@@ -17,6 +17,6 @@ public interface IWithdrawDAO extends IBaseDAO<Withdraw> {
 
     public EthAddress selectAddressUseInfo(Withdraw data);
 
-    public BigDecimal selectTotalWithdraw();
+    public BigDecimal selectTotalAmount(Withdraw data);
 
 }

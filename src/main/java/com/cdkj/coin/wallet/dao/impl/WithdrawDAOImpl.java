@@ -70,8 +70,8 @@ public class WithdrawDAOImpl extends AMybatisTemplate implements IWithdrawDAO {
     }
 
     @Override
-    public BigDecimal selectTotalWithdraw() {
-        return super.select(NAMESPACE.concat("select_totalWithdraw"), null,
+    public BigDecimal selectTotalAmount(Withdraw data) {
+        return super.select(NAMESPACE.concat("select_totalAmount"), null,
             BigDecimal.class);
     }
 

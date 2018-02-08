@@ -6,6 +6,7 @@ import java.util.List;
 import com.cdkj.coin.wallet.bo.base.Paginable;
 import com.cdkj.coin.wallet.domain.Withdraw;
 import com.cdkj.coin.wallet.dto.res.XN802758Res;
+import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.spring.ServiceModule;
 
 @ServiceModule
@@ -36,5 +37,5 @@ public interface IWithdrawAO {
 
     public XN802758Res getWithdrawCheckInfo(String code);
 
-    public BigDecimal getTotalWithdraw();
+    public BigDecimal getTotalWithdraw(ECoin coin);
 }

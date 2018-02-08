@@ -554,8 +554,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
     }
 
     @Override
-    public BigDecimal getTotalWithdraw() {
-        return withdrawBO.getTotalWithdraw();
+    public BigDecimal getTotalWithdraw(ECoin coin) {
+        return withdrawBO.getTotalWithdraw(coin);
     }
 
     public void doCheckBroadcastStatus() {

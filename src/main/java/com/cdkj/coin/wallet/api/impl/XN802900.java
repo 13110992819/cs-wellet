@@ -17,6 +17,7 @@ import com.cdkj.coin.wallet.ao.IWithdrawAO;
 import com.cdkj.coin.wallet.api.AProcessor;
 import com.cdkj.coin.wallet.dto.res.XN802900Res;
 import com.cdkj.coin.wallet.enums.EAddressType;
+import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.ESystemAccount;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
@@ -56,7 +57,7 @@ public class XN802900 extends AProcessor {
         // 历史总归集
         BigDecimal totolCollectCount = collectionAO.getTotalCollect();
         // 历史总取现
-        BigDecimal totolWithdrawCount = withdrawAO.getTotalWithdraw();
+        BigDecimal totolWithdrawCount = withdrawAO.getTotalWithdraw(ECoin.ETH);
         // 冷钱包余额
         BigDecimal coldCount = accountAO.getAccount(
             ESystemAccount.SYS_ACOUNT_ETH_COLD.getCode()).getAmount();

@@ -22,6 +22,9 @@
 			<if test="userId != null and userId != '' ">
 				AND t.user_id = #{userId}
 			</if>
+			<if test="address != null and address != '' ">
+				AND t.address = #{address}
+			</if>
 			<if test="currency != null and currency != '' ">
 				AND t.currency = #{currency}
 			</if>

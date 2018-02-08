@@ -262,9 +262,10 @@
 		<include refid="where_condition" />
 	</select>
 	
-	<select id="select_totalWithdraw" parameterType="withdraw"
+	<select id="select_totalAmount" parameterType="withdraw"
 		resultType="java.math.BigDecimal">
-		SELECT COALESCE(sum(amount)-sum(fee),0) FROM tstd_withdraw t where status = '6'
+		SELECT COALESCE(sum(amount)-sum(fee),0) FROM tstd_withdraw t
+		<include refid="where_condition" />
 	</select>
 	
 </mapper>
