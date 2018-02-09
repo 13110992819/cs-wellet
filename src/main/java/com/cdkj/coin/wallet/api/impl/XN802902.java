@@ -48,15 +48,16 @@ public class XN802902 extends AProcessor {
         // 散取钱包总额
         BigDecimal walletCount = SiadClient.getSiacoinBalance();
         // 历史总归集
-        BigDecimal totolCollectCount = collectionAO.getTotalCollect();
+        BigDecimal totolCollectCount = collectionAO.getTotalCollect(ECoin.SC);
         // 历史总取现
         BigDecimal totolWithdrawCount = withdrawAO.getTotalWithdraw(ECoin.SC);
         // 冷钱包余额
-        BigDecimal coldCount = accountAO.getAccount(
-            ESystemAccount.SYS_ACOUNT_SC_COLD.getCode()).getAmount();
+        BigDecimal coldCount = accountAO
+            .getAccount(ESystemAccount.SYS_ACOUNT_SC_COLD.getCode())
+            .getAmount();
         // 盈亏账户余额
-        BigDecimal platCount = accountAO.getAccount(
-            ESystemAccount.SYS_ACOUNT_SC.getCode()).getAmount();
+        BigDecimal platCount = accountAO
+            .getAccount(ESystemAccount.SYS_ACOUNT_SC.getCode()).getAmount();
         res.setWalletCount(walletCount.toString());
         res.setTotolCollectCount(totolCollectCount.toString());
         res.setTotolWithdrawCount(totolWithdrawCount.toString());

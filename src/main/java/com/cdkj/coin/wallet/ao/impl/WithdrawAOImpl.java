@@ -23,7 +23,6 @@ import com.cdkj.coin.wallet.bitcoin.util.BtcBlockExplorer;
 import com.cdkj.coin.wallet.bo.IAccountBO;
 import com.cdkj.coin.wallet.bo.IBtcAddressBO;
 import com.cdkj.coin.wallet.bo.IBtcUtxoBO;
-import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.bo.IEthAddressBO;
 import com.cdkj.coin.wallet.bo.IEthTransactionBO;
 import com.cdkj.coin.wallet.bo.IJourBO;
@@ -72,9 +71,6 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Autowired
     private IJourBO jourBO;
-
-    @Autowired
-    private ICtqBO ctqBO;
 
     @Autowired
     private IEthAddressBO ethAddressBO;
@@ -179,7 +175,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     @Override
     @Transactional
-    public void broadcast(String code, String mAddressCode, String approveUser) {
+    public void broadcast(String code, String mAddressCode,
+            String approveUser) {
         // 获取取现订单详情
         Withdraw withdraw = withdrawBO.getWithdraw(code);
         Account account = accountBO.getAccount(withdraw.getAccountNumber());
@@ -203,11 +200,11 @@ public class WithdrawAOImpl implements IWithdrawAO {
     // 4、调用接口广播
     private void doBtcBroadcast(Withdraw withdraw, String approveUser) {
 
-        BigDecimal minMinerFee = AmountUtil.toBtc(sysConfigBO
-            .getBigDecimalValue(SysConstants.MIN_MINER_FEE_BTC));
+        BigDecimal minMinerFee = AmountUtil.toBtc(
+            sysConfigBO.getBigDecimalValue(SysConstants.MIN_MINER_FEE_BTC));
 
-        BigDecimal maxMinerFee = AmountUtil.toBtc(sysConfigBO
-            .getBigDecimalValue(SysConstants.MAX_MINER_FEE_BTC));
+        BigDecimal maxMinerFee = AmountUtil.toBtc(
+            sysConfigBO.getBigDecimalValue(SysConstants.MAX_MINER_FEE_BTC));
 
         // 实际到账金额=取现金额-取现手续费
         BigDecimal realAmount = withdraw.getAmount()
@@ -238,18 +235,18 @@ public class WithdrawAOImpl implements IWithdrawAO {
             condition.setAddressType(EAddressType.M.getCode());
             condition.setStatus(EBtcUtxoStatus.ENABLE.getCode());
             condition.setOrder("count", "decs");
-            Paginable<BtcUtxo> pageBtcUtxo = btcUtxoBO.getPaginable(pageNum,
-                20, condition);// 默认每次20条
+            Paginable<BtcUtxo> pageBtcUtxo = btcUtxoBO.getPaginable(pageNum, 20,
+                condition);// 默认每次20条
             List<BtcUtxo> list = pageBtcUtxo.getList();
             if (CollectionUtils.isNotEmpty(list)) {
                 for (BtcUtxo utxo : list) {
                     String txid = utxo.getTxid();
                     Integer vout = utxo.getVout();
                     // 应取现总额
-                    shouldWithdrawCount = shouldWithdrawCount.add(utxo
-                        .getCount());
-                    BtcAddress btcAddress = btcAddressBO.getBtcAddress(
-                        EAddressType.M, utxo.getAddress());
+                    shouldWithdrawCount = shouldWithdrawCount
+                        .add(utxo.getCount());
+                    BtcAddress btcAddress = btcAddressBO
+                        .getBtcAddress(EAddressType.M, utxo.getAddress());
                     // 构造签名交易，输入
                     OfflineTxInput offlineTxInput = new OfflineTxInput(txid,
                         vout, utxo.getScriptPubKey(),
@@ -268,16 +265,16 @@ public class WithdrawAOImpl implements IWithdrawAO {
         // 组装Output，设置找零账户
         // 如何估算手续费，先预先给一个size,然后拿这个size进行签名
         // 对签名的数据进行解码，拿到真实大小，然后进行矿工费的修正
-        int preSize = BitcoinOfflineRawTxBuilder.calculateSize(rawTxBuilder
-            .getSize().intValue(), 1);
+        int preSize = BitcoinOfflineRawTxBuilder
+            .calculateSize(rawTxBuilder.getSize().intValue(), 1);
         int feePerByte = btcBlockExplorer.getFee();
         // 计算出手续费
         int preFee = preSize * feePerByte;
 
         // 构造输出
         OfflineTxOutput offlineTxOutput = new OfflineTxOutput(withdrawAddress,
-            AmountUtil.fromBtc(shouldWithdrawCount.subtract(BigDecimal
-                .valueOf(preFee))));
+            AmountUtil.fromBtc(
+                shouldWithdrawCount.subtract(BigDecimal.valueOf(preFee))));
         rawTxBuilder.out(offlineTxOutput);
 
         // 计算需要的找零, 现在是随机找零到一个提现地址
@@ -324,8 +321,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
         }
 
         String address = mEthAddress.getAddress();
-        EthAddress secret = ethAddressBO.getEthAddressSecret(mEthAddress
-            .getCode());
+        EthAddress secret = ethAddressBO
+            .getEthAddressSecret(mEthAddress.getCode());
 
         // 实际到账金额=取现金额-取现手续费
         BigDecimal realAmount = withdraw.getAmount()
@@ -340,13 +337,13 @@ public class WithdrawAOImpl implements IWithdrawAO {
         BigDecimal balance = ethAddressBO.getEthBalance(address);
         logger.info("地址" + address + "余额：" + balance.toString());
         if (balance.compareTo(realAmount.add(txFee)) < 0) {
-            throw new BizException("xn625000", "散取地址" + address
-                    + "余额不足以支付提现金额和矿工费！");
+            throw new BizException("xn625000",
+                "散取地址" + address + "余额不足以支付提现金额和矿工费！");
         }
         // 广播
         if (!WalletUtils.isValidAddress(withdraw.getPayCardNo())) {
-            throw new BizException("xn625000", "无效的取现地址："
-                    + withdraw.getPayCardInfo());
+            throw new BizException("xn625000",
+                "无效的取现地址：" + withdraw.getPayCardInfo());
         }
         String txHash = ethTransactionBO.broadcast(address, secret,
             withdraw.getPayCardNo(), realAmount);
@@ -378,8 +375,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
         }
         // 广播
         if (!SiadClient.verifyAddress(withdraw.getPayCardNo())) {
-            throw new BizException("xn625000", "无效的取现地址："
-                    + withdraw.getPayCardInfo());
+            throw new BizException("xn625000",
+                "无效的取现地址：" + withdraw.getPayCardInfo());
         }
         String txHash = SiadClient.sendSingleAddress(withdraw.getPayCardNo(),
             realAmount);
@@ -408,8 +405,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
 
     private void approveOrderYES(Withdraw data, String approveUser,
             String approveNote) {
-        withdrawBO.approveOrder(data, EWithdrawStatus.Approved_YES,
-            approveUser, approveNote);
+        withdrawBO.approveOrder(data, EWithdrawStatus.Approved_YES, approveUser,
+            approveNote);
     }
 
     private void approveOrderNO(Withdraw data, String approveUser,
@@ -568,8 +565,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
             }
             for (Withdraw withdraw : withdraws) {
                 if (ECoin.SC.getCode().equals(withdraw.getCurrency())) {
-                    Transaction tx = SiadClient.getTransaction(withdraw
-                        .getChannelOrder());
+                    Transaction tx = SiadClient
+                        .getTransaction(withdraw.getChannelOrder());
                     if (tx != null && tx.getInputs().size() == 1
                             && tx.getOutputs().size() == 2) {
                         logger
@@ -581,8 +578,8 @@ public class WithdrawAOImpl implements IWithdrawAO {
                         CtqScTransaction scTx = new CtqScTransaction();
                         scTx.setTransactionid(tx.getTransactionid());
                         scTx.setConfirmationheight(tx.getConfirmationheight());
-                        scTx.setConfirmationtimestamp(tx
-                            .getConfirmationtimestamp());
+                        scTx.setConfirmationtimestamp(
+                            tx.getConfirmationtimestamp());
                         scTx.setFrom(fromInfo.getRelatedaddress());
                         scTx.setTo(toInfo.getRelatedaddress());
                         scTx.setValue(toInfo.getValue());

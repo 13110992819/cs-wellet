@@ -21,8 +21,8 @@ import com.cdkj.coin.wallet.ethereum.EthAddress;
 import com.cdkj.coin.wallet.exception.BizException;
 
 @Component
-public class CollectionBOImpl extends PaginableBOImpl<Collection> implements
-        ICollectionBO {
+public class CollectionBOImpl extends PaginableBOImpl<Collection>
+        implements ICollectionBO {
 
     @Autowired
     private ICollectionDAO collectionDAO;
@@ -67,13 +67,14 @@ public class CollectionBOImpl extends PaginableBOImpl<Collection> implements
 
     @Override
     public Collection getCollectionByTxHash(String txHash) {
+        Collection collection = null;
         Collection condition = new Collection();
         condition.setTxHash(txHash);
         List<Collection> results = collectionDAO.selectList(condition);
-        if (CollectionUtils.isEmpty(results)) {
-            throw new BizException("xn0000", "归集记录不存在");
+        if (CollectionUtils.isNotEmpty(results)) {
+            collection = results.get(0);
         }
-        return results.get(0);
+        return collection;
     }
 
     @Override
@@ -134,8 +135,11 @@ public class CollectionBOImpl extends PaginableBOImpl<Collection> implements
     }
 
     @Override
-    public BigDecimal getTotalCollect() {
-        return collectionDAO.selectTotalCollect();
+    public BigDecimal getTotalCollect(ECoin coin) {
+        Collection condition = new Collection();
+        condition.setCurrency(coin.getCode());
+        condition.setStatus(ECollectionStatus.Broadcast_YES.getCode());
+        return collectionDAO.selectTotalAmount(condition);
     }
 
 }

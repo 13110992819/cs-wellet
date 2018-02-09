@@ -55,21 +55,22 @@ public class XN802900 extends AProcessor {
         BigDecimal toCollectCount = ethAddressAO
             .getTotalBalance(EAddressType.X);
         // 历史总归集
-        BigDecimal totolCollectCount = collectionAO.getTotalCollect();
+        BigDecimal totolCollectCount = collectionAO.getTotalCollect(ECoin.ETH);
         // 历史总取现
         BigDecimal totolWithdrawCount = withdrawAO.getTotalWithdraw(ECoin.ETH);
         // 冷钱包余额
-        BigDecimal coldCount = accountAO.getAccount(
-            ESystemAccount.SYS_ACOUNT_ETH_COLD.getCode()).getAmount();
+        BigDecimal coldCount = accountAO
+            .getAccount(ESystemAccount.SYS_ACOUNT_ETH_COLD.getCode())
+            .getAmount();
         // 盈亏账户余额
-        BigDecimal platCount = accountAO.getAccount(
-            ESystemAccount.SYS_ACOUNT_ETH.getCode()).getAmount();
+        BigDecimal platCount = accountAO
+            .getAccount(ESystemAccount.SYS_ACOUNT_ETH.getCode()).getAmount();
         res.setToWithdrawCount(toWithdrawCount.toString());
         res.setToCollectCount(toCollectCount.toString());
         res.setTotolCollectCount(totolCollectCount.toString());
         res.setTotolWithdrawCount(totolWithdrawCount.toString());
-        res.setTotalCount(coldCount.add(toCollectCount).add(toWithdrawCount)
-            .toString());
+        res.setTotalCount(
+            coldCount.add(toCollectCount).add(toWithdrawCount).toString());
         res.setColdCount(coldCount.toString());
         res.setPlatCount(platCount.toString());
         return res;

@@ -100,8 +100,8 @@ public class ScTransactionAOImpl implements IScTransactionAO {
         // 充值订单落地
         String code = chargeBO.applyOrderOnline(account, payGroup,
             ctqScTransaction.getTransactionid(),
-            EJourBizTypeUser.AJ_CHARGE.getCode(), "SC充值-来自地址："
-                    + ctqScTransaction.getFrom(), amount, EChannelType.SC,
+            EJourBizTypeUser.AJ_CHARGE.getCode(),
+            "SC充值-来自地址：" + ctqScTransaction.getFrom(), amount, EChannelType.SC,
             account.getUserId(), ctqScTransaction.getFrom());
 
         // 落地交易记录
@@ -110,8 +110,8 @@ public class ScTransactionAOImpl implements IScTransactionAO {
         // 账户加钱
         accountBO.changeAmount(account, amount, EChannelType.SC,
             ctqScTransaction.getTransactionid(), payGroup, code,
-            EJourBizTypeUser.AJ_CHARGE.getCode(), "SC充值-来自地址："
-                    + ctqScTransaction.getFrom());
+            EJourBizTypeUser.AJ_CHARGE.getCode(),
+            "SC充值-来自地址：" + ctqScTransaction.getFrom());
         return code;
     }
 
@@ -138,27 +138,23 @@ public class ScTransactionAOImpl implements IScTransactionAO {
             EJourBizTypeUser.AJ_WITHDRAW_UNFROZEN.getValue(),
             withdraw.getCode());
         // 取现金额扣减
-        userAccount = accountBO.changeAmount(
-            userAccount,
+        userAccount = accountBO.changeAmount(userAccount,
             withdraw.getAmount().subtract(withdraw.getFee()).negate(),
-            EChannelType.SC,
-            txId,
-            "SC",
-            withdraw.getCode(),
+            EChannelType.SC, txId, "SC", withdraw.getCode(),
             EJourBizTypeUser.AJ_WITHDRAW.getCode(),
             EJourBizTypeUser.AJ_WITHDRAW.getValue() + "-外部地址："
                     + withdraw.getPayCardNo());
         if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
             // 取现手续费扣减
-            userAccount = accountBO.changeAmount(userAccount, withdraw.getFee()
-                .negate(), EChannelType.SC, txId, "SC", withdraw.getCode(),
-                EJourBizTypeUser.AJ_WITHDRAWFEE.getCode(),
+            userAccount = accountBO.changeAmount(userAccount,
+                withdraw.getFee().negate(), EChannelType.SC, txId, "SC",
+                withdraw.getCode(), EJourBizTypeUser.AJ_WITHDRAWFEE.getCode(),
                 EJourBizTypeUser.AJ_WITHDRAWFEE.getValue());
         }
 
         // 平台盈亏账户记入取现手续费
-        Account sysAccount = accountBO.getAccount(ESystemAccount.SYS_ACOUNT_ETH
-            .getCode());
+        Account sysAccount = accountBO
+            .getAccount(ESystemAccount.SYS_ACOUNT_ETH.getCode());
         if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
             sysAccount = accountBO.changeAmount(sysAccount, withdraw.getFee(),
                 EChannelType.SC, txId, "SC", withdraw.getCode(),
@@ -167,13 +163,8 @@ public class ScTransactionAOImpl implements IScTransactionAO {
                         + withdraw.getPayCardNo());
         }
         // 平台盈亏账户记入取现矿工费
-        sysAccount = accountBO.changeAmount(
-            sysAccount,
-            txFee.negate(),
-            EChannelType.SC,
-            txId,
-            "SC",
-            withdraw.getCode(),
+        sysAccount = accountBO.changeAmount(sysAccount, txFee.negate(),
+            EChannelType.SC, txId, "SC", withdraw.getCode(),
             EJourBizTypePlat.AJ_WFEE.getCode(),
             EJourBizTypePlat.AJ_WFEE.getValue() + "-外部地址："
                     + withdraw.getPayCardNo());
@@ -221,18 +212,25 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     @Override
     @Transactional
     public void collectionNotice(CtqScTransaction ctqScTransaction) {
+        logger.info("开始处理交易：" + ctqScTransaction.getTransactionid());
         // 根据交易hash查询归集记录
         Collection collection = collectionBO
             .getCollectionByTxHash(ctqScTransaction.getTransactionid());
-        if (!ECollectionStatus.Broadcast.getCode().equals(
-            collection.getStatus())) {
-            throw new BizException("xn625000", "交易已处理，请勿重复处理");
+        if (collection == null) {
+            logger.info("未找到归集记录");
+            return;
+        }
+        if (!ECollectionStatus.Broadcast.getCode()
+            .equals(collection.getStatus())) {
+            logger.info("已经处理过该归集记录");
+            return;
         }
         // 归集订单状态更新
         BigDecimal txFee = new BigDecimal(ctqScTransaction.getMinerfee());
         collectionBO.colectionNoticeSC(collection, ctqScTransaction.getFrom(),
-            txFee, DateUtil.TimeStamp2Date(ctqScTransaction
-                .getConfirmationtimestamp().toString(),
+            txFee,
+            DateUtil.TimeStamp2Date(
+                ctqScTransaction.getConfirmationtimestamp().toString(),
                 DateUtil.DATA_TIME_PATTERN_1));
         // 平台冷钱包加钱
         Account coldAccount = accountBO
@@ -243,8 +241,8 @@ public class ScTransactionAOImpl implements IScTransactionAO {
             EJourBizTypeCold.AJ_INCOME.getCode(),
             "归集-来自地址：" + collection.getFromAddress());
         // 平台盈亏账户记入矿工费
-        Account sysAccount = accountBO.getAccount(ESystemAccount.SYS_ACOUNT_SC
-            .getCode());
+        Account sysAccount = accountBO
+            .getAccount(ESystemAccount.SYS_ACOUNT_SC.getCode());
         accountBO.changeAmount(sysAccount, txFee.negate(), EChannelType.SC,
             ctqScTransaction.getTransactionid(), "SC", collection.getCode(),
             EJourBizTypePlat.AJ_MFEE.getCode(),
@@ -255,8 +253,8 @@ public class ScTransactionAOImpl implements IScTransactionAO {
     }
 
     @Override
-    public Paginable<ScTransaction> queryScTransactionPage(int start,
-            int limit, ScTransaction condition) {
+    public Paginable<ScTransaction> queryScTransactionPage(int start, int limit,
+            ScTransaction condition) {
         return scTransactionBO.getPaginable(start, limit, condition);
     }
 

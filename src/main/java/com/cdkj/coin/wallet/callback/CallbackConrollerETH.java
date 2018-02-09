@@ -67,8 +67,8 @@ public class CallbackConrollerETH {
                         String code = ethTransactionAO
                             .chargeNotice(ctqEthTransaction);
                         if (StringUtils.isNotBlank(code)) {
-                            ethTransactionAO.collection(
-                                ctqEthTransaction.getTo(), code);
+                            ethTransactionAO
+                                .collection(ctqEthTransaction.getTo(), code);
                         }
                     }
                     // hashList.add(ctqEthTransaction.getHash());
@@ -91,6 +91,8 @@ public class CallbackConrollerETH {
                     hashList.add(ctqEthTransaction.getHash());
                 } else if (EAddressType.W == fromType) {
                     // fromAddress=W 每日转移
+                    hashList.add(ctqEthTransaction.getHash());
+                } else {
                     hashList.add(ctqEthTransaction.getHash());
                 }
 

@@ -58,8 +58,8 @@ public class CollectionAOImpl implements ICollectionAO {
     }
 
     @Override
-    public BigDecimal getTotalCollect() {
-        return collectionBO.getTotalCollect();
+    public BigDecimal getTotalCollect(ECoin coin) {
+        return collectionBO.getTotalCollect(coin);
     }
 
     @Override
@@ -85,9 +85,9 @@ public class CollectionAOImpl implements ICollectionAO {
 
         // 余额大于配置值时，进行归集
         if (balance.compareTo(balanceStart.add(txFee)) < 0) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(), "SC钱包余额"
-                    + SiadClient.fromHasting(balance).toString()
-                    + "，不足以支付归集数量+矿工费用，无法归集");
+            throw new BizException(EBizErrorCode.DEFAULT.getCode(),
+                "SC钱包余额" + SiadClient.fromHasting(balance).toString()
+                        + "，不足以支付归集数量+矿工费用，无法归集");
         }
         // 获取今日归集地址
         ScAddress wScAddress = scAddressBO.getWScAddressToday();
@@ -149,8 +149,8 @@ public class CollectionAOImpl implements ICollectionAO {
             throw new BizException("xn625000", "余额不足以支付矿工费，不能归集");
         }
         // 归集广播
-        EthAddress secret = ethAddressBO.getEthAddressSecret(ethAddress
-            .getCode());
+        EthAddress secret = ethAddressBO
+            .getEthAddressSecret(ethAddress.getCode());
         String txHash = ethTransactionBO.broadcast(fromAddress, secret,
             toAddress, value);
         if (StringUtils.isBlank(txHash)) {

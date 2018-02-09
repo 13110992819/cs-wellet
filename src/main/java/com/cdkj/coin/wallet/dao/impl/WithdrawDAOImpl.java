@@ -32,8 +32,8 @@ public class WithdrawDAOImpl extends AMybatisTemplate implements IWithdrawDAO {
 
     @Override
     public long selectTotalCount(Withdraw condition) {
-        return super.selectTotalCount(
-            NAMESPACE.concat("select_withdraw_count"), condition);
+        return super.selectTotalCount(NAMESPACE.concat("select_withdraw_count"),
+            condition);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class WithdrawDAOImpl extends AMybatisTemplate implements IWithdrawDAO {
 
     @Override
     public BigDecimal selectTotalAmount(Withdraw data) {
-        return super.select(NAMESPACE.concat("select_totalAmount"), null,
+        return super.select(NAMESPACE.concat("select_totalAmount"), data,
             BigDecimal.class);
     }
 

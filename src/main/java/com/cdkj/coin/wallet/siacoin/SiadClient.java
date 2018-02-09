@@ -13,13 +13,6 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
@@ -31,6 +24,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Credentials;
 
+import okhttp3.Call;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 /** 
  * @author: haiqingzheng 
  * @since: 2018年1月30日 下午8:54:31 
@@ -40,14 +40,20 @@ public class SiadClient {
 
     public static final String SC_URL = PropertiesUtil.Config.SC_NODE;
 
-    final static String basic = Credentials.basic("zhangsan", "123456");
+    final static String basic = Credentials.basic("bcoin", "123456");
 
     public static void main(String[] args) {
-        // createWalletWithSeed("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
-        // unlock("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
+        // createWalletWithSeed("onward menu aztec strained adrenalin inroads
+        // itself wanted dizzy ankle wedge napkin piloted haystack dabbing
+        // lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle
+        // sack oncoming greater hope ablaze");
+        // unlock("onward menu aztec strained adrenalin inroads itself wanted
+        // dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub
+        // nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming
+        // greater hope ablaze");
         // System.out.println(getSingleAddress());
-        System.out.println(getTransactions(new BigInteger("1"), new BigInteger(
-            "140860")));
+        System.out.println(
+            getTransactions(new BigInteger("1"), new BigInteger("140860")));
         // System.out
         // .println(getTransaction("716b17fbfece111839adb92d7aaaccffd97169ee4bf64333fa44b666433c62eb"));
     }
@@ -73,8 +79,8 @@ public class SiadClient {
         BigDecimal result = BigDecimal.ZERO;
         String resStr = doAccessHTTPGetJson(SC_URL + "/wallet");
         System.out.println(resStr);
-        result = JSONObject.parseObject(resStr).getBigDecimal(
-            "confirmedsiacoinbalance");
+        result = JSONObject.parseObject(resStr)
+            .getBigDecimal("confirmedsiacoinbalance");
         return result;
     }
 
@@ -85,8 +91,8 @@ public class SiadClient {
 
     // 解锁钱包
     public static String unlock(String password) {
-        RequestBody formBody = new FormBody.Builder().add("encryptionpassword",
-            password).build();
+        RequestBody formBody = new FormBody.Builder()
+            .add("encryptionpassword", password).build();
         return doAccessHTTPPostJson(SC_URL + "/wallet/unlock", formBody);
     }
 
@@ -103,8 +109,8 @@ public class SiadClient {
             String resStr = doAccessHTTPGetJson(SC_URL + "/wallet/address");
             address = JSONObject.parseObject(resStr).getString("address");
             if (address == null) {
-                String message = JSONObject.parseObject(resStr).getString(
-                    "message");
+                String message = JSONObject.parseObject(resStr)
+                    .getString("message");
                 throw new BizException(EBizErrorCode.DEFAULT.getCode(),
                     "SC地址生成失败" + message);
             }
@@ -129,8 +135,8 @@ public class SiadClient {
         boolean result = false;
         if (StringUtils.isNotBlank(address)) {
             try {
-                String resStr = doAccessHTTPGetJson(SC_URL
-                        + "/wallet/verify/address/" + address);
+                String resStr = doAccessHTTPGetJson(
+                    SC_URL + "/wallet/verify/address/" + address);
                 result = JSONObject.parseObject(resStr).getBoolean("valid");
             } catch (Exception e) {
                 throw new BizException(EBizErrorCode.DEFAULT.getCode(),
@@ -141,16 +147,17 @@ public class SiadClient {
     }
 
     // 转账
-    public static String sendSingleAddress(String toAddress, BigDecimal amount) {
+    public static String sendSingleAddress(String toAddress,
+            BigDecimal amount) {
         String txId = null;
         RequestBody formBody = new FormBody.Builder()
-            .add("destination", toAddress).add("amount", amount.toString())
-            .build();
+            .add("destination", toAddress)
+            .add("amount", amount.toBigInteger().toString()).build();
         String resStr = doAccessHTTPPostJson(SC_URL + "/wallet/siacoins",
             formBody);
-        JSONArray txIdList = JSONObject.parseObject(resStr).getJSONArray(
-            "transactionids");
-        if (!txIdList.isEmpty()) {
+        JSONArray txIdList = JSONObject.parseObject(resStr)
+            .getJSONArray("transactionids");
+        if (txIdList != null && !txIdList.isEmpty()) {
             txId = (String) txIdList.get(txIdList.size() - 1);
         }
         return txId;
@@ -159,8 +166,8 @@ public class SiadClient {
     // 获取单个交易信息
     public static Transaction getTransaction(String txId) {
         Transaction transaction = null;
-        String resStr = doAccessHTTPGetJson(SC_URL + "/wallet/transaction/"
-                + txId);
+        String resStr = doAccessHTTPGetJson(
+            SC_URL + "/wallet/transaction/" + txId);
         String txStr = JSONObject.parseObject(resStr).getString("transaction");
         Gson gson = new Gson();
         transaction = gson.fromJson(txStr, new TypeToken<Transaction>() {
@@ -172,13 +179,13 @@ public class SiadClient {
     public static List<Transaction> getTransactions(BigInteger startheight,
             BigInteger endheight) {
         List<Transaction> result = null;
-        String resStr = doAccessHTTPGetJson(SC_URL
-                + "/wallet/transactions?startheight=" + startheight
-                + "&endheight=" + endheight);
+        String resStr = doAccessHTTPGetJson(
+            SC_URL + "/wallet/transactions?startheight=" + startheight
+                    + "&endheight=" + endheight);
         System.out.println("startheight:" + startheight + " endheight="
                 + endheight + " resStr=" + resStr);
-        String txStr = JSONObject.parseObject(resStr).getString(
-            "confirmedtransactions");
+        String txStr = JSONObject.parseObject(resStr)
+            .getString("confirmedtransactions");
 
         if (txStr != null) {
             Gson gson = new Gson();
@@ -196,8 +203,8 @@ public class SiadClient {
 
         String requestStr = sendUrl;
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().readTimeout(1,
-            TimeUnit.DAYS).build();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+            .readTimeout(1, TimeUnit.DAYS).build();
 
         Request request = new Request.Builder()
             .addHeader("User-Agent", "Sia-Agent")

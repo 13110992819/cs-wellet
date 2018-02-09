@@ -13,7 +13,7 @@ public interface ICollectionDAO extends IBaseDAO<Collection> {
 
     public EthAddress selectAddressUseInfo(Collection data);
 
-    public BigDecimal selectTotalCollect();
+    public BigDecimal selectTotalAmount(Collection data);
 
     public int updateNoticeSC(Collection data);
 

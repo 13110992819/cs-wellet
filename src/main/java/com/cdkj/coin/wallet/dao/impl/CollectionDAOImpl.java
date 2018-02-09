@@ -11,8 +11,8 @@ import com.cdkj.coin.wallet.domain.Collection;
 import com.cdkj.coin.wallet.ethereum.EthAddress;
 
 @Repository("collectionDAOImpl")
-public class CollectionDAOImpl extends AMybatisTemplate implements
-        ICollectionDAO {
+public class CollectionDAOImpl extends AMybatisTemplate
+        implements ICollectionDAO {
 
     @Override
     public int insert(Collection data) {
@@ -71,7 +71,7 @@ public class CollectionDAOImpl extends AMybatisTemplate implements
     }
 
     @Override
-    public BigDecimal selectTotalCollect() {
+    public BigDecimal selectTotalAmount(Collection data) {
         return super.select(NAMESPACE.concat("select_totalCollect"), null,
             BigDecimal.class);
     }

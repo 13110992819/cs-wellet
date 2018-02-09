@@ -78,6 +78,8 @@ public class CallbackConrollerSC {
                 } else if (EAddressType.W == fromType) {
                     // fromAddress=W 每日转移
                     hashList.add(ctqScTransaction.getTransactionid());
+                } else {
+                    hashList.add(ctqScTransaction.getTransactionid());
                 }
 
                 logger.info("处理交易：" + ctqScTransaction.getTransactionid());
