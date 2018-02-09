@@ -27,14 +27,18 @@ public class XN802503 extends AProcessor {
     */
     @Override
     public Object doBusiness() throws BizException {
-        return accountAO.getAccountByUserId(req.getUserId(), req.getCurrency());
+        synchronized (IAccountAO.class) {
+            return accountAO.getAccountByUserId(req.getUserId(),
+                req.getCurrency());
+        }
     }
 
     /** 
     * @see com.xnjr.base.api.IProcessor#doCheck(java.lang.String)
     */
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
         req = JsonUtil.json2Bean(inputparams, XN802503Req.class);
         StringValidater.validateBlank(req.getUserId());
     }

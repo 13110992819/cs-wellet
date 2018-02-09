@@ -351,7 +351,7 @@ public class WithdrawAOImpl implements IWithdrawAO {
         String txHash = ethTransactionBO.broadcast(address, secret,
             withdraw.getPayCardNo(), realAmount);
         if (StringUtils.isBlank(txHash)) {
-            throw new BizException("xn625000", "交易广播失败");
+            throw new BizException("xn625000", "交易签名失败，请仔细检查散取地址是否符合提现要求");
         }
         logger.info("广播成功：交易hash=" + txHash);
         withdrawBO.broadcastOrder(withdraw, txHash, approveUser);

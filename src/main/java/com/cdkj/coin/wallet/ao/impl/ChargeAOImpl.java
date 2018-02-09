@@ -181,6 +181,23 @@ public class ChargeAOImpl implements IChargeAO {
             List<ScTransaction> resultList1 = scTransactionBO
                 .queryScTransactionList(scTransaction);
 
+            Collection collection = collectionBO.getCollectionByRefNo(charge
+                .getCode());
+            // 如果有归集
+            if (collection != null) {
+                // 归集对应流水
+                jour.setRefNo(collection.getCode());
+                List<Jour> jourList2 = jourBO.queryJourList(jour);
+                jourList1.addAll(jourList2);
+                // 归集对应广播记录
+                scTransaction.setRefNo(collection.getCode());
+                List<ScTransaction> resultList2 = scTransactionBO
+                    .queryScTransactionList(scTransaction);
+                resultList1.addAll(resultList2);
+                res.setCollection(collection);
+                res.setScTransList(resultList1);
+            }
+
             res.setScTransList(resultList1);
         }
 

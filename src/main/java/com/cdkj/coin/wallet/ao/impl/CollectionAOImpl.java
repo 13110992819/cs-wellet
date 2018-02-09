@@ -76,26 +76,25 @@ public class CollectionAOImpl implements ICollectionAO {
     }
 
     private void doCollectionManualSC(BigDecimal balanceStart) {
+
         // 获取钱包余额
         BigDecimal balance = SiadClient.getSiacoinBalance();
 
+        // 默认矿工费用
+        BigDecimal txFee = SiadClient.defaultMinerFee();
+
         // 余额大于配置值时，进行归集
-        if (balance.compareTo(SiadClient.toHasting(balanceStart)) < 0) {
+        if (balance.compareTo(balanceStart.add(txFee)) < 0) {
             throw new BizException(EBizErrorCode.DEFAULT.getCode(), "SC钱包余额"
-                    + SiadClient.fromHasting(balance).toString() + "，无需归集");
+                    + SiadClient.fromHasting(balance).toString()
+                    + "，不足以支付归集数量+矿工费用，无法归集");
         }
         // 获取今日归集地址
         ScAddress wScAddress = scAddressBO.getWScAddressToday();
         String toAddress = wScAddress.getAddress();
 
-        // 默认矿工费用
-        BigDecimal txFee = new BigDecimal("22500000000000000000000");
-        BigDecimal value = balance.subtract(txFee);
-        logger.info("地址余额=" + balance + "，预计矿工费=" + txFee + "，预计到账金额=" + value);
-        if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BizException(EBizErrorCode.DEFAULT.getCode(),
-                "余额不足以支付矿工费，不能归集");
-        }
+        BigDecimal value = balanceStart;
+
         // 归集广播
         String txHash = SiadClient.sendSingleAddress(toAddress, value);
         if (StringUtils.isBlank(txHash)) {

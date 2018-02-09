@@ -8,6 +8,7 @@
  */
 package com.cdkj.coin.wallet.ao.impl;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,10 @@ import org.web3j.protocol.admin.Admin;
 import com.cdkj.coin.wallet.ao.IEthNodeAO;
 import com.cdkj.coin.wallet.bo.ICtqBO;
 import com.cdkj.coin.wallet.dto.res.XN625800Res;
+import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.ethereum.AdminClient;
 import com.cdkj.coin.wallet.exception.BizException;
+import com.cdkj.coin.wallet.siacoin.SiadClient;
 
 /** 
  * @author: haiqingzheng 
@@ -55,7 +58,23 @@ public class EthNodeAOImpl implements IEthNodeAO {
             BigInteger bcoinGasPrice = bcoinAdmin.ethGasPrice().send()
                 .getGasPrice();
 
-            BigInteger bcoinScaned = ctqBO.getScanedBlockNumber();
+            BigInteger bcoinScaned = ctqBO.getScanedBlockNumber(ECoin.ETH);
+
+            // SC钱包状态
+            boolean scWalletOpened = SiadClient.isUnlock();
+            // SC扫描高度
+            BigInteger scScanNumber = ctqBO.getScanedBlockNumber(ECoin.SC);
+
+            // SC钱包余额
+            BigDecimal scWalletBalance = BigDecimal.ZERO;
+
+            // SC区块高度
+            BigInteger scBlockNumber = BigInteger.ZERO;
+
+            if (scWalletOpened) {
+                scWalletBalance = SiadClient.getSiacoinBalance();
+                scBlockNumber = SiadClient.getBlockHeight();
+            }
 
             res = new XN625800Res();
 
@@ -66,10 +85,14 @@ public class EthNodeAOImpl implements IEthNodeAO {
             res.setBcoinGasPrice(bcoinGasPrice);
             res.setBcoinScaned(bcoinScaned);
 
+            res.setScWalletOpened(scWalletOpened);
+            res.setScScanNumber(scScanNumber);
+            res.setScWalletBalance(scWalletBalance.toString());
+            res.setScBlockNumber(scBlockNumber);
+
         } catch (Exception e) {
             throw new BizException("获取节点监控信息失败，原因：" + e.getMessage());
         }
         return res;
     }
-
 }

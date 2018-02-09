@@ -6,6 +6,7 @@ import com.cdkj.coin.wallet.common.JsonUtil;
 import com.cdkj.coin.wallet.core.StringValidater;
 import com.cdkj.coin.wallet.domain.Jour;
 import com.cdkj.coin.wallet.dto.req.XN802523Req;
+import com.cdkj.coin.wallet.enums.EJourKind;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.ParaException;
 import com.cdkj.coin.wallet.spring.SpringContextHolder;
@@ -26,12 +27,14 @@ public class XN802523 extends AProcessor {
     public Object doBusiness() throws BizException {
         Jour condition = new Jour();
         condition.setRefNo(req.getRefNo());
+        condition.setKind(EJourKind.BALANCE.getCode());
         condition.setSystemCode(req.getSystemCode());
         return jourAO.queryJourList(condition);
     }
 
     @Override
-    public void doCheck(String inputparams, String operator) throws ParaException {
+    public void doCheck(String inputparams, String operator)
+            throws ParaException {
         req = JsonUtil.json2Bean(inputparams, XN802523Req.class);
         StringValidater.validateBlank(req.getRefNo(), req.getSystemCode());
     }

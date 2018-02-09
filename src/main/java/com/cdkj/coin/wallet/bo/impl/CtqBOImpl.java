@@ -24,6 +24,7 @@ import com.cdkj.coin.wallet.dto.req.XN626040Req;
 import com.cdkj.coin.wallet.dto.req.XN626060Req;
 import com.cdkj.coin.wallet.dto.req.XN626080Req;
 import com.cdkj.coin.wallet.dto.req.XN626100Req;
+import com.cdkj.coin.wallet.enums.ECoin;
 import com.cdkj.coin.wallet.enums.ESystemCode;
 import com.cdkj.coin.wallet.http.BizConnecter;
 
@@ -54,10 +55,16 @@ public class CtqBOImpl implements ICtqBO {
     }
 
     @Override
-    public BigInteger getScanedBlockNumber() {
+    public BigInteger getScanedBlockNumber(ECoin coin) {
         BigInteger number = BigInteger.ZERO;
         XN625917Req req = new XN625917Req();
-        req.setKey("curBlockNumber");
+        if (ECoin.ETH == coin) {
+            req.setKey("curEthBlockNumber");
+        } else if (ECoin.SC == coin) {
+            req.setKey("curScBlockNumber");
+        } else if (ECoin.BTC == coin) {
+            req.setKey("curBtcBlockNumber");
+        }
         req.setSystemCode(ESystemCode.COIN.getCode());
         req.setCompanyCode(ESystemCode.COIN.getCode());
         SYSConfig sysConfig = BizConnecter.getBizData("625917",

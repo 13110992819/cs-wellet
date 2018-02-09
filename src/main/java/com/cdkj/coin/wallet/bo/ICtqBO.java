@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 import com.cdkj.coin.wallet.bitcoin.CtqBtcUtxo;
+import com.cdkj.coin.wallet.enums.ECoin;
 
 /** 
  * @author: haiqingzheng 
@@ -26,7 +27,7 @@ public interface ICtqBO {
     public void confirmEth(List<String> hashList);
 
     // 获取ETH节点扫描信息
-    public BigInteger getScanedBlockNumber();
+    public BigInteger getScanedBlockNumber(ECoin coin);
 
     // 上传SC地址
     public void uploadScAddress(String address, String type);

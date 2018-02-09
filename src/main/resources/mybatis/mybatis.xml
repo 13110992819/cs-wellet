@@ -8,7 +8,7 @@
 		<typeAlias alias="exchangeCurrency" type="com.cdkj.coin.wallet.domain.ExchangeCurrency" />
 		<typeAlias alias="charge" type="com.cdkj.coin.wallet.domain.Charge" />
 		<typeAlias alias="withdraw" type="com.cdkj.coin.wallet.domain.Withdraw" />
-		<typeAlias alias="collection" type="com.cdkj.coin.wallet.domain.Collection" />
+		<typeAlias alias="collect" type="com.cdkj.coin.wallet.domain.Collection" />
 		<typeAlias alias="withdrawAddress" type="com.cdkj.coin.wallet.domain.WithdrawAddress" />
 		<typeAlias alias="hlOrder" type="com.cdkj.coin.wallet.domain.HLOrder" />
 

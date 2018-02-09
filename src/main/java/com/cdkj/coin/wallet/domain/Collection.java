@@ -28,7 +28,7 @@ public class Collection extends ABaseDO {
     private String toAddress;
 
     // 归集数量
-    private transient BigDecimal amount;
+    private BigDecimal amount;
 
     private String amountString;
 
@@ -36,7 +36,7 @@ public class Collection extends ABaseDO {
     private String txHash;
 
     // 矿工费
-    private transient BigDecimal txFee;
+    private BigDecimal txFee;
 
     private String txFeeString;
 

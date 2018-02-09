@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cdkj.coin.wallet.dao.ICollectionDAO">
-	<resultMap id="collection_DB_Result" type="collection">
+	<resultMap id="collection_DB_Result" type="collect">
 		<result column="code" property="code" />
 		<result column="currency" property="currency" />
 		<result column="from_address" property="fromAddress" />

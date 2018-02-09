@@ -50,8 +50,8 @@
 		<property name="paginableDAO" ref="ethTransactionDAOImpl" />
 	</bean>
 	
-	<bean id="ethCollectionBO" class="com.cdkj.coin.wallet.bo.impl.EthCollectionBOImpl">
-		<property name="paginableDAO" ref="ethCollectionDAOImpl" />
+	<bean id="collectionBO" class="com.cdkj.coin.wallet.bo.impl.CollectionBOImpl">
+		<property name="paginableDAO" ref="collectionDAOImpl" />
 	</bean>
 	
 	<bean id="scAddressBO" class="com.cdkj.coin.wallet.bo.impl.ScAddressBOImpl">
@@ -60,10 +60,6 @@
 	
 	<bean id="scTransactionBO" class="com.cdkj.coin.wallet.bo.impl.ScTransactionBOImpl">
 		<property name="paginableDAO" ref="scTransactionDAOImpl" />
-	</bean>
-	
-	<bean id="scCollectionBO" class="com.cdkj.coin.wallet.bo.impl.ScCollectionBOImpl">
-		<property name="paginableDAO" ref="scCollectionDAOImpl" />
 	</bean>
 	
 	<bean id="btcAddressBO" class="com.cdkj.coin.wallet.bo.impl.BtcAddressBOImpl">

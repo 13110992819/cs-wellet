@@ -20,7 +20,6 @@ import com.cdkj.coin.wallet.bitcoin.original.BTCFee;
 import com.cdkj.coin.wallet.bitcoin.original.BTCOriginalTx;
 import com.cdkj.coin.wallet.bitcoin.original.BTCTXs;
 import com.cdkj.coin.wallet.bo.ISYSConfigBO;
-import com.cdkj.coin.wallet.common.SysConstants;
 import com.cdkj.coin.wallet.exception.BizException;
 import com.cdkj.coin.wallet.exception.EBizErrorCode;
 
@@ -32,8 +31,7 @@ public class BtcBlockExplorer {
 
     private static OkHttpClient okHttpClient = new OkHttpClient();
 
-    private Integer maxFeePerByteCanAccept = sysConfigBO
-        .getIntegerValue(SysConstants.MAX_MINER_FEE_RATE);// 平台可接受最大交易手续费
+    private Integer maxFeePerByteCanAccept = 200;// 平台可接受最大交易手续费
 
     @Nullable
     public BTCOriginalTx queryTxHash(String txid) {

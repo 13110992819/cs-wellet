@@ -10,6 +10,7 @@ package com.cdkj.coin.wallet.siacoin;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -45,8 +46,19 @@ public class SiadClient {
         // createWalletWithSeed("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
         // unlock("onward menu aztec strained adrenalin inroads itself wanted dizzy ankle wedge napkin piloted haystack dabbing lipstick scrub nerves surfer hoax oatmeal unusual hydrogen circle sack oncoming greater hope ablaze");
         // System.out.println(getSingleAddress());
-        System.out
-            .println(getTransaction("716b17fbfece111839adb92d7aaaccffd97169ee4bf64333fa44b666433c62eb"));
+        System.out.println(getTransactions(new BigInteger("1"), new BigInteger(
+            "140860")));
+        // System.out
+        // .println(getTransaction("716b17fbfece111839adb92d7aaaccffd97169ee4bf64333fa44b666433c62eb"));
+    }
+
+    public static boolean isUnlock() {
+        boolean result = false;
+        // 获取钱包信息
+        String resStr = doAccessHTTPGetJson(SC_URL + "/wallet");
+        result = JSONObject.parseObject(resStr).getBooleanValue("unlocked")
+                && JSONObject.parseObject(resStr).getBooleanValue("encrypted");
+        return result;
     }
 
     // 根据已有的种子创建钱包，需要unlock
@@ -156,6 +168,27 @@ public class SiadClient {
         return transaction;
     }
 
+    // 获取钱包相关的交易列表
+    public static List<Transaction> getTransactions(BigInteger startheight,
+            BigInteger endheight) {
+        List<Transaction> result = null;
+        String resStr = doAccessHTTPGetJson(SC_URL
+                + "/wallet/transactions?startheight=" + startheight
+                + "&endheight=" + endheight);
+        System.out.println("startheight:" + startheight + " endheight="
+                + endheight + " resStr=" + resStr);
+        String txStr = JSONObject.parseObject(resStr).getString(
+            "confirmedtransactions");
+
+        if (txStr != null) {
+            Gson gson = new Gson();
+            result = gson.fromJson(txStr, new TypeToken<List<Transaction>>() {
+            }.getType());
+        }
+
+        return result;
+    }
+
     public static String doAccessHTTPPostJson(String sendUrl,
             RequestBody formBody) {
 
@@ -220,4 +253,9 @@ public class SiadClient {
         result = value.divide(new BigDecimal("1000000000000000000000000"));
         return result;
     }
+
+    public static BigDecimal defaultMinerFee() {
+        return new BigDecimal("22500000000000000000000");
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.cdkj.coin.wallet.siacoin;
 
 import java.math.BigInteger;
+import java.util.Date;
 
+import com.cdkj.coin.wallet.common.DateUtil;
 import com.cdkj.coin.wallet.dao.base.ABaseDO;
 
 /**
@@ -22,6 +24,8 @@ public class ScTransaction extends ABaseDO {
 
     // 确认时间
     private BigInteger confirmationtimestamp;
+
+    private Date confirmationtime;
 
     // 转出地址
     private String from;
@@ -64,6 +68,8 @@ public class ScTransaction extends ABaseDO {
 
     public void setConfirmationtimestamp(BigInteger confirmationtimestamp) {
         this.confirmationtimestamp = confirmationtimestamp;
+        this.confirmationtime = DateUtil.TimeStamp2Date(
+            confirmationtimestamp.toString(), DateUtil.DATA_TIME_PATTERN_1);
     }
 
     public String getFrom() {
@@ -112,6 +118,14 @@ public class ScTransaction extends ABaseDO {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Date getConfirmationtime() {
+        return confirmationtime;
+    }
+
+    public void setConfirmationtime(Date confirmationtime) {
+        this.confirmationtime = confirmationtime;
     }
 
 }

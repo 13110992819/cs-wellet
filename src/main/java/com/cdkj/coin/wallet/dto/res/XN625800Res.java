@@ -31,6 +31,18 @@ public class XN625800Res {
     // bcoin已扫描至区块高度
     private BigInteger bcoinScaned;
 
+    // SC钱包状态
+    private boolean scWalletOpened;
+
+    // SC钱包余额
+    private String scWalletBalance;
+
+    // SC区块高度
+    private BigInteger scBlockNumber;
+
+    // SC扫描高度
+    private BigInteger scScanNumber;
+
     public BigInteger getInfuraBlockNumber() {
         return infuraBlockNumber;
     }
@@ -69,6 +81,38 @@ public class XN625800Res {
 
     public void setBcoinScaned(BigInteger bcoinScaned) {
         this.bcoinScaned = bcoinScaned;
+    }
+
+    public boolean isScWalletOpened() {
+        return scWalletOpened;
+    }
+
+    public void setScWalletOpened(boolean scWalletOpened) {
+        this.scWalletOpened = scWalletOpened;
+    }
+
+    public String getScWalletBalance() {
+        return scWalletBalance;
+    }
+
+    public void setScWalletBalance(String scWalletBalance) {
+        this.scWalletBalance = scWalletBalance;
+    }
+
+    public BigInteger getScBlockNumber() {
+        return scBlockNumber;
+    }
+
+    public void setScBlockNumber(BigInteger scBlockNumber) {
+        this.scBlockNumber = scBlockNumber;
+    }
+
+    public BigInteger getScScanNumber() {
+        return scScanNumber;
+    }
+
+    public void setScScanNumber(BigInteger scScanNumber) {
+        this.scScanNumber = scScanNumber;
     }
 
 }
