@@ -101,7 +101,8 @@ public class CollectionAOImpl implements ICollectionAO {
             throw new BizException("xn625000", "归集—交易广播失败");
         }
         // 归集记录落地
-        collectionBO.saveCollection(ECoin.SC, null, null, value, txHash, null);
+        collectionBO.saveCollection(ECoin.SC, null, toAddress, value, txHash,
+            null);
     }
 
     private void doCollectionManualETH(BigDecimal balanceStart) {

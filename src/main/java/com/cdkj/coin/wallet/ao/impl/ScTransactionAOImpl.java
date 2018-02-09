@@ -154,7 +154,7 @@ public class ScTransactionAOImpl implements IScTransactionAO {
 
         // 平台盈亏账户记入取现手续费
         Account sysAccount = accountBO
-            .getAccount(ESystemAccount.SYS_ACOUNT_ETH.getCode());
+            .getAccount(ESystemAccount.SYS_ACOUNT_SC.getCode());
         if (withdraw.getFee().compareTo(BigDecimal.ZERO) > 0) {
             sysAccount = accountBO.changeAmount(sysAccount, withdraw.getFee(),
                 EChannelType.SC, txId, "SC", withdraw.getCode(),
