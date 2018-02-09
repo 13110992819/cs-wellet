@@ -70,7 +70,8 @@ public class CtqBOImpl implements ICtqBO {
         SYSConfig sysConfig = BizConnecter.getBizData("625917",
             JsonUtil.Object2Json(req), SYSConfig.class);
         if (sysConfig != null) {
-            number = new BigInteger(sysConfig.getCvalue());
+            number = new BigInteger(sysConfig.getCvalue())
+                .subtract(BigInteger.ONE);
         }
         return number;
     }

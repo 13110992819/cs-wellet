@@ -87,7 +87,8 @@ public class EthNodeAOImpl implements IEthNodeAO {
 
             res.setScWalletOpened(scWalletOpened);
             res.setScScanNumber(scScanNumber);
-            res.setScWalletBalance(scWalletBalance.toString());
+            res.setScWalletBalance(SiadClient.fromHasting(scWalletBalance)
+                .toString());
             res.setScBlockNumber(scBlockNumber);
 
         } catch (Exception e) {
