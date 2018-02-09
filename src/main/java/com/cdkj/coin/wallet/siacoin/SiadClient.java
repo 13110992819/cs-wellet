@@ -78,7 +78,6 @@ public class SiadClient {
     public static BigDecimal getSiacoinBalance() {
         BigDecimal result = BigDecimal.ZERO;
         String resStr = doAccessHTTPGetJson(SC_URL + "/wallet");
-        System.out.println(resStr);
         result = JSONObject.parseObject(resStr)
             .getBigDecimal("confirmedsiacoinbalance");
         return result;

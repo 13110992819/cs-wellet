@@ -72,7 +72,7 @@ public class CollectionDAOImpl extends AMybatisTemplate
 
     @Override
     public BigDecimal selectTotalAmount(Collection data) {
-        return super.select(NAMESPACE.concat("select_totalCollect"), null,
+        return super.select(NAMESPACE.concat("select_totalCollect"), data,
             BigDecimal.class);
     }
 
