@@ -115,6 +115,10 @@ public class CollectionAOImpl implements ICollectionAO {
             if (CollectionUtils.isEmpty(ethAddresseList)) {
                 break;
             }
+
+            // 查找今日归集地址
+            ethAddressBO.getWEthAddressToday();
+
             // 开始归集逻辑
             for (EthAddress ethAddress : ethAddresseList) {
                 try {
